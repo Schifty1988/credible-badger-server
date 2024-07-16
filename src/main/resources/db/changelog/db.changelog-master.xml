@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create_user" author="Michail Ostrowski">
+        <createTable tableName="user">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="email" type="varchar(320)">
+                 <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email_verified" type="boolean" />
+            <column name="suspended" type="boolean" />
+        </createTable>    
+        
+        <createSequence sequenceName="user_seq" incrementBy="50"/>
+    </changeSet>
+    
+    <changeSet id="create_role" author="Michail Ostrowski">
+        <createTable tableName="role">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="varchar(20)"/>
+        </createTable>   
+         
+        <createSequence sequenceName="role_seq" incrementBy="50"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="role" 
+            baseColumnNames="user_id" 
+            constraintName="fk_role_user" 
+            referencedTableName="user" 
+            referencedColumnNames="id"/>
+    </changeSet>
+    
+    <changeSet id="create_security_token" author="Michail Ostrowski">
+        <createTable tableName="security_token">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="int"/>
+            <column name="valid_until" type="TIMESTAMP"/>
+            <column name="burned" type="boolean" />
+        </createTable>  
+        
+        <createSequence sequenceName="security_token_seq" incrementBy="50"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="security_token" 
+            baseColumnNames="user_id" 
+            constraintName="fk_security_token_user" 
+            referencedTableName="user" 
+            referencedColumnNames="id"/>
+    </changeSet>
+    
+    <changeSet id="create_spring_session" author="Michail Ostrowski">
+        <createTable tableName="spring_session">
+            <column name="primary_id" type="char(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="session_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creation_time" type="bigint"/>
+            <column name="last_access_time" type="bigint"/>
+            <column name="max_inactive_interval" type="int"/>
+            <column name="expiry_time" type="bigint"/>
+            <column name="principal_name" type="varchar(100)"/>
+        </createTable>
+        
+        <createTable tableName="spring_session_attributes">
+            <column name="primary_id" type="char(36)"/>
+            <column name="session_primary_id" type="char(36)"/>
+            <column name="attribute_name" type="varchar(200)"/>
+            <column name="attribute_bytes" type="bytea"/>
+        </createTable>
+    </changeSet>  
+</databaseChangeLog>
