@@ -16,12 +16,22 @@
 
 package com.crediblebadger.configuration;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class SecurityConfiguration {
@@ -32,23 +42,51 @@ public class SecurityConfiguration {
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(authorize -> authorize.disable());
+        http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/user/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/storage/**").authenticated());
+                .requestMatchers("api/admin/**").hasRole("ADMIN")
+                .requestMatchers("api/storage/**").authenticated()
+                .requestMatchers("/**", "api/user/**").permitAll());
+        
+        AuthenticationFailureHandler loginFailureHandler = (request, response, authException) -> {
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+        };
 
+        AuthenticationSuccessHandler loginSuccessHandler = (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
+            response.setStatus(HttpStatus.OK.value());
+        };
+                        
+        LogoutSuccessHandler logoutSuccessHandler = (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
+            response.setStatus(HttpStatus.OK.value());
+        };
+        
         http.formLogin(login -> login
-                        .loginPage("/user/login_page?status=not_logged_in")
-                        .loginProcessingUrl("/user/login")
-                        .defaultSuccessUrl("/user/login_page?status=login_success", true)
-                        .failureUrl("/user/login_page?status=login_failure"));
+            .loginProcessingUrl("/api/user/login")
+            .failureHandler(loginFailureHandler)
+            .successHandler(loginSuccessHandler));
+
         http.logout(logout -> logout
-                .logoutUrl("/user/logout")
-                .logoutSuccessUrl("/user/login_page?status=logout")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll());
+            .logoutUrl("/api/user/logout")
+            .logoutSuccessHandler(logoutSuccessHandler)
+            .invalidateHttpSession(true)
+            .deleteCookies("JSESSIONID")
+            .permitAll());
         return http.build();
+    }
+    
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("https://crediblebadger.com");
+        config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("http://localhost:8080");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return new CorsFilter(source);
     }
 }

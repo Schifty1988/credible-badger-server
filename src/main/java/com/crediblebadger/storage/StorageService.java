@@ -65,6 +65,7 @@ public class StorageService {
     public List<String> retrieveUserFiles(long userId) {
         List<String> userFiles = new LinkedList<>();
         String userPrefix = createUserPrefix(userId);
+        int prefixLength = userPrefix.length();
 
         ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
                 .bucket(this.storageBucket)
@@ -79,7 +80,7 @@ public class StorageService {
                     this.s3Client.listObjectsV2(listRequest);
             
             for (S3Object currentContent : listResponse.contents()) {
-                userFiles.add(currentContent.key());
+                userFiles.add(currentContent.key().substring(prefixLength));
             }
             hasMoreData = listResponse.nextContinuationToken() != null;
 
@@ -126,7 +127,7 @@ public class StorageService {
         
         ResponseBytes<GetObjectResponse> getResponse = 
                 this.s3Client.getObjectAsBytes(getRequest);
-        log.info("Downloaded {} with response {}", objectKey, getResponse);
+        log.info("Downloaded {} successfully!", objectKey);
         byte[] data = getResponse.asByteArray();
         return data;
     }

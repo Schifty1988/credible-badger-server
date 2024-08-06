@@ -8,18 +8,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController()
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
     @Autowired
     UserService userService;
     
     @GetMapping("/me")    
-    public User me(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return userDetails.getUser();
+    public ResponseEntity<User> me(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(userDetails.getUser());
     }
 
     @PostMapping("/register")
@@ -30,15 +32,6 @@ public class UserController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
-    }
-
-    @GetMapping("/login_page")    
-    ResponseEntity<String> loginPage(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestParam(name="status", defaultValue = "") String status) {
-        
-        String message = "User=" + userDetails + " status=" + status; 
-        return ResponseEntity.ok().body(message);    
     }
 
     @PostMapping("/requestPasswordChange")
