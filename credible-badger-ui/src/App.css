@@ -1,0 +1,217 @@
+.App {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.simple-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.simple-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s, box-shadow 0.3s;
+
+    position: relative;
+}
+
+.simple-item:hover {
+    background-color: #e9e9e9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.list-item-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.list-item-actions {
+    display: none;
+    position: absolute;
+    right: 10px;
+}
+
+.simple-item:hover .list-item-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.list-item-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.list-item-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    color: #666;
+    opacity: 0.6;
+}
+
+.download-button {
+    background-color: #4caf50;
+    color: white;
+}
+
+.download-button:hover {
+    background-color: #45a049;
+}
+
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+.error {
+    color: red;
+}
+
+.success {
+    color: green;
+}
+
+.Content {
+    min-width: 350px;
+    margin: 20px 0px 0px 0px;
+    padding: 0px 20px 0px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+.Content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.content-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.content-group input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.content-group button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.content-group button:hover {
+    background-color: #0056b3;
+}
+
+span {
+    display: block;
+    text-align: center;
+}
+
+span a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+span a:hover {
+    text-decoration: underline;
+}
+
+p {
+    text-align: center;
+    margin-top: 20px;
+}
+.UserInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.UserInfo button {
+    margin: 0px 0px 0px 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #dc3545;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.UserInfo button:hover {
+    background-color: #c82333;
+}
+
+form input[type="submit"] {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+form input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.key-value-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.key-value-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    align-items: center;
+}
+
+.key-column {
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+    padding: 5px;
+}
+
+.value-column {
+    color: #555;
+    flex: 1;
+    padding: 5px;
+}
