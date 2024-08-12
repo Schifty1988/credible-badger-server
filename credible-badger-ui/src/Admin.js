@@ -69,7 +69,7 @@ const Admin = () => {
     };
     
     const isAdmin = () => {
-        const adminRole = user.roles.find(role => role.role === 'ADMIN');
+        const adminRole = user.roles.find(role => role.role === 'ROLE_ADMIN');
         return adminRole !== undefined;
     };
     

@@ -84,6 +84,11 @@
     color: red;
 }
 
+.error-highlight {
+  border: 2px solid red; /* Change to any color you like */
+  background-color: #ffe6e6; /* Optional: Light background color */
+}
+
 .success {
     color: green;
 }

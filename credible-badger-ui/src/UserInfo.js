@@ -30,6 +30,7 @@ const UserInfo = () => {
         fetch(`${apiUrl}/api/user/logout`, {credentials: 'include'})
             .then(response => {
                 if (response.ok) {
+                    setUser(null);
                     navigate("/login");
                 }
                 response.text();
