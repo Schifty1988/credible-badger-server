@@ -98,4 +98,38 @@
             <column name="attribute_bytes" type="bytea"/>
         </createTable>
     </changeSet>  
+    
+    <changeSet id="create_travel_guide" author="Michail Ostrowski">
+        <createTable tableName="travel_guide">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="search_key" type="varchar(100)">
+                 <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="creation_time" type="datetime"/>
+        </createTable>  
+        
+        <createSequence sequenceName="travel_guide_seq" incrementBy="50"/>
+
+        <createTable tableName="travel_recommendation">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="travel_guide_id" type="bigint"/>
+            <column name="name" type="varchar(100)"/>
+            <column name="description" type="varchar(200)"/>
+        </createTable>
+        
+        <createSequence sequenceName="travel_recommendation_seq" incrementBy="50"/>
+                
+        <addForeignKeyConstraint 
+            baseTableName="travel_recommendation" 
+            baseColumnNames="travel_guide_id" 
+            constraintName="fk_travel_recommendation_travel_guide" 
+            referencedTableName="travel_guide" 
+            referencedColumnNames="id"/>
+    </changeSet> 
 </databaseChangeLog>

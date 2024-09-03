@@ -16,13 +16,16 @@
 package com.crediblebadger.admin;
 
 import com.crediblebadger.storage.StorageService;
+import com.crediblebadger.travel.TravelService;
 import com.crediblebadger.user.User;
 import com.crediblebadger.user.UserService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +39,9 @@ public class AdminController {
 
     @Autowired
     StorageService storageService;
+    
+    @Autowired
+    TravelService travelService;
     
     @GetMapping("/listUsers")
     public List<User> listUsers() {
@@ -56,5 +62,14 @@ public class AdminController {
     @GetMapping("/storageInfo")
     public Map<String, Object> retrieveStorageInfo() {
         return this.storageService.retrieveStorageInfo("");
+    }
+    
+    @DeleteMapping("/guide/{travelGuideId}")
+    public ResponseEntity removeGuide(@PathVariable long travelGuideId) {
+        if (this.travelService.removeTravelGuide(travelGuideId)) {
+            return ResponseEntity.ok().build();
+        }
+        
+        return ResponseEntity.badRequest().build();
     }
 }

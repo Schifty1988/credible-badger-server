@@ -1,12 +1,14 @@
 import './App.css';
 import React, { useState } from "react";
 import { useNavigate, Link } from 'react-router-dom';
+import Footer from './Footer';
 
 const Login = () => {
     const [actionResponse, setActionResponse] = useState([]);
     const [responseType, setResponseType] = useState([]);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [acceptTerms, setAcceptTerms] = useState("");
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     
@@ -14,7 +16,8 @@ const Login = () => {
         SUCCESS: 'success',
         ERROR_UNKNOWN: 'error_unknown',
         ERROR_USERNAME: 'error_user',
-        ERROR_PASSWORD: 'error_password'
+        ERROR_PASSWORD: 'error_password',
+        ERROR_ACCEPT_TERMS: 'error_terms'
     };
     
     const validateInput = () => {
@@ -41,6 +44,11 @@ const Login = () => {
     
     const register = () => {      
         if (!validateInput()) {
+            return;
+        }
+        
+        if (!acceptTerms) {
+            displayActionResponse("Terms of Service must be read and accepted.", ResponseTypes.ERROR_ACCEPT_TERMS);
             return;
         }
         
@@ -101,6 +109,10 @@ const Login = () => {
         setResponseType(responseType);
         setActionResponse(message);
     };
+    
+    const handleAcceptTermsChange = (event) => {
+        setAcceptTerms(event.target.checked);
+    };
 
     return (
         <div className="Content">
@@ -109,11 +121,18 @@ const Login = () => {
             <div className="content-group">
                 <input className={responseType === ResponseTypes.ERROR_USERNAME ? "error-highlight" : ""} type="text" placeholder="Email" id="email" value={username} onChange={handleUsernameChange}/>
                 <input className={responseType === ResponseTypes.ERROR_PASSWORD ? "error-highlight" : ""} type="password" placeholder="Password" id="password" value={password} onChange={handlePasswordChange}/>
+                <span className={responseType === ResponseTypes.ERROR_ACCEPT_TERMS ? "error-highlight" : ""}>
+                    <input id="terms" type="checkbox" checked={acceptTerms} onChange={handleAcceptTermsChange} />
+                    I accept the Terms of Service
+                </span>
                 <button type="button" onClick={login}>Login</button>
                 <button type="button" onClick={register}>Register</button>
             </div>
             <p>Forgot you password? Change it <Link to="/changePassword">here</Link>!</p>
             <p className={responseType === ResponseTypes.SUCCESS ? "success" : "error"}>{actionResponse}</p>
+            <div className="footer">
+                <Footer/>
+            </div>
         </div>
     );
 };

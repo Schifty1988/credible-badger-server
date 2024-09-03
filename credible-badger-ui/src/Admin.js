@@ -6,6 +6,7 @@ import { UserContext } from './UserContext';
 const Admin = () => {
     const [actionResponse, setActionResponse] = useState([]); 
     const [responseType, setResponseType] = useState([]); 
+    const [travelGuideId, setTravelGuideId] = useState([]); 
     const [users, setUsers] = useState([]);
     const [storageInfo, setStorageInfo] = useState([]);
     const { user } = useContext(UserContext);
@@ -77,6 +78,29 @@ const Admin = () => {
         setResponseType(wasSuccessful ? "success" : "error");
         setActionResponse(message);
     };
+    
+    const handleTravelGuideIdChange = (event) => {
+        setTravelGuideId(event.target.value);
+    };
+    
+    const deleteTravelGuide = (userId, suspended) => {
+        fetch(`${apiUrl}/api/admin/guide/` + travelGuideId, {
+            method: 'DELETE',
+            credentials: 'include'
+        })
+        .then(response => { 
+            if (response.ok) {
+                displayActionResponse("Guide Removed!", true);
+                const updatedUsers = users.map(user =>
+                    user.id === userId ? { ...user, suspended: suspended } : user
+                );
+                setUsers(updatedUsers);
+            }
+            else {
+                displayActionResponse("Failed to Remove Guide: " + response.status, false);
+            }
+        });
+    };
 
     return (
         <div className="Content">
@@ -119,6 +143,13 @@ const Admin = () => {
                         </li>
                         ))}
                     </ul>
+                    
+                    
+                    <div className="content-group">
+                        <input type="text" placeholder="Travel Guide Id" id="travelGuideId" value={travelGuideId} onChange={handleTravelGuideIdChange}/>
+                        <button type="button" onClick={deleteTravelGuide}>Delete Guide</button>
+                    </div>
+                    
                     <p className={responseType}>{actionResponse}</p>
                 </div>
             )}

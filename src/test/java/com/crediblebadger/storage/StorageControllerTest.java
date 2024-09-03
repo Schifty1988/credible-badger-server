@@ -19,6 +19,5 @@ public class StorageControllerTest {
 
         String tooLong = RandomStringUtils.randomAlphanumeric(256);
         Assertions.assertFalse(StorageController.validateFileName(tooLong));
-        
     }
 }

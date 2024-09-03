@@ -1,0 +1,174 @@
+import './App.css';
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import Footer from './Footer';
+
+const TravelGuide = () => {
+    const { guideLink } = useParams();
+    const [readyForSearch, setReadyForSearch] = useState(false);
+    const [actionResponse, setActionResponse] = useState([]);
+    const [responseType, setResponseType] = useState([]);
+    const [place, setPlace] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [childFriendly, setChildFriendly] = useState("");
+    const [travelGuide, setTravelGuide] = useState([]);
+    const apiUrl = process.env.REACT_APP_API_URL;
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [state, setState] = useState(() => location.state || {});
+
+    const ResponseTypes = {
+        SUCCESS: 'success',
+        ERROR_UNKNOWN: 'error_unknown',
+        ERROR_PLACE: 'error_place'
+    };
+    
+    const hasGuideLink = () => {
+        return guideLink && guideLink.length > 0;
+    };
+    
+    const resolveGuideLink = () => {
+        const jsonGuideLink = atob(guideLink);
+        const decodedJson = JSON.parse(jsonGuideLink);
+        setPlace(decodedJson.place);
+        setChildFriendly(decodedJson.childFriendly);
+    };
+    
+    const copyGuideLink = () => {
+        const guideRequest = JSON.stringify({place: place, childFriendly: childFriendly});   
+        const encodedGuideRequest = btoa(guideRequest);
+        const link  = apiUrl + "/travelGuide/" + encodedGuideRequest;
+        navigator.clipboard.writeText(link);
+        displayActionResponse("Link was copied!", ResponseTypes.SUCCESS);
+    };
+    
+    const validateInput = () => {
+        if (!clientValidationPlace()) {
+            displayActionResponse("The provided place seems invalid.", ResponseTypes.ERROR_PLACE);
+            return false;
+        }   
+        return true;
+    };    
+
+    const clientValidationPlace = () => {
+        return place.length > 1;
+    };
+    
+    const createTravelGuide = () => {      
+        if (!validateInput()) {
+            return;
+        }
+        displayActionResponse("", ResponseTypes.SUCCESS);
+        setLoading(true);
+        
+        fetch(`${apiUrl}/api/travel/travelGuide`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({place: place, childFriendly: childFriendly})
+        })
+        .then(response => {
+            if (response.ok) {
+                displayActionResponse("Guide was created!", ResponseTypes.SUCCESS);
+                return response.json();
+            } else {
+                displayActionResponse("Guide creation failed: " + response.status, ResponseTypes.ERROR_UNKNOWN);
+                return [];
+            }
+        })
+        .then(data => {
+            const stateobj = {travelGuide: data, childFriendly : childFriendly, place : place};
+            navigate('.', { replace: true, state: stateobj});
+            setTravelGuide(data);
+            setLoading(false);
+        })      
+        .catch(error => {
+            displayActionResponse("Guide creation failed: " + error.message, ResponseTypes.ERROR_UNKNOWN);
+            setLoading(false);
+        });
+    };    
+    
+    const handlePlaceChange = (event) => {
+        setPlace(event.target.value);
+    };
+    
+    const handleChildFriendlyChange = (event) => {
+        setChildFriendly(event.target.checked);
+    };
+    
+    const displayActionResponse = (message, responseType) => {
+        setResponseType(responseType);
+        setActionResponse(message);
+    };
+    
+    const createLink = (item) => {
+        const searchQuery = (place + " " + item).replace(/\s+/g, '+');
+        return "https://www.google.com/maps/search/" + searchQuery; 
+    };
+    
+    useEffect(() => {  
+        if (hasGuideLink()) {
+            try {
+                resolveGuideLink();
+                setReadyForSearch(true);
+            }
+            catch(error) {
+                displayActionResponse("The provided guide link was invalid!", ResponseTypes.ERROR_UNKNOWN);
+            }
+        }
+     }, []);
+     
+    useEffect(() => {
+        if (readyForSearch) {
+            createTravelGuide();   
+        }
+     }, [readyForSearch]);
+     
+    useEffect(() => {
+        return () => {
+            if (!state.travelGuide) {
+                return;
+            }
+            navigate('.', { replace: true, state: state });
+            setChildFriendly(state.childFriendly);
+            setTravelGuide(state.travelGuide);
+            setPlace(state.place);
+        };
+    }, [state, navigate]);
+
+    return (
+        <React.Fragment>
+            <p>Pick a country or a city to receive travel recommendations.</p>
+            <div className="content-group">
+                <input className={responseType === ResponseTypes.ERROR_PLACE ? "error-highlight" : ""} type="text" placeholder="Place" id="place" value={place} onChange={handlePlaceChange}/>
+                <span>
+                    <input type="checkbox" checked={childFriendly} onChange={handleChildFriendlyChange} />
+                    Search for child-friendly places
+                </span>
+                <button type="button" disabled={loading} onClick={createTravelGuide}><span className={loading ? "loading-button" : ""}></span>Create Travel Guide</button>
+            </div>
+            
+            <ul className="grid-list">
+                {travelGuide.travelRecommendations && travelGuide.travelRecommendations.map(item => (
+                    <Link key={item.id} to={createLink(item.name)} className="no-underline">
+                        <li className="point-of-interest"><b>{item.name}</b> - {item.description}</li>
+                    </Link>
+                ))}
+            </ul>
+            
+            <p className={responseType === ResponseTypes.SUCCESS ? "success" : "error"}>
+                {actionResponse}            
+            </p>
+            <div className="footer">
+                {travelGuide.travelRecommendations && (
+                        <button type="button" hidden={!travelGuide.travelRecommendations} className="footer-button" onClick={copyGuideLink}>Copy Link To Guide</button>
+                )}
+                <Footer/>
+            </div>
+                    
+        </React.Fragment>
+    );
+};
+
+export default TravelGuide;

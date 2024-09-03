@@ -19,6 +19,7 @@ package com.crediblebadger.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.ses.SesClient;
 
@@ -34,5 +35,10 @@ public class AWSConfiguration {
     @Bean
     public S3Client buildS3Client() {
         return S3Client.builder().region(AWS_REGION).build();
-    }    
+    }
+    
+    @Bean
+    public BedrockRuntimeClient buildBedrockClient() {
+        return BedrockRuntimeClient.builder().region(AWS_REGION).build();
+    }  
 }

@@ -46,7 +46,7 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("api/admin/**").hasRole("ADMIN")
                 .requestMatchers("api/storage/**").authenticated()
-                .requestMatchers("/**", "api/user/**").permitAll());
+                .requestMatchers("/**", "api/travel/**", "api/user/**").permitAll());
         
         AuthenticationFailureHandler loginFailureHandler = (request, response, authException) -> {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
@@ -63,7 +63,7 @@ public class SecurityConfiguration {
         http.formLogin(login -> login
             .loginProcessingUrl("/api/user/login")
             .failureHandler(loginFailureHandler)
-            .successHandler(loginSuccessHandler));
+            .successHandler(loginSuccessHandler).loginPage("/login_page"));
 
         http.logout(logout -> logout
             .logoutUrl("/api/user/logout")
