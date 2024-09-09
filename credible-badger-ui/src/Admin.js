@@ -113,14 +113,11 @@ const Admin = () => {
                 <p>User does not have permissions to view this page!</p>
             ) : 
             (
-                <div>
+                <div className="content-group">
                     <h2>Admin Controls</h2>
-                    <div className="content-group">
                         <button type="button" onClick={listUsers}>List Users</button>
-                        <button type="button" onClick={retrieveStorageInfo}>Storage Info</button>
-                    </div>
-
-                    <ul className="simple-list">
+                        
+                        <ul className="simple-list">
                         {users.map(item => (
                             <li key={item.id} className="simple-item">
                                 <span className="list-item-name">{item.email}</span>
@@ -133,7 +130,9 @@ const Admin = () => {
                                 </div>
                             </li>
                         ))}
-                    </ul>
+                        </ul>
+                        
+                    <button type="button" onClick={retrieveStorageInfo}>Storage Info</button>
                     
                     <ul className="simple-list">
                         {Object.entries(storageInfo).map(([key, value]) => (
