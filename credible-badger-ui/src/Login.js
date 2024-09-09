@@ -128,7 +128,7 @@ const Login = () => {
                 <button type="button" onClick={login}>Login</button>
                 <button type="button" onClick={register}>Register</button>
             </div>
-            <p>Forgot you password? Change it <Link to="/changePassword">here</Link>!</p>
+            <p>Forgot your password? Change it <Link to="/changePassword">here</Link>!</p>
             <p className={responseType === ResponseTypes.SUCCESS ? "success" : "error"}>{actionResponse}</p>
             <div className="footer">
                 <Footer/>
