@@ -1,11 +1,13 @@
 import './App.css';
-import React, { useContext, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from './UserContext';
 
 const UserInfo = () => {
     const navigate = useNavigate();
     const { user, setUser } = useContext(UserContext);
+    const location = useLocation();
+    const [currentPage, setCurrentPage] = useState(location.pathname);
     const apiUrl = process.env.REACT_APP_API_URL;
     
     useEffect(() => {
@@ -25,8 +27,7 @@ const UserInfo = () => {
             });
     }, []);
 
-    const callUserLogout = (event) => {
-        event.preventDefault();
+    const callUserLogout = () => {
         fetch(`${apiUrl}/api/user/logout`, {credentials: 'include'})
             .then(response => {
                 if (response.ok) {
@@ -39,11 +40,43 @@ const UserInfo = () => {
                 console.log('Error occured during logout!');
             });
     };
+    
+    const isAdmin = () => {
+        if (!user || !user.roles) {
+            return false;
+        }
+        
+        const adminRole = user.roles.find(role => role.role === 'ROLE_ADMIN');
+        return adminRole !== undefined;
+    };
+    
+    const handleSelectChange = (event) => {
+        setCurrentPage(event.target.value);
+        switch (event.target.value) {
+            case '/admin':
+                navigate('/admin');
+                break;
+            case '/dashboard':
+                navigate('/dashboard');
+                break;
+            case '/storage':
+                navigate('/storage');
+                break;
+            case 'logout':
+                callUserLogout();
+            break;
+        }
+    };
 
     return (
         <div className="UserInfo">
             <h2>{user ? user.email : 'Loading...'}</h2>
-            <button type="button" onClick={callUserLogout}>Logout</button>
+            <select className="select-dropdown" value={currentPage} onChange={handleSelectChange}>
+                <option value="/dashboard">Dashboard</option>
+                {isAdmin() && <option value="/admin">Admin</option>}
+                <option value="/storage">Storage</option>
+                <option value="logout">Logout</option>
+            </select>
         </div>
     );
 };
