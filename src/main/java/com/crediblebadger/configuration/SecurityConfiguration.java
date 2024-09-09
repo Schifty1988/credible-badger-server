@@ -30,8 +30,8 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class SecurityConfiguration {
@@ -43,6 +43,8 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable());
+        http.cors(cors -> cors.configurationSource(buildCorsConfigurationSource()));
+        
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("api/admin/**").hasRole("ADMIN")
                 .requestMatchers("api/storage/**").authenticated()
@@ -62,8 +64,9 @@ public class SecurityConfiguration {
         
         http.formLogin(login -> login
             .loginProcessingUrl("/api/user/login")
+            .loginPage("/login_page")
             .failureHandler(loginFailureHandler)
-            .successHandler(loginSuccessHandler).loginPage("/login_page"));
+            .successHandler(loginSuccessHandler));
 
         http.logout(logout -> logout
             .logoutUrl("/api/user/logout")
@@ -73,9 +76,8 @@ public class SecurityConfiguration {
             .permitAll());
         return http.build();
     }
-    
-    @Bean
-    public CorsFilter corsFilter() {
+
+    private CorsConfigurationSource buildCorsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("https://crediblebadger.com");
         config.addAllowedOrigin("http://localhost:3000");
@@ -86,7 +88,6 @@ public class SecurityConfiguration {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-
-        return new CorsFilter(source);
+        return source;
     }
 }
