@@ -16,6 +16,8 @@ const TravelGuide = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [state, setState] = useState(() => location.state || {});
+    const [showNotification, setShowNotification] = useState(false);
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
 
     const ResponseTypes = {
         SUCCESS: 'success',
@@ -39,7 +41,10 @@ const TravelGuide = () => {
         const encodedGuideRequest = btoa(guideRequest);
         const link  = apiUrl + "/travelGuide/" + encodedGuideRequest;
         navigator.clipboard.writeText(link);
-        displayActionResponse("Link was copied!", ResponseTypes.SUCCESS);
+        
+        if (!isMobile) {
+            displayActionResponse("Link was copied!", ResponseTypes.SUCCESS);   
+        }
     };
     
     const validateInput = () => {
@@ -100,6 +105,13 @@ const TravelGuide = () => {
     const displayActionResponse = (message, responseType) => {
         setResponseType(responseType);
         setActionResponse(message);
+
+        if (message.length > 0) {
+            setShowNotification(true);
+            setTimeout(() => {
+             setShowNotification(false);
+            }, 3000); 
+        }
     };
     
     const createLink = (item) => {
@@ -156,16 +168,19 @@ const TravelGuide = () => {
                     </Link>
                 ))}
             </ul>
+
+            {showNotification && (
+            <div className={responseType === ResponseTypes.SUCCESS ? "notification-success" : "notification-error"}>
+                {actionResponse} 
+            </div>
+            )}
             
-            <p className={responseType === ResponseTypes.SUCCESS ? "success" : "error"}>
-                {actionResponse}            
-            </p>
             <div className="footer">
                 {travelGuide.travelRecommendations && (
                         <button type="button" hidden={!travelGuide.travelRecommendations} className="footer-button" onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
-            </div>
+            </div>    
                     
         </React.Fragment>
     );
