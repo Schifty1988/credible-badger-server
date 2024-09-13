@@ -20,7 +20,7 @@ import lombok.Data;
 @Data
 @NamedQuery(name = User.FIND_USER_BY_EMAIL, query = "From User where email = :email")
 @NamedQuery(name = User.FIND_USER_BY_ID, query = "From User where id = :id")
-@NamedQuery(name = User.LIST_USERS, query = "From User")
+@NamedQuery(name = User.LIST_USERS, query = "From User order by createdAt desc")
 public class User implements Serializable {   
     public static final String FIND_USER_BY_EMAIL = "User_findUserByEmail";
     public static final String FIND_USER_BY_ID = "User_findUserById";
