@@ -120,7 +120,7 @@ const Admin = () => {
                         <ul className="simple-list">
                         {users.map(item => (
                             <li key={item.id} className="simple-item">
-                                <span className="list-item-name">{item.email}</span>
+                                <span className="list-item-name">{item.email} | {item.createdAt.slice(0,16).replace('T', '-')}</span>
                                 <div className="list-item-actions">
                                 {item.suspended ? (
                                     <button className="list-item-button download-button" onClick={() => suspendUser(item.id, false)}>Unsuspend</button>

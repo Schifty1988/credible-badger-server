@@ -47,8 +47,8 @@ public class SecurityConfiguration {
         
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("api/admin/**").hasRole("ADMIN")
-                .requestMatchers("api/storage/**").authenticated()
-                .requestMatchers("/**", "api/travel/**", "api/user/**").permitAll());
+                .requestMatchers("api/storage/**", "api/feedback/retrieve").authenticated()
+                .requestMatchers("/**", "api/travel/**", "api/user/**", "api/feedback/submit").permitAll());
         
         AuthenticationFailureHandler loginFailureHandler = (request, response, authException) -> {
             response.setStatus(HttpStatus.BAD_REQUEST.value());

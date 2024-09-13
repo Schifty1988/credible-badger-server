@@ -8,6 +8,7 @@ const Login = () => {
     const [responseType, setResponseType] = useState([]);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [registrationMode, setRegistrationMode] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState("");
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
@@ -113,6 +114,14 @@ const Login = () => {
     const handleAcceptTermsChange = (event) => {
         setAcceptTerms(event.target.checked);
     };
+    
+    const activateRegistrationMode = (event) =>  {
+        setRegistrationMode(true);
+    };
+    
+    const activateLoginMode = (event) =>  {
+        setRegistrationMode(false);
+    };
 
     return (
         <div className="Content">
@@ -121,14 +130,25 @@ const Login = () => {
             <div className="content-group">
                 <input className={responseType === ResponseTypes.ERROR_USERNAME ? "error-highlight" : ""} type="text" placeholder="Email" id="email" value={username} onChange={handleUsernameChange}/>
                 <input className={responseType === ResponseTypes.ERROR_PASSWORD ? "error-highlight" : ""} type="password" placeholder="Password" id="password" value={password} onChange={handlePasswordChange}/>
-                <span className={responseType === ResponseTypes.ERROR_ACCEPT_TERMS ? "error-highlight" : ""}>
-                    <input id="terms" type="checkbox" checked={acceptTerms} onChange={handleAcceptTermsChange} />
-                    I accept the Terms of Service
-                </span>
-                <button type="button" onClick={login}>Login</button>
-                <button type="button" onClick={register}>Register</button>
+                { registrationMode 
+                ? <div className="content-group"> 
+                    <span className={responseType === ResponseTypes.ERROR_ACCEPT_TERMS ? "error-highlight" : ""}>
+                        <input id="terms" type="checkbox" checked={acceptTerms} onChange={handleAcceptTermsChange} />
+                        I accept the Terms of Service
+                    </span>
+                    <button type="button" onClick={register}>Register</button>
+                    <span>
+                        <Link onClick={activateLoginMode}>You already have an account?</Link>
+                    </span>
+                </div>
+                : <div className="content-group">
+                    <button type="button" onClick={login}>Login</button>
+                    <span>
+                        <Link to="/changePassword">Forgot your password?</Link> <Link onClick={activateRegistrationMode}>Need an account?</Link>
+                    </span>
+                 </div>
+                }
             </div>
-            <p>Forgot your password? Change it <Link to="/changePassword">here</Link>!</p>
             <p className={responseType === ResponseTypes.SUCCESS ? "success" : "error"}>{actionResponse}</p>
             <div className="footer">
                 <Footer/>

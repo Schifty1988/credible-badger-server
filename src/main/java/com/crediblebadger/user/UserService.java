@@ -45,6 +45,7 @@ public class UserService {
         user.setPassword(encodedPassword);
         user.setCreatedAt(LocalDateTime.now());
         this.userRepository.addUser(user);
+        log.info("user={} was registered!", email);
         String token = this.securityTokenService.addToken(user.getId(), TokenType.EMAIL_VERIFICATION);
         return this.emailService.sendEmailVerificationRequest(email, token);
     }

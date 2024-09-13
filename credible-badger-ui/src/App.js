@@ -6,6 +6,7 @@ import Login from './Login';
 import Legal from './Legal';
 import Dashboard from './Dashboard';
 import Storage from './Storage';
+import Feedback from './Feedback';
 import Admin from './Admin';
 import PasswordChange from './PasswordChange';
 import EmailVerification from './EmailVerification';
@@ -22,6 +23,7 @@ const App = () => {
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/travelGuide/:guideLink?" element={<TravelGuideWrapper />} />
                         <Route path="/storage" element={<Storage />} />
+                        <Route path="/feedback" element={<Feedback />} />
                         <Route path="/admin" element={<Admin />} />
                         <Route path="/changePassword/:token?" element={<PasswordChange />} />
                         <Route path="/verifyEmail/:token?" element={<EmailVerification />} />

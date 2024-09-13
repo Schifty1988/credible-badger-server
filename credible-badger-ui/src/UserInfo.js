@@ -62,6 +62,9 @@ const UserInfo = () => {
             case '/storage':
                 navigate('/storage');
                 break;
+            case '/feedback':
+                navigate('/feedback');
+                break;    
             case 'logout':
                 callUserLogout();
             break;
@@ -75,6 +78,7 @@ const UserInfo = () => {
                 <option value="/dashboard">Dashboard</option>
                 {isAdmin() && <option value="/admin">Admin</option>}
                 <option value="/storage">Storage</option>
+                <option value="/feedback">Feedback</option>
                 <option value="logout">Logout</option>
             </select>
         </div>

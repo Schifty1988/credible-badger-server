@@ -131,5 +131,30 @@
             constraintName="fk_travel_recommendation_travel_guide" 
             referencedTableName="travel_guide" 
             referencedColumnNames="id"/>
+    </changeSet>
+    
+    <changeSet id="create_feedback" author="Michail Ostrowski">
+        <createTable tableName="feedback">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="project_key" type="varchar(50)">
+                 <constraints nullable="false"/>
+            </column>
+            <column name="project_user" type="varchar(50)">
+                 <constraints nullable="false"/>
+            </column>
+            <column name="project_version" type="varchar(50)">
+                 <constraints nullable="false"/>
+            </column>
+            <column name="content" type="varchar(500)">
+                 <constraints nullable="false"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="creation_time" type="datetime"/>
+            <column name="archieved" type="boolean" />
+        </createTable>  
+        
+        <createSequence sequenceName="feedback_seq" incrementBy="50"/>
     </changeSet> 
 </databaseChangeLog>
