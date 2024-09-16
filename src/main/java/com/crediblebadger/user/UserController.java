@@ -26,7 +26,7 @@ public class UserController {
 
     @PostMapping("/register")
     ResponseEntity registerUser(@RequestBody UserRequestDTO user) {
-        boolean result = this.userService.register(user.getLowerCaseEmail(), user.getPassword());
+        boolean result = this.userService.register(user.normalizeEmail(), user.getPassword());
         
         if (result) {
             return ResponseEntity.ok().build();
@@ -36,7 +36,7 @@ public class UserController {
 
     @PostMapping("/requestPasswordChange")
     ResponseEntity requestPasswordChange(@RequestBody UserRequestDTO user) {       
-        boolean result = this.userService.requestPasswordChange(user.getLowerCaseEmail());
+        boolean result = this.userService.requestPasswordChange(user.normalizeEmail());
         
         if (result) {
             return ResponseEntity.ok().build();
@@ -56,7 +56,7 @@ public class UserController {
 
     @PostMapping("/requestEmailVerification")   
     ResponseEntity requestEmailVerification(@RequestBody UserRequestDTO user) {
-        boolean result = this.userService.requestEmailVerification(user.getLowerCaseEmail());
+        boolean result = this.userService.requestEmailVerification(user.normalizeEmail());
         
         if (result) {
             return ResponseEntity.ok().build();

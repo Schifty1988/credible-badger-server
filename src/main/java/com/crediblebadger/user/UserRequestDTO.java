@@ -8,7 +8,7 @@ public class UserRequestDTO {
     private String password;
     private String securityToken;
     
-    public String getLowerCaseEmail() {
-        return this.email == null ? null : this.email.toLowerCase();
+    public String normalizeEmail() {
+        return this.email == null ? null : this.email.trim().toLowerCase();
     }
 }

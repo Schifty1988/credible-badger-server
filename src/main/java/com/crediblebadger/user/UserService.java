@@ -30,12 +30,12 @@ public class UserService {
     
     public boolean register(String email, String password) {
         if (!EmailService.validateEmail(email) || !validatePassword(password)) {
-            log.info("User was not registered: email {} or password failed validation!", email);
+            log.info("User was not registered: email={} or password failed validation!", email);
             return false;
         }    
         
         if (this.userRepository.retrieveUser(email) != null) {
-            log.info("User was not registered: email {} already in use!", email);
+            log.info("User was not registered: email={} already in use!", email);
             return false;
         }
         
