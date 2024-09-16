@@ -17,7 +17,7 @@ const App = () => {
     return (
         <UserProvider>
             <Router>
-                <div className="App">
+                <div className="app">
                     <Routes>
                         <Route path="/login" element={<Login />} />
                         <Route path="/dashboard" element={<Dashboard />} />

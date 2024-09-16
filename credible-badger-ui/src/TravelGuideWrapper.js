@@ -6,10 +6,10 @@ import TravelGuide from './TravelGuide';
 const TravelGuideWrapper = () => {
     const navigate = useNavigate();
     return (
-        <div className="Content">
-            <div className="UserInfo">
+        <div className="content">
+            <div className="user-info">
                 <h2>Credible Badger</h2>
-                <button type="button" onClick={() => navigate('/')}>Login</button>
+                <button type="button" className="red-button" onClick={() => navigate('/')}>Login</button>
             </div>
             <TravelGuide />
         </div>

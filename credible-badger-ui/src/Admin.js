@@ -2,6 +2,7 @@ import './App.css';
 import React, { useContext, useState } from "react";
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
+import Footer from './Footer';
 
 const Admin = () => {
     const [actionResponse, setActionResponse] = useState([]); 
@@ -11,6 +12,7 @@ const Admin = () => {
     const [storageInfo, setStorageInfo] = useState([]);
     const { user } = useContext(UserContext);
     const apiUrl = process.env.REACT_APP_API_URL;
+    const [showNotification, setShowNotification] = useState(false);
 
     const listUsers = () => {
         fetch(`${apiUrl}/api/admin/listUsers`, {
@@ -74,9 +76,16 @@ const Admin = () => {
         return adminRole !== undefined;
     };
     
-    const displayActionResponse = (message, wasSuccessful) => {
-        setResponseType(wasSuccessful ? "success" : "error");
+    const displayActionResponse = (message, responseType) => {
+        setResponseType(responseType);
         setActionResponse(message);
+
+        if (message.length > 0) {
+            setShowNotification(true);
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 3000); 
+        }
     };
     
     const handleTravelGuideIdChange = (event) => {
@@ -103,7 +112,7 @@ const Admin = () => {
     };
 
     return (
-        <div className="Content">
+        <div className="content">
             <UserInfo />
 
             {!user ? (
@@ -123,9 +132,9 @@ const Admin = () => {
                                 <span className="list-item-name">{item.email} | {item.createdAt.slice(0,16).replace('T', '-')}</span>
                                 <div className="list-item-actions">
                                 {item.suspended ? (
-                                    <button className="list-item-button download-button" onClick={() => suspendUser(item.id, false)}>Unsuspend</button>
+                                    <button className="green-button" onClick={() => suspendUser(item.id, false)}>Unsuspend</button>
                                 ) : (
-                                    <button className="list-item-button delete-button" onClick={() => suspendUser(item.id, true)}>Suspend</button>
+                                    <button className="red-button" onClick={() => suspendUser(item.id, true)}>Suspend</button>
                                 )}
                                 </div>
                             </li>
@@ -148,8 +157,11 @@ const Admin = () => {
                         <input type="text" placeholder="Travel Guide Id" id="travelGuideId" value={travelGuideId} onChange={handleTravelGuideIdChange}/>
                         <button type="button" onClick={deleteTravelGuide}>Delete Guide</button>
                     </div>
-                    
-                    <p className={responseType}>{actionResponse}</p>
+                {showNotification && (
+                    <div className={responseType ? "notification-success" : "notification-error"}>
+                        {actionResponse} 
+                    </div>
+                )}
                 </div>
             )}
         </div>

@@ -12,6 +12,7 @@ const Login = () => {
     const [acceptTerms, setAcceptTerms] = useState("");
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
+    const [showNotification, setShowNotification] = useState(false);
     
     const ResponseTypes = {
         SUCCESS: 'success',
@@ -109,6 +110,13 @@ const Login = () => {
     const displayActionResponse = (message, responseType) => {
         setResponseType(responseType);
         setActionResponse(message);
+
+        if (message.length > 0) {
+            setShowNotification(true);
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 3000); 
+        }
     };
     
     const handleAcceptTermsChange = (event) => {
@@ -124,7 +132,7 @@ const Login = () => {
     };
 
     return (
-        <div className="Content">
+        <div className="content">
             <h2>Credible Badger</h2>
 
             <div className="content-group">
@@ -149,7 +157,11 @@ const Login = () => {
                  </div>
                 }
             </div>
-            <p className={responseType === ResponseTypes.SUCCESS ? "success" : "error"}>{actionResponse}</p>
+            {showNotification && (
+            <div className={responseType === ResponseTypes.SUCCESS ? "notification-success" : "notification-error"}>
+                {actionResponse} 
+            </div>
+            )}
             <div className="footer">
                 <Footer/>
             </div>

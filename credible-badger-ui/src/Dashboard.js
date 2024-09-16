@@ -7,7 +7,7 @@ const Dashboard = () => {
     const { user } = useContext(UserContext);
 
     return (
-        <div className="Content"> 
+        <div className="content"> 
             <UserInfo />
             {!user ? (
                 <p>Loading...</p>

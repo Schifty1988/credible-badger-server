@@ -1,6 +1,7 @@
 import './App.css';
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate  } from 'react-router-dom';
+import Footer from './Footer';
 
 const EmailVerification = () => {
     const { token } = useParams();
@@ -9,6 +10,7 @@ const EmailVerification = () => {
     const [actionResponse, setActionResponse] = useState([]);
     const [responseType, setResponseType] = useState([]);
     const apiUrl = process.env.REACT_APP_API_URL;
+    const [showNotification, setShowNotification] = useState(false);   
     
     const hasValidToken = () => {
         return token && token.length > 0;
@@ -66,13 +68,20 @@ const EmailVerification = () => {
         setEmail(event.target.value);
     };
     
-    const displayActionResponse = (message, wasSuccessful) => {
-        setResponseType(wasSuccessful ? "success" : "error");
+    const displayActionResponse = (message, responseType) => {
+        setResponseType(responseType);
         setActionResponse(message);
+
+        if (message.length > 0) {
+            setShowNotification(true);
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 3000); 
+        }
     };
     
     return (
-            <div className="Content">
+            <div className="content">
                 <h2>Email Verification</h2>
             
             {!hasValidToken() ? (
@@ -84,8 +93,15 @@ const EmailVerification = () => {
             (
                 <p>Processing Email verification...</p>
             )}
-                <p className={responseType}>{actionResponse}</p>
-            </div>
+            {showNotification && (
+                <div className={responseType ? "notification-success" : "notification-error"}>
+                    {actionResponse} 
+                </div>
+            )}
+                <div className="footer">
+                    <Footer/>
+                </div>
+            </div> 
     );
 };
 

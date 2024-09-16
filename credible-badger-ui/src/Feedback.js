@@ -45,7 +45,7 @@ const Feedback = () => {
     };
 
     return (
-        <div className="Content"> 
+        <div className="content"> 
             <UserInfo />
             {!user ? (
                 <p>Loading...</p>
@@ -56,7 +56,7 @@ const Feedback = () => {
             (
             <div>
                 <p>
-                    Send over your customer feedback with <a className="simple-link" onClick={toggleNeedHelp}>a single REST call.</a>
+                    Send over your customer feedback with <a onClick={toggleNeedHelp}>a single REST call.</a> Manage it right here.
                 </p>
                 {needHelp &&
                 <div>
@@ -77,12 +77,11 @@ const Feedback = () => {
                     </li>
                 ))}
                 </ul>
-                        
-                <div className="footer">
-                    <Footer/>
-                </div>
             </div>    
-            )}
+            )}                                    
+            <div className="footer">
+                <Footer/>
+            </div>
         </div>
         );
 };

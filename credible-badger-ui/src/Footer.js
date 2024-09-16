@@ -7,8 +7,8 @@ const Footer = () => {
     
     return (
         <React.Fragment>
-            <button className="footer-button" onClick={() => window.location.href = 'mailto:support@credibleanimals.com?subject=Travel%20Guide%20Feedback'}>Give Us Feedback</button>
-            <button className="footer-button" onClick={() => navigate("/legal")}>Terms of Service & Privacy Policy</button>
+            <button onClick={() => window.location.href = 'mailto:support@credibleanimals.com?subject=Travel%20Guide%20Feedback'}>Give Us Feedback</button>
+            <button onClick={() => navigate("/legal")}>Terms of Service & Privacy Policy</button>
         </React.Fragment>
     );
 };

@@ -72,7 +72,7 @@ const UserInfo = () => {
     };
 
     return (
-        <div className="UserInfo">
+        <div className="user-info">
             <h2>{user ? user.email : 'Loading...'}</h2>
             <select className="select-dropdown" value={currentPage} onChange={handleSelectChange}>
                 <option value="/dashboard">Dashboard</option>

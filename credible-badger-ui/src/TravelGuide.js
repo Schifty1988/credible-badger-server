@@ -151,7 +151,7 @@ const TravelGuide = () => {
 
     return (
         <React.Fragment>
-            <p>Pick a country or a city to receive travel recommendations.</p>
+            <p>Select a country, region, or city to receive travel recommendations.</p>
             <div className="content-group">
                 <input className={responseType === ResponseTypes.ERROR_PLACE ? "error-highlight" : ""} type="text" placeholder="Place" id="place" value={place} onChange={handlePlaceChange}/>
                 <span>
@@ -163,7 +163,7 @@ const TravelGuide = () => {
             
             <ul className="grid-list">
                 {travelGuide.travelRecommendations && travelGuide.travelRecommendations.map(item => (
-                    <Link key={item.id} to={createLink(item.name)} className="no-underline">
+                    <Link key={item.id} to={createLink(item.name)} className="travel-guide-link">
                         <li className="point-of-interest"><b>{item.name}</b> - {item.description}</li>
                     </Link>
                 ))}
@@ -177,7 +177,7 @@ const TravelGuide = () => {
             
             <div className="footer">
                 {travelGuide.travelRecommendations && (
-                        <button type="button" hidden={!travelGuide.travelRecommendations} className="footer-button" onClick={copyGuideLink}>Copy Link To Guide</button>
+                        <button type="button" hidden={!travelGuide.travelRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
             </div>    

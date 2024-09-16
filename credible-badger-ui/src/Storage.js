@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
+import Footer from './Footer';
 
 const Storage = () => {
     const [actionResponse, setActionResponse] = useState([]); 
@@ -10,7 +11,8 @@ const Storage = () => {
     const [userFiles, setUserFiles] = useState([]);
     const { user } = useContext(UserContext);
     const apiUrl = process.env.REACT_APP_API_URL;
-
+    const [showNotification, setShowNotification] = useState(false);
+    
     useEffect(() => {
         if (user && user.emailVerified) {
            retrieveUserFiles();             
@@ -107,13 +109,20 @@ const Storage = () => {
         });
     };
     
-    const displayActionResponse = (message, wasSuccessful) => {
-        setResponseType(wasSuccessful ? "success" : "error");
+    const displayActionResponse = (message, responseType) => {
+        setResponseType(responseType);
         setActionResponse(message);
+
+        if (message.length > 0) {
+            setShowNotification(true);
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 3000); 
+        }
     };
 
     return (
-        <div className="Content"> 
+        <div className="content"> 
             <UserInfo />
             {!user ? (
                 <p>Loading...</p>
@@ -124,17 +133,13 @@ const Storage = () => {
             (
                 <div className="storage">
                     <h2>Your Files</h2>
-                    <div className="list-item-actions">
-                        <button className="list-item-button download-button" onClick={() => retrieveUserFiles()}>Retrieve User Files</button>
-                    </div>
-
                     <ul className="simple-list">
                         {userFiles.map(item => (
                             <li key={item} className="simple-item">
                                 <span className="list-item-name">{item}</span>
                                 <div className="list-item-actions">
-                                    <button className="list-item-button download-button" onClick={() => downloadFile(item)}>Download</button>
-                                    <button className="list-item-button delete-button" onClick={() => deleteFile(item)}>Delete</button>
+                                    <button className="green-button" onClick={() => downloadFile(item)}>Download</button>
+                                    <button className="red-button" onClick={() => deleteFile(item)}>Delete</button>
                                 </div>
                             </li>
                         ))}
@@ -144,9 +149,18 @@ const Storage = () => {
                         <input type="file" onChange={handleFileChange} />
                         <button type='button' onClick={() => uploadFile()} disabled={isUploadDisabled}>Upload File</button>
                     </div>
+                    
                 </div>
             )}
-            <p className={responseType}>{actionResponse}</p>
+            {showNotification && (
+            <div className={responseType ? "notification-success" : "notification-error"}>
+                {actionResponse} 
+            </div>
+            )}
+    
+            <div className="footer">
+                <Footer/>
+            </div>
         </div>
         );
 };
