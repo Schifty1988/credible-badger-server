@@ -39,7 +39,9 @@ public class TravelService {
     TravelRepository travelRepository;
 
     private String createCacheKey(String place, boolean isChildFriendly) {
-        return place.trim().toLowerCase() + "_" + isChildFriendly;
+        // removes all whitespaces and commas
+        String normalizedPlace = place.replaceAll("[\\s,]", "").toLowerCase();
+        return normalizedPlace + "_" + isChildFriendly;
     }
     
     public TravelGuide createTravelGuide(String place, boolean isChildFriendly) {
