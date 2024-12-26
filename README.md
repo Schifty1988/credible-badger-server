@@ -5,6 +5,8 @@ web application that includes a persistence layer and user management.  The
 template scales well with team size and application load, while utilizing best 
 practices in software development.
 
+See the code in action: https://crediblebadger.com/
+
 This framework is based on AWS, Spring, Postgres, Liquibase, Velocity, and 
 includes a docker-compose.yaml file that facilitates deployment in the cloud.
 This default configuration runs the database and the application server on a
