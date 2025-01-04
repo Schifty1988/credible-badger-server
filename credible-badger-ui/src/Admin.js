@@ -2,7 +2,6 @@ import './App.css';
 import React, { useContext, useState } from "react";
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
-import Footer from './Footer';
 
 const Admin = () => {
     const [actionResponse, setActionResponse] = useState([]); 
@@ -129,7 +128,7 @@ const Admin = () => {
                         <ul className="simple-list">
                         {users.map(item => (
                             <li key={item.id} className="simple-item">
-                                <span className="list-item-name">{item.email} | {item.createdAt.slice(0,16).replace('T', '-')}</span>
+                                <span className="list-item-name">{item.email} | {item.createdAt.slice(0,16).replace('T', '-')} | {item.emailVerified ? 'verified' : 'unverified'}</span>
                                 <div className="list-item-actions">
                                 {item.suspended ? (
                                     <button className="green-button" onClick={() => suspendUser(item.id, false)}>Unsuspend</button>
