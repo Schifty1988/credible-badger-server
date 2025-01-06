@@ -27,7 +27,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@NamedQuery(name = com.crediblebadger.feedback.Feedback.FIND_FEEDBACK_BY_PROJECT_KEY, query = "From Feedback where projectKey = :projectKey order by creationTime DESC")
+@NamedQuery(name = Feedback.FIND_FEEDBACK_BY_PROJECT_KEY, query = "From Feedback where projectKey = :projectKey order by creationTime DESC")
 public class Feedback {   
     public static final String FIND_FEEDBACK_BY_PROJECT_KEY = "Feedback_FindFeedbackByProjectKey";
     
