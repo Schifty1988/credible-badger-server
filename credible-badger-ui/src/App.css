@@ -323,3 +323,21 @@ form input[type="submit"]:hover {
     border-top: 1px solid #ddd;
     margin: 20px 0 0 0;
 }
+
+.story {
+    max-width: 650px;
+}
+
+.story-image {
+    width: 100%;
+}
+
+.fade-in {
+  opacity: 0;
+  transition: opacity 2s ease-in;
+}
+
+.visible {
+  opacity: 1;
+}
+ 

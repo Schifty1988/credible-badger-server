@@ -8,6 +8,7 @@ import Dashboard from './Dashboard';
 import Storage from './Storage';
 import Feedback from './Feedback';
 import Admin from './Admin';
+import Story from './Story';
 import PasswordChange from './PasswordChange';
 import EmailVerification from './EmailVerification';
 import TravelGuideWrapper from './TravelGuideWrapper';
@@ -25,6 +26,7 @@ const App = () => {
                         <Route path="/storage" element={<Storage />} />
                         <Route path="/feedback" element={<Feedback />} />
                         <Route path="/admin" element={<Admin />} />
+                        <Route path="/story" element={<Story />} />
                         <Route path="/changePassword/:token?" element={<PasswordChange />} />
                         <Route path="/verifyEmail/:token?" element={<EmailVerification />} />
                         <Route path="/legal" element={<Legal />} />
