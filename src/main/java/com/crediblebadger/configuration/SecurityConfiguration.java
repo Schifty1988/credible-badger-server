@@ -46,9 +46,9 @@ public class SecurityConfiguration {
         http.cors(cors -> cors.configurationSource(buildCorsConfigurationSource()));
         
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("api/admin/**").hasRole("ADMIN")
-                .requestMatchers("api/storage/**", "api/feedback/retrieve").authenticated()
-                .requestMatchers("/**", "api/travel/**", "api/user/**", "api/feedback/submit").permitAll());
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/storage/**", "/api/feedback/retrieve").authenticated()
+                .requestMatchers("/**", "/api/travel/**", "/api/user/**", "/api/feedback/submit").permitAll());
         
         AuthenticationFailureHandler loginFailureHandler = (request, response, authException) -> {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
