@@ -24,7 +24,7 @@ public class FrontEndController {
     @RequestMapping({
         "/login", "/dashboard", "/admin", "/changePassword", 
         "/changePassword/*", "/verifyEmail", "/verifyEmail/*",
-        "/travelGuide", "/travelGuide/*", "/storage", "/legal", "/feedback"})
+        "/travelGuide", "/travelGuide/*", "/storage", "/legal", "/feedback", "/story"})
     public String redirect() {
         return "forward:/index.html";
     }
