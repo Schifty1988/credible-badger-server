@@ -15,8 +15,11 @@
  */
 package com.crediblebadger.travel;
 
+import com.crediblebadger.user.security.UserDetailsImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,17 +27,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/travel")
+@Slf4j
 public class TravelController {
     
     @Autowired
     TravelService travelService;
     
     @PostMapping("/travelGuide")
-    public ResponseEntity<TravelGuide> createTravelGuide(@RequestBody TravelGuideRequest request) {
+    public ResponseEntity<TravelGuide> createTravelGuide(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody TravelGuideRequest request) {
         if (request.getPlace().isBlank() || request.getPlace().length() > 30) {
             return ResponseEntity.badRequest().build();
         }
-        
+        String username = userDetails == null ? "Anonymous" : userDetails.getUsername();
+        log.info("{} requested a travel guide for {} ", username, request.getPlace());
         TravelGuide travelGuide = this.travelService.createTravelGuide(request.getPlace(), request.isChildFriendly());
         
         if (travelGuide == null) {

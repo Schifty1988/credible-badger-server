@@ -68,6 +68,7 @@ const TravelGuide = () => {
         
         fetch(`${apiUrl}/api/travel/travelGuide`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
             'Content-Type': 'application/json'
         },
