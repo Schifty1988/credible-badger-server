@@ -178,7 +178,7 @@ const TravelGuide = () => {
             
             <div className="footer">
                 {travelGuide.travelRecommendations && (
-                        <button type="button" hidden={!travelGuide.travelRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
+                        <button type="button" className="footer-button" hidden={!travelGuide.travelRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
             </div>    

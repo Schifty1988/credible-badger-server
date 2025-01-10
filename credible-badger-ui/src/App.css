@@ -222,7 +222,7 @@ form input[type="submit"]:hover {
     padding: 5px;
 }
 
-.footer button {
+.footer-button {
   background-color: transparent;
   border: none;
   padding: 0;
@@ -231,7 +231,7 @@ form input[type="submit"]:hover {
   font-size: 15px;
 }
 
-.footer button:hover {
+.footer-button:hover {
     background-color: transparent;
     color: #007bff;
 }
@@ -340,4 +340,74 @@ form input[type="submit"]:hover {
 .visible {
   opacity: 1;
 }
- 
+
+.feedback-submission {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.feedback-submission-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+  z-index: 999; /* Behind content */
+  cursor: pointer;
+}
+
+.feedback-submission-content {
+  position: relative;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1001; /* Above overlay */
+  width: 80%; /* Responsive width */
+  max-width: 500px; /* Limit modal size */
+  text-align: center;
+}
+
+.feedback-submission-title {
+  margin-top: 0px;
+  margin-bottom: 15px;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.feedback-submission-thank-you {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.feedback-submission-content textarea {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 20px;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: none; /* Disable resizing */
+  box-sizing: border-box;
+}
+
+.feedback-submission-content textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.button-margin-left {
+    margin-left: 10px
+}
