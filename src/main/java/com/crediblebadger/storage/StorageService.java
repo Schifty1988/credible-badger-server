@@ -16,6 +16,8 @@
 
 package com.crediblebadger.storage;
 
+import java.net.URL;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,11 +37,14 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @Service
 @Slf4j
 public class StorageService {  
     private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
     
     @Value("${app.storage.bucket}")
     String storageBucket;
@@ -47,8 +52,9 @@ public class StorageService {
     @Value("${app.storage.user-limit-mb}")
     int userLimit;
 
-    public StorageService(S3Client s3Client) {
+    public StorageService(S3Client s3Client, S3Presigner s3Presigner) {
         this.s3Client = s3Client;
+        this.s3Presigner = s3Presigner;
     }
 
     private String createObjectKey(long userId, String fileName) {
@@ -179,5 +185,19 @@ public class StorageService {
         result.put("totalSize", totalSize);
         log.info("Retrieved {} files with a total size of {}", numFiles, totalSize);
         return result;
+    }
+    
+    public String generateResourceURL(String key) {        
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(this.storageBucket)
+                .key(key)
+                .build();
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .getObjectRequest(getObjectRequest)
+                .signatureDuration(Duration.ofMinutes(10)) // URL validity duration
+                .build();
+
+        URL presignedUrl = s3Presigner.presignGetObject(presignRequest).url();
+        return presignedUrl.toString();
     }
 }

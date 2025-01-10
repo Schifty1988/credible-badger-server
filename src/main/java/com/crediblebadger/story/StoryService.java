@@ -15,6 +15,7 @@
  */
 package com.crediblebadger.story;
 
+import com.crediblebadger.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,17 +24,37 @@ public class StoryService {
     @Autowired
     StoryRepository storyRepository; 
     
+    @Autowired
+    StorageService storageService;
+    
     public Story retrieveFirstStory() {
-        return this.storyRepository.retrieveFirstStory();
+        Story story = this.storyRepository.retrieveFirstStory();
+        processStory(story);
+        return story;
     }
 
     public Story retrieveStory(long storyId) {
         Story story = this.storyRepository.retrieveStory(storyId);
+        processStory(story);
         return story;
     }
 
     public boolean submitStory(Story story) {
         boolean result = this.storyRepository.submitStory(story);
         return result;
+    }
+    
+    private void processStory(Story story) {
+        String keyPrefix = "stories/" + story.getId() + "/";
+        String musicURL = this.storageService.generateResourceURL(keyPrefix + story.getMusic());
+        story.setMusic(musicURL);
+        
+        for (StoryPart currentPart : story.getParts()) {
+            String audioURL = this.storageService.generateResourceURL(keyPrefix + currentPart.getAudio());
+            String imageURL = this.storageService.generateResourceURL(keyPrefix + currentPart.getImage());
+            
+            currentPart.setAudio(audioURL);
+            currentPart.setImage(imageURL);
+        }
     }
 }

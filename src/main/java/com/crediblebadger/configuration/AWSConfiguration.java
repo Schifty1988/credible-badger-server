@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.ses.SesClient;
 
 @Configuration
@@ -37,6 +38,11 @@ public class AWSConfiguration {
         return S3Client.builder().region(AWS_REGION).build();
     }
     
+    @Bean
+    public S3Presigner buildS3Presigner() {
+        return S3Presigner.builder().region(AWS_REGION).build();
+    }
+
     @Bean
     public BedrockRuntimeClient buildBedrockClient() {
         return BedrockRuntimeClient.builder().region(AWS_REGION).build();

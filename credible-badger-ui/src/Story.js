@@ -135,7 +135,7 @@ const Story = () => {
     };
     
     const releaseWakeLock = () => {
-        if (wakeLock) {
+        if (wakeLock && wakeLock.current) {
             wakeLock.current.release();   
         }
     };
