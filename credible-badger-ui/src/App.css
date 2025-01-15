@@ -411,3 +411,8 @@ form input[type="submit"]:hover {
 .button-margin-left {
     margin-left: 10px
 }
+
+.logo {
+    width: 280px;
+    margin: 8px 0 8px 0;
+}

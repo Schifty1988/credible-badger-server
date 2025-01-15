@@ -133,8 +133,7 @@ const Login = () => {
 
     return (
         <div className="content">
-            <h2>Credible Badger</h2>
-
+            <img className="logo" src="logo_title.png"/>
             <div className="content-group">
                 <input className={responseType === ResponseTypes.ERROR_USERNAME ? "error-highlight" : ""} type="text" placeholder="Email" id="email" value={username} onChange={handleUsernameChange}/>
                 <input className={responseType === ResponseTypes.ERROR_PASSWORD ? "error-highlight" : ""} type="password" placeholder="Password" id="password" value={password} onChange={handlePasswordChange}/>

@@ -8,7 +8,7 @@ const TravelGuideWrapper = () => {
     return (
         <div className="content">
             <div className="user-info">
-                <h2>Credible Badger</h2>
+                <img className="logo" src="logo_title.png"/>
                 <button type="button" className="red-button" onClick={() => navigate('/')}>Login</button>
             </div>
             <TravelGuide />
