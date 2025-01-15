@@ -157,4 +157,59 @@
         
         <createSequence sequenceName="feedback_seq" incrementBy="50"/>
     </changeSet> 
+    
+    <changeSet id="create_story" author="Michail Ostrowski">
+        <createTable tableName="story">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(500)">
+                 <constraints nullable="false"/>
+            </column>
+            <column name="music" type="varchar(500)">
+                 <constraints nullable="false"/>
+            </column>
+            <column name="version" type="bigint"/>
+        </createTable>  
+        
+        <createTable tableName="story_part">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="story_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="part" type="int"/>
+            <column name="image" type="varchar(500)">
+                 <constraints nullable="false"/>
+            </column>
+            <column name="text" type="TEXT">
+                 <constraints nullable="false"/>
+            </column>
+            <column name="audio" type="varchar(500)">
+                 <constraints nullable="false"/>
+            </column>                        
+            <column name="version" type="bigint"/>
+        </createTable>
+        
+        <addForeignKeyConstraint 
+            baseTableName="story" 
+            baseColumnNames="user_id" 
+            constraintName="fk_story_user" 
+            referencedTableName="user" 
+            referencedColumnNames="id"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="story_part" 
+            baseColumnNames="story_id" 
+            constraintName="fk_story_part_story" 
+            referencedTableName="story" 
+            referencedColumnNames="id"/>
+        
+        <createSequence sequenceName="story_seq" incrementBy="50"/>
+        <createSequence sequenceName="story_part_seq" incrementBy="50"/>
+    </changeSet>  
 </databaseChangeLog>
