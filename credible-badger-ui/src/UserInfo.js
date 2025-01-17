@@ -59,9 +59,12 @@ const UserInfo = () => {
             case '/travel':
                 navigate('/travel');
                 break;
-            case '/movie':
-                navigate('/movie');
-                break;    
+            case '/movies':
+                navigate('/movies');
+                break;
+            case '/books':
+                navigate('/books');
+                break;
             case '/storage':
                 navigate('/storage');
                 break;
@@ -79,7 +82,8 @@ const UserInfo = () => {
             <h2>{user ? user.email : 'Loading...'}</h2>
             <select className="select-dropdown" value={currentPage} onChange={handleSelectChange}>
                 <option value="/travel">Travel</option>
-                <option value="/movie">Movie</option>
+                <option value="/movies">Movies</option>
+                <option value="/books">Books</option>
                 <option value="/storage">Storage</option>
                 <option value="/feedback">Feedback</option>
                 {isAdmin() && <option value="/admin">Admin</option>}

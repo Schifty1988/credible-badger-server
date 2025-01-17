@@ -245,5 +245,39 @@
             constraintName="fk_movie_recommendation_movie_guide" 
             referencedTableName="movie_guide" 
             referencedColumnNames="id"/>
-    </changeSet>  
+    </changeSet>
+    
+    <changeSet id="create_book_guide" author="Michail Ostrowski">
+        <createTable tableName="book_guide">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="search_key" type="varchar(100)">
+                 <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="creation_time" type="datetime"/>
+        </createTable>  
+        
+        <createSequence sequenceName="book_guide_seq" incrementBy="50"/>
+
+        <createTable tableName="book_recommendation">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="book_guide_id" type="bigint"/>
+            <column name="name" type="varchar(100)"/>
+            <column name="description" type="varchar(200)"/>
+        </createTable>
+        
+        <createSequence sequenceName="book_recommendation_seq" incrementBy="50"/>
+                
+        <addForeignKeyConstraint 
+            baseTableName="book_recommendation" 
+            baseColumnNames="book_guide_id" 
+            constraintName="fk_book_recommendation_book_guide" 
+            referencedTableName="book_guide" 
+            referencedColumnNames="id"/>
+    </changeSet>
 </databaseChangeLog>

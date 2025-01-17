@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.crediblebadger.movie;
+package com.crediblebadger.book;
 
 import com.crediblebadger.ai.mistral.MistralResponseWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,13 +30,13 @@ import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelResponse;
 
 @Service
 @Slf4j
-public class MovieService {
+public class BookService {
     
     @Autowired
     BedrockRuntimeClient bedrockRuntimeClient;
     
     @Autowired
-    MovieRepository movieRepository;
+    BookRepository bookRepository;
 
     private String createCacheKey(String name) {
         // removes all whitespaces, commas, colons, and 'the '
@@ -44,25 +44,25 @@ public class MovieService {
         return normalizedName;
     }
     
-    public MovieGuide createMovieGuide(String name) {
+    public BookGuide createBookGuide(String name) {
         String searchKey = createCacheKey(name);
         
-        MovieGuide cachedGuide = this.movieRepository.retrieveGuide(searchKey);
+        BookGuide cachedGuide = this.bookRepository.retrieveGuide(searchKey);
         if (cachedGuide != null) {
-            log.info("Retrieved cached movie guide for searchKey={}", searchKey);
+            log.info("Retrieved cached book guide for searchKey={}", searchKey);
             return cachedGuide;
         }
         
-        log.info("Creating new movie guide for searchKey={}", searchKey);
+        log.info("Creating new book guide for searchKey={}", searchKey);
         
         try {
-            MovieGuide movieGuide = new MovieGuide();
-            movieGuide.setSearchKey(searchKey);
-            movieGuide.setCreationTime(LocalDateTime.now());
+            BookGuide bookGuide = new BookGuide();
+            bookGuide.setSearchKey(searchKey);
+            bookGuide.setCreationTime(LocalDateTime.now());
 
             StringBuilder requestBuilder = new StringBuilder();
             requestBuilder.append("{ \"max_tokens\": 1024, \"prompt\": \"");
-            requestBuilder.append("Create a list with names and very short descriptions of 20 movies similar to ");
+            requestBuilder.append("Create a list with names and very short descriptions of 20 books similar to ");
             requestBuilder.append(name);
             requestBuilder.append(" - no additional output.");
             requestBuilder.append("\" }");
@@ -94,25 +94,25 @@ public class MovieService {
                     log.error("Couldn't process currentValue={}", currentValue);
                     continue;
                 } 
-                MovieRecommendation currentPointOfInterest = new MovieRecommendation();
+                BookRecommendation currentPointOfInterest = new BookRecommendation();
                 currentPointOfInterest.setName(currentData[0]);
                 
                 String shortDescription = shortenDescription(currentData[1], 200);
                 currentPointOfInterest.setDescription(shortDescription);
-                if (shortDescription.length() > 1) {
-                    movieGuide.addRecomendation(currentPointOfInterest);   
+                if (currentData[0].length() < 100 && shortDescription.length() > 1) {
+                    bookGuide.addRecomendation(currentPointOfInterest);   
                 }
             }
 
-            if (movieGuide.getMovieRecommendations().isEmpty()) {
-                log.error("createMovieGuide was not able to create recommendations for movie={}!", name);
+            if (bookGuide.getBookRecommendations().isEmpty()) {
+                log.error("createBookGuide was not able to create recommendations for book={}!", name);
                 return null;
             }
-            this.movieRepository.addMovieGuide(movieGuide); 
-            return movieGuide;
+            this.bookRepository.addBookGuide(bookGuide); 
+            return bookGuide;
             
         } catch (JsonProcessingException ex) {
-            log.error("createMovieGuide failed for name={}!", name, ex);
+            log.error("createBookGuide failed for name={}!", name, ex);
             return null;
         }
     }

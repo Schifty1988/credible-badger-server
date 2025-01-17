@@ -14,6 +14,8 @@ import TravelGuideWrapper from './TravelGuideWrapper';
 import TravelGuideInternal from './TravelGuideInternal';
 import MovieGuideWrapper from './MovieGuideWrapper';
 import MovieGuideInternal from './MovieGuideInternal';
+import BookGuideWrapper from './BookGuideWrapper';
+import BookGuideInternal from './BookGuideInternal';
 import { UserProvider } from './UserContext';
 
 const App = () => {
@@ -25,8 +27,10 @@ const App = () => {
                         <Route path="/login" element={<Login />} />
                         <Route path="/travel" element={<TravelGuideInternal />} />
                         <Route path="/travelGuide/:guideLink?" element={<TravelGuideWrapper />} />
-                        <Route path="/movie" element={<MovieGuideInternal />} />
+                        <Route path="/movies" element={<MovieGuideInternal />} />
                         <Route path="/movieGuide/:guideLink?" element={<MovieGuideWrapper />} />
+                        <Route path="/books" element={<BookGuideInternal />} />
+                        <Route path="/bookGuide/:guideLink?" element={<BookGuideWrapper />} />
                         <Route path="/storage" element={<Storage />} />
                         <Route path="/feedback" element={<Feedback />} />
                         <Route path="/admin" element={<Admin />} />
