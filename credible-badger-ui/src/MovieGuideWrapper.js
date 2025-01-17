@@ -1,9 +1,9 @@
 import './App.css';
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import TravelGuide from './TravelGuide';
+import MovieGuide from './MovieGuide';
 
-const TravelGuideWrapper = () => {
+const MovieGuideWrapper = () => {
     const navigate = useNavigate();
     return (
         <div className="content">
@@ -11,9 +11,9 @@ const TravelGuideWrapper = () => {
                 <img alt="Credible Badger" className="logo" src="/logo_title.png"/>
                 <button type="button" className="red-button" onClick={() => navigate('/')}>Login</button>
             </div>
-            <TravelGuide />
+            <MovieGuide />
         </div>
     );
 };
 
-export default TravelGuideWrapper;
+export default MovieGuideWrapper;

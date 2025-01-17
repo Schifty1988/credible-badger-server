@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import UserInfo from './UserInfo';
-import TravelGuide from './TravelGuide';
+import MovieGuide from './MovieGuide';
 import { UserContext } from './UserContext';
 
-const Dashboard = () => {
+const MovieGuideInternal = () => {
     const { user } = useContext(UserContext);
 
     return (
@@ -16,10 +16,10 @@ const Dashboard = () => {
                 <p>Your email address is not verified! Please check your inbox or request a new verification email <a href="/verifyEmail">here</a>!</p>
             ) : 
             (
-                <TravelGuide />
+                <MovieGuide />
             )}
         </div>
         );
 };
 
-export default Dashboard;
+export default MovieGuideInternal;

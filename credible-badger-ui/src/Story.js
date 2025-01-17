@@ -143,7 +143,7 @@ const Story = () => {
     return (
         <div className="content">
             <div className="user-info">
-                <img src="logo_title.png"/>
+                <img alt="Credible Badger" className="logo" src="/logo_title.png"/>
                 <button type="button" className="red-button" onClick={() => navigate('/')}>Login</button>
             </div>
             
