@@ -211,5 +211,39 @@
         
         <createSequence sequenceName="story_seq" incrementBy="50"/>
         <createSequence sequenceName="story_part_seq" incrementBy="50"/>
+    </changeSet>
+    
+    <changeSet id="create_movie_guide" author="Michail Ostrowski">
+        <createTable tableName="movie_guide">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="search_key" type="varchar(100)">
+                 <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="creation_time" type="datetime"/>
+        </createTable>  
+        
+        <createSequence sequenceName="movie_guide_seq" incrementBy="50"/>
+
+        <createTable tableName="movie_recommendation">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="version" type="bigint"/>
+            <column name="movie_guide_id" type="bigint"/>
+            <column name="name" type="varchar(100)"/>
+            <column name="description" type="varchar(200)"/>
+        </createTable>
+        
+        <createSequence sequenceName="movie_recommendation_seq" incrementBy="50"/>
+                
+        <addForeignKeyConstraint 
+            baseTableName="movie_recommendation" 
+            baseColumnNames="movie_guide_id" 
+            constraintName="fk_movie_recommendation_movie_guide" 
+            referencedTableName="movie_guide" 
+            referencedColumnNames="id"/>
     </changeSet>  
 </databaseChangeLog>
