@@ -10,12 +10,9 @@ import Admin from './Admin';
 import Story from './Story';
 import PasswordChange from './PasswordChange';
 import EmailVerification from './EmailVerification';
-import TravelGuideWrapper from './TravelGuideWrapper';
-import TravelGuideInternal from './TravelGuideInternal';
-import MovieGuideWrapper from './MovieGuideWrapper';
-import MovieGuideInternal from './MovieGuideInternal';
-import BookGuideWrapper from './BookGuideWrapper';
-import BookGuideInternal from './BookGuideInternal';
+import TravelGuide from './TravelGuide';
+import MovieGuide from './MovieGuide';
+import BookGuide from './BookGuide';
 import { UserProvider } from './UserContext';
 
 const App = () => {
@@ -25,12 +22,9 @@ const App = () => {
                 <div className="app">
                     <Routes>
                         <Route path="/login" element={<Login />} />
-                        <Route path="/travel" element={<TravelGuideInternal />} />
-                        <Route path="/travelGuide/:guideLink?" element={<TravelGuideWrapper />} />
-                        <Route path="/movies" element={<MovieGuideInternal />} />
-                        <Route path="/movieGuide/:guideLink?" element={<MovieGuideWrapper />} />
-                        <Route path="/books" element={<BookGuideInternal />} />
-                        <Route path="/bookGuide/:guideLink?" element={<BookGuideWrapper />} />
+                        <Route path="/travelGuide/:guideLink?" element={<TravelGuide />} />
+                        <Route path="/movieGuide/:guideLink?" element={<MovieGuide />} />
+                        <Route path="/bookGuide/:guideLink?" element={<BookGuide />} />
                         <Route path="/storage" element={<Storage />} />
                         <Route path="/feedback" element={<Feedback />} />
                         <Route path="/admin" element={<Admin />} />
@@ -38,7 +32,7 @@ const App = () => {
                         <Route path="/changePassword/:token?" element={<PasswordChange />} />
                         <Route path="/verifyEmail/:token?" element={<EmailVerification />} />
                         <Route path="/legal" element={<Legal />} />
-                        <Route exact path="/" element={<TravelGuideInternal />} />    
+                        <Route exact path="/" element={<TravelGuide />} />    
                     </Routes>
                 </div>
             </Router>

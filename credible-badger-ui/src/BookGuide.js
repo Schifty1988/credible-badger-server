@@ -1,6 +1,7 @@
 import './App.css';
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import UserInfo from './UserInfo';
 import Footer from './Footer';
 
 const BookGuide = () => {
@@ -144,7 +145,8 @@ const BookGuide = () => {
     }, [state, navigate]);
 
     return (
-        <React.Fragment>
+        <div className="content"> 
+            <UserInfo />
             <p>Enter the name of a book and create a list of similar books.</p>
             <div className="content-group">
                 <input className={responseType === ResponseTypes.ERROR_NAME ? "error-highlight" : ""} type="text" placeholder="Book Title" id="bookName" value={name} onChange={handleNameChange}/>
@@ -170,9 +172,8 @@ const BookGuide = () => {
                         <button type="button" className="footer-button" hidden={!bookGuide.bookRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
-            </div>    
-                    
-        </React.Fragment>
+            </div>                   
+        </div>
     );
 };
 

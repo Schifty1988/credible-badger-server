@@ -1,6 +1,7 @@
 import './App.css';
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
+import UserInfo from './UserInfo';
 
 const Story = () => {
     const navigate = useNavigate();
@@ -142,11 +143,7 @@ const Story = () => {
      
     return (
         <div className="content">
-            <div className="user-info">
-                <img alt="Credible Badger" className="logo" src="/logo_title.png"/>
-                <button type="button" className="red-button" onClick={() => navigate('/')}>Login</button>
-            </div>
-            
+            <UserInfo />    
             <div className="content-group">
                 { isRunning ?
                 <button onClick={stopStory}>Stop</button>

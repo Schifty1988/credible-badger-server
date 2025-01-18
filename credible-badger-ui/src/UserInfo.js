@@ -16,14 +16,14 @@ const UserInfo = () => {
             credentials: 'include'})
             .then(response => {
                 if (!response.ok) {
-                    navigate('/login');
-                    return {email: "Unknown"};
+                    //navigate('/login');
+                    return null;
                 }
                 return response.json();
             })
             .then(data => setUser(data))
             .catch(error => {
-                navigate('/login');
+                //navigate('/login');
             });
     }, []);
 
@@ -56,14 +56,14 @@ const UserInfo = () => {
             case '/admin':
                 navigate('/admin');
                 break;
-            case '/travel':
-                navigate('/travel');
+            case '/travelGuide':
+                navigate('/travelGuide');
                 break;
-            case '/movies':
-                navigate('/movies');
+            case '/movieGuide':
+                navigate('/movieGuide');
                 break;
-            case '/books':
-                navigate('/books');
+            case '/bookGuide':
+                navigate('/bookGuide');
                 break;
             case '/storage':
                 navigate('/storage');
@@ -79,16 +79,24 @@ const UserInfo = () => {
 
     return (
         <div className="user-info">
-            <h2>{user ? user.email : 'Loading...'}</h2>
-            <select className="select-dropdown" value={currentPage} onChange={handleSelectChange}>
-                <option value="/travel">Travel</option>
-                <option value="/movies">Movies</option>
-                <option value="/books">Books</option>
-                <option value="/storage">Storage</option>
-                <option value="/feedback">Feedback</option>
-                {isAdmin() && <option value="/admin">Admin</option>}
-                <option value="logout">Logout</option>
-            </select>
+            {user ? 
+            (<React.Fragment>
+                <h2>{user.email}</h2> 
+                <select className="select-dropdown" value={currentPage} onChange={handleSelectChange}>
+                    <option value="/travelGuide">Travel</option>
+                    <option value="/movieGuide">Movies</option>
+                    <option value="/bookGuide">Books</option>
+                    <option value="/storage">Storage</option>
+                    <option value="/feedback">Feedback</option>
+                    {isAdmin() && <option value="/admin">Admin</option>}
+                    <option value="logout">Logout</option>
+                </select>
+            </React.Fragment>
+            ) : 
+            (<React.Fragment>
+                <img alt="Credible Badger" className="logo" src="/logo_title.png"/>
+                <button type="button" className="red-button" onClick={() => navigate('/login')}>Login</button>
+            </React.Fragment>)}
         </div>
     );
 };

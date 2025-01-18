@@ -1,6 +1,7 @@
 import './App.css';
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import UserInfo from './UserInfo';
 import Footer from './Footer';
 
 const TravelGuide = () => {
@@ -151,7 +152,8 @@ const TravelGuide = () => {
     }, [state, navigate]);
 
     return (
-        <React.Fragment>
+        <div className="content"> 
+            <UserInfo />
             <p>Select a country, region, or city to receive travel recommendations.</p>
             <div className="content-group">
                 <input className={responseType === ResponseTypes.ERROR_PLACE ? "error-highlight" : ""} type="text" placeholder="Place" id="place" value={place} onChange={handlePlaceChange}/>
@@ -181,9 +183,8 @@ const TravelGuide = () => {
                         <button type="button" className="footer-button" hidden={!travelGuide.travelRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
-            </div>    
-                    
-        </React.Fragment>
+            </div>                      
+        </div>
     );
 };
 

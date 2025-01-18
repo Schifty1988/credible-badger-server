@@ -1,6 +1,7 @@
 import './App.css';
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import UserInfo from './UserInfo';
 import Footer from './Footer';
 
 const MovieGuide = () => {
@@ -144,7 +145,8 @@ const MovieGuide = () => {
     }, [state, navigate]);
 
     return (
-        <React.Fragment>
+        <div className="content"> 
+            <UserInfo />
             <p>Enter the name of a movie and create a list of similar movies.</p>
             <div className="content-group">
                 <input className={responseType === ResponseTypes.ERROR_NAME ? "error-highlight" : ""} type="text" placeholder="Movie Title" id="movieName" value={name} onChange={handleNameChange}/>
@@ -170,9 +172,8 @@ const MovieGuide = () => {
                         <button type="button" className="footer-button" hidden={!movieGuide.movieRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
-            </div>    
-                    
-        </React.Fragment>
+            </div>           
+        </div>
     );
 };
 
