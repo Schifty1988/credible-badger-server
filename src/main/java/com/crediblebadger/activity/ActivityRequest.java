@@ -13,22 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.crediblebadger;
+package com.crediblebadger.activity;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import lombok.Data;
 
-@Controller
-public class FrontEndController {
-
-    @RequestMapping({
-        "/login", "/dashboard", "/admin", "/changePassword", 
-        "/changePassword/*", "/verifyEmail", "/verifyEmail/*",
-        "/travelGuide", "/travelGuide/*", 
-        "/movieGuide", "/movieGuide/*",
-        "/bookGuide", "/bookGuide/*", 
-        "/storage", "/activity", "/legal", "/feedback", "/story"})
-    public String redirect() {
-        return "forward:/index.html";
-    }
+@Data
+public class ActivityRequest {
+    private String userId;
 }

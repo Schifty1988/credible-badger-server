@@ -280,4 +280,35 @@
             referencedTableName="book_guide" 
             referencedColumnNames="id"/>
     </changeSet>
+    
+    <changeSet id="create_activity" author="Michail Ostrowski">
+        <createTable tableName="activity">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="name" type="varchar(200)">
+                 <constraints nullable="false"/>
+            </column>
+            
+            <column name="category" type="varchar(20)">
+                 <constraints nullable="false"/>
+            </column>
+            
+            <column name="creation_time" type="datetime"/>
+            <column name="version" type="bigint"/>
+        </createTable>  
+        
+        <createSequence sequenceName="activity_seq" incrementBy="50"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="activity" 
+            baseColumnNames="user_id" 
+            constraintName="fk_activity_user" 
+            referencedTableName="user" 
+            referencedColumnNames="id"/>
+    </changeSet>
 </databaseChangeLog>
