@@ -8,7 +8,6 @@ const Footer = () => {
     const [showFeedbackSubmission, setShowFeedbackSubmission] = useState(false);
     const [feedback, setFeedback] = useState("");
     const [submitted, setSubmitted] = useState(false);
-    const [submissionFailed, setSubmissionFailed] = useState(false);
     const apiUrl = process.env.REACT_APP_API_URL;
     const projectKey = process.env.REACT_APP_FEEDBACK_PROJECT_KEY;
     const projectVersion = process.env.REACT_APP_FEEDBACK_PROJECT_VERSION;

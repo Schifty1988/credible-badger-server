@@ -16,17 +16,21 @@ const UserInfo = () => {
             credentials: 'include'})
             .then(response => {
                 if (!response.ok) {
-                    //navigate('/login');
                     return null;
                 }
                 return response.json();
             })
-            .then(data => setUser(data))
+            .then(data => {
+                if (!data) {
+                    data = { anonymous : true };
+                }
+                setUser(data);
+            })
             .catch(error => {
-                //navigate('/login');
+                setUser({ anonymous : true });
             });
-    }, []);
-
+    }, [apiUrl, setUser]);
+    
     const callUserLogout = () => {
         fetch(`${apiUrl}/api/user/logout`, {credentials: 'include'})
             .then(response => {
@@ -53,6 +57,9 @@ const UserInfo = () => {
     const handleSelectChange = (event) => {
         setCurrentPage(event.target.value);
         switch (event.target.value) {
+            case '/activity':
+                navigate('/activity');
+                break;
             case '/admin':
                 navigate('/admin');
                 break;
@@ -73,7 +80,9 @@ const UserInfo = () => {
                 break;    
             case 'logout':
                 callUserLogout();
-            break;
+                break;
+            default:
+                navigate('/activity');
         }
     };
 
@@ -82,7 +91,8 @@ const UserInfo = () => {
             {user ? 
             (<React.Fragment>
                 <h2>{user.email}</h2> 
-                <select className="select-dropdown" value={currentPage} onChange={handleSelectChange}>
+                <select id="navigation" className="select-dropdown" value={currentPage} onChange={handleSelectChange}>
+                    <option value="/activity">Activity</option>
                     <option value="/travelGuide">Travel</option>
                     <option value="/movieGuide">Movies</option>
                     <option value="/bookGuide">Books</option>

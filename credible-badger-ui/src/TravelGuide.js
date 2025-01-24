@@ -100,6 +100,12 @@ const TravelGuide = () => {
         setPlace(event.target.value);
     };
     
+    const handlePlaceKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            createTravelGuide();
+        }
+    };
+    
     const handleChildFriendlyChange = (event) => {
         setChildFriendly(event.target.checked);
     };
@@ -156,7 +162,9 @@ const TravelGuide = () => {
             <UserInfo />
             <p>Select a country, region, or city to receive travel recommendations.</p>
             <div className="content-group">
-                <input className={responseType === ResponseTypes.ERROR_PLACE ? "error-highlight" : ""} type="text" placeholder="Place" id="place" value={place} onChange={handlePlaceChange}/>
+                <input className={responseType === ResponseTypes.ERROR_PLACE ? "error-highlight" : ""} 
+                       type="text" placeholder="Place" id="place" value={place} onChange={handlePlaceChange}
+                       onKeyDown={handlePlaceKeyDown} />
                 <span>
                     <input type="checkbox" checked={childFriendly} onChange={handleChildFriendlyChange} />
                     Search for child-friendly places

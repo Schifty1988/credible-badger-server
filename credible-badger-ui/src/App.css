@@ -416,3 +416,60 @@ form input[type="submit"]:hover {
     width: 280px;
     margin: 8px 0 8px 0;
 }
+
+.title {
+    max-width: 450px;
+}
+
+.activity-new-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    flex: 1;
+    min-width: 100px;
+    margin-right: 4px;
+}
+
+.activity-new {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  max-width: 368px;
+  padding: 8px 8px 8px 8px;
+  margin: 10px auto 10px auto;
+  border-radius: 5px;
+  background-color: #DDD;
+  flex-wrap: wrap;
+}
+
+.activities-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Aligns items vertically in the center */
+  font-weight: bold;
+  font-size: 16px;
+  margin: 16px 0px 0px 0px;
+  gap: 8px;
+}
+
+.activities-filter {
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.activity-icon {
+    width: 64px;
+    margin: -10px 0px -10px -10px;
+}
+
+.activity-name {
+    margin: 0px 4px 0px 4px;
+    flex-wrap: wrap;
+}
+
+.activity-time {
+    color: #555;
+}

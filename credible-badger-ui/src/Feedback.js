@@ -8,9 +8,7 @@ const Feedback = () => {
     const [feedback, setFeedback] = useState([]);
     const apiUrl = process.env.REACT_APP_API_URL;
     const [needHelp, setNeedHelp] = useState(false);
-    
-    console.log(user);
-    
+
     const tutorialData = {
         projectKey : user ? user.id : "Loading...",
         projectVersion : "0.0.9-BETA",

@@ -1,9 +1,11 @@
 import './App.css';
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate, Link } from 'react-router-dom';
 import Footer from './Footer';
+import { UserContext } from './UserContext';
 
 const Login = () => {
+    const { user, setUser } = useContext(UserContext);
     const [actionResponse, setActionResponse] = useState([]);
     const [responseType, setResponseType] = useState([]);
     const [username, setUsername] = useState("");
@@ -77,7 +79,7 @@ const Login = () => {
         if (!validateInput()) {
             return;
         }
-        
+
         const formDataLogin = new FormData();
         formDataLogin.append('username', username);
         formDataLogin.append('password', password);
@@ -89,7 +91,8 @@ const Login = () => {
         })
         .then(response => {
             if (response.ok) {
-                navigate('/');
+                setUser(null);
+                navigate('/activity');
             } else {
                 displayActionResponse("Login failed: " + response.status, ResponseTypes.ERROR_UNKNOWN);
             }

@@ -13,6 +13,7 @@ import EmailVerification from './EmailVerification';
 import TravelGuide from './TravelGuide';
 import MovieGuide from './MovieGuide';
 import BookGuide from './BookGuide';
+import Activity from './Activity';
 import { UserProvider } from './UserContext';
 
 const App = () => {
@@ -22,6 +23,7 @@ const App = () => {
                 <div className="app">
                     <Routes>
                         <Route path="/login" element={<Login />} />
+                        <Route path="/activity" element={<Activity />} />
                         <Route path="/travelGuide/:guideLink?" element={<TravelGuide />} />
                         <Route path="/movieGuide/:guideLink?" element={<MovieGuide />} />
                         <Route path="/bookGuide/:guideLink?" element={<BookGuide />} />
@@ -32,7 +34,7 @@ const App = () => {
                         <Route path="/changePassword/:token?" element={<PasswordChange />} />
                         <Route path="/verifyEmail/:token?" element={<EmailVerification />} />
                         <Route path="/legal" element={<Legal />} />
-                        <Route exact path="/" element={<TravelGuide />} />    
+                        <Route exact path="/" element={<Activity />} />    
                     </Routes>
                 </div>
             </Router>

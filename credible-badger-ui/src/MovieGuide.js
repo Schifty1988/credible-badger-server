@@ -58,7 +58,7 @@ const MovieGuide = () => {
         return name.length > 1;
     };
     
-    const createTravelGuide = () => {      
+    const createMovieGuide = () => {      
         if (!validateInput()) {
             return;
         }
@@ -98,6 +98,12 @@ const MovieGuide = () => {
         setName(event.target.value);
     };
     
+    const handleNameKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            createMovieGuide();
+        }
+    }; 
+    
     const displayActionResponse = (message, responseType) => {
         setResponseType(responseType);
         setActionResponse(message);
@@ -129,13 +135,13 @@ const MovieGuide = () => {
      
     useEffect(() => {
         if (readyForSearch) {
-            createTravelGuide();   
+            createMovieGuide();   
         }
      }, [readyForSearch]);
      
     useEffect(() => {
         return () => {
-            if (!state.travelGuide) {
+            if (!state.movieGuide) {
                 return;
             }
             navigate('.', { replace: true, state: state });
@@ -149,8 +155,10 @@ const MovieGuide = () => {
             <UserInfo />
             <p>Enter the name of a movie and create a list of similar movies.</p>
             <div className="content-group">
-                <input className={responseType === ResponseTypes.ERROR_NAME ? "error-highlight" : ""} type="text" placeholder="Movie Title" id="movieName" value={name} onChange={handleNameChange}/>
-                <button type="button" disabled={loading} onClick={createTravelGuide}><span className={loading ? "loading-button" : ""}></span>Create Movie Guide</button>
+                <input className={responseType === ResponseTypes.ERROR_NAME ? "error-highlight" : ""} 
+                type="text" placeholder="Movie Title" id="movieName" value={name} onChange={handleNameChange}
+                onKeyDown={handleNameKeyDown} />
+                <button type="button" disabled={loading} onClick={createMovieGuide}><span className={loading ? "loading-button" : ""}></span>Create Movie Guide</button>
             </div>
             
             <ul className="grid-list">

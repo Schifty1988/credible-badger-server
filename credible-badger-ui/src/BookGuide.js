@@ -58,7 +58,7 @@ const BookGuide = () => {
         return name.length > 1;
     };
     
-    const createTravelGuide = () => {      
+    const createBookGuide = () => {      
         if (!validateInput()) {
             return;
         }
@@ -98,6 +98,12 @@ const BookGuide = () => {
         setName(event.target.value);
     };
     
+    const handleNameKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            createBookGuide();
+        }
+    };
+    
     const displayActionResponse = (message, responseType) => {
         setResponseType(responseType);
         setActionResponse(message);
@@ -129,13 +135,13 @@ const BookGuide = () => {
      
     useEffect(() => {
         if (readyForSearch) {
-            createTravelGuide();   
+            createBookGuide();   
         }
      }, [readyForSearch]);
      
     useEffect(() => {
         return () => {
-            if (!state.travelGuide) {
+            if (!state.bookGuide) {
                 return;
             }
             navigate('.', { replace: true, state: state });
@@ -149,8 +155,10 @@ const BookGuide = () => {
             <UserInfo />
             <p>Enter the name of a book and create a list of similar books.</p>
             <div className="content-group">
-                <input className={responseType === ResponseTypes.ERROR_NAME ? "error-highlight" : ""} type="text" placeholder="Book Title" id="bookName" value={name} onChange={handleNameChange}/>
-                <button type="button" disabled={loading} onClick={createTravelGuide}><span className={loading ? "loading-button" : ""}></span>Create Book Guide</button>
+                <input className={responseType === ResponseTypes.ERROR_NAME ? "error-highlight" : ""} 
+                type="text" placeholder="Book Title" id="bookName" value={name} onChange={handleNameChange}
+                onKeyDown={handleNameKeyDown} />
+                <button type="button" disabled={loading} onClick={createBookGuide}><span className={loading ? "loading-button" : ""}></span>Create Book Guide</button>
             </div>
             
             <ul className="grid-list">
