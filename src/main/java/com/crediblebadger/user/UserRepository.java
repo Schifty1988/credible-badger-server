@@ -34,8 +34,14 @@ public class UserRepository {
         return result;
     }
     
-    public List<User> retrieveUsers() {
-        TypedQuery<User> userQuery = this.entityManager.createNamedQuery(User.LIST_USERS, User.class);
+    public List<User> retrieveAllUsers() {
+        TypedQuery<User> userQuery = this.entityManager.createNamedQuery(User.LIST_ALL_USERS, User.class);
+        List<User> results = userQuery.getResultList();
+        return results;
+    }
+    
+    public List<User> retrieveUsersForMarketing() {
+        TypedQuery<User> userQuery = this.entityManager.createNamedQuery(User.LIST_USERS_FOR_MARKETING, User.class);
         List<User> results = userQuery.getResultList();
         return results;
     }
@@ -70,6 +76,16 @@ public class UserRepository {
         }
         
         user.setPassword(password);
+        return true;
+    }
+
+    public boolean updateMarketingSubscriptionForUser(String userEmail, boolean marketingEnabled) {
+        User user = this.retrieveUser(userEmail);
+        
+        if (user == null) {
+            return false;
+        }
+        user.setSubscribedToMarketing(marketingEnabled);
         return true;
     }
 }

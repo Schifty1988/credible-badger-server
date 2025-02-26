@@ -10,6 +10,7 @@ import Admin from './Admin';
 import Story from './Story';
 import PasswordChange from './PasswordChange';
 import EmailVerification from './EmailVerification';
+import MarketingOptOut from './MarketingOptOut';
 import TravelGuide from './TravelGuide';
 import MovieGuide from './MovieGuide';
 import BookGuide from './BookGuide';
@@ -33,6 +34,7 @@ const App = () => {
                         <Route path="/story" element={<Story />} />
                         <Route path="/changePassword/:token?" element={<PasswordChange />} />
                         <Route path="/verifyEmail/:token?" element={<EmailVerification />} />
+                        <Route path="/marketingOptOut/:token?" element={<MarketingOptOut />} />
                         <Route path="/legal" element={<Legal />} />
                         <Route exact path="/" element={<Activity />} />    
                     </Routes>

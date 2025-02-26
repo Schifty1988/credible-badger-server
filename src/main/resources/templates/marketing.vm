@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credible Badger</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        .email-container {
+            width: 100%;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .email-content {
+            min-width: 300px;
+            background-color: #ffffff;
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        .email-text {
+            font-size: 16px;
+            color: #333;
+            padding: 12px;
+        }
+        .footer {
+            min-width: 300px;
+            font-size: 12px;
+            color: #555;
+            text-align: center;
+            margin: 8px 0px 8px 0px;
+        }
+        a {
+            color: #0073e6;
+            text-decoration: none;
+        }
+
+        .logo {
+            max-width: 640px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <img class="logo" src="$marketingViewLink">
+
+    <table role="presentation" class="email-container" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+            <td align="center">
+                <table role="presentation" class="email-content" cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                        <td class="email-text">
+                            <p>Hello $email,</p>
+                            <p>$marketingContent</p>
+                            <p>Thank you,<br>Credible Badger</p>
+                        </td>
+                    </tr>
+                </table>
+                <table role="presentation" class="footer" cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                        <td>
+                            Click <a href="$optOutLink">here</a> to stop receiving emails from us.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

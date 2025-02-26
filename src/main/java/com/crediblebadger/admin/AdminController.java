@@ -45,7 +45,7 @@ public class AdminController {
     
     @GetMapping("/listUsers")
     public List<User> listUsers() {
-        return this.userService.list();
+        return this.userService.listAllUsers();
     }
 
     @PostMapping("/suspendUser")    

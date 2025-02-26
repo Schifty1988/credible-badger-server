@@ -90,6 +90,20 @@ public class EmailService {
         return sendEmail(toAddress, subject , emailBody);
     }
     
+    public boolean sendMarketingEmail(String toAddress, String subject, 
+        String marketingContent, String optOutToken, long campaignId) {
+        VelocityContext context = new VelocityContext();
+        String optOutLink = this.baseURL + "marketingOptOut/" + optOutToken;
+        String marketingViewLink = this.baseURL + "api/marketing/viewCampaign/" + campaignId;
+        context.put("optOutLink", optOutLink);
+        context.put("marketingViewLink", marketingViewLink);
+        context.put("email", toAddress);
+        context.put("marketingContent", marketingContent);
+        String emailBody = renderTemplate("marketing.vm", context);
+        return sendEmail(toAddress, subject , emailBody);
+    }
+    
+    
     private String renderTemplate(String templateName, VelocityContext context) {
         StringWriter writer = new StringWriter();
         this.velocityEngine.mergeTemplate("templates/" + templateName, "UTF-8", context, writer);
@@ -103,7 +117,7 @@ public class EmailService {
 
         Content subjectContent = Content.builder().data(subject).build();
         Content bodyContent = Content.builder().data(body).build();
-        Body emailBody = Body.builder().text(bodyContent).build();
+        Body emailBody = Body.builder().html(bodyContent).build();
         
         Message message = Message.builder()
                 .subject(subjectContent)

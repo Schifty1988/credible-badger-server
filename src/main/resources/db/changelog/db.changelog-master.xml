@@ -311,4 +311,37 @@
             referencedTableName="user" 
             referencedColumnNames="id"/>
     </changeSet>
+    
+    <changeSet id="user_add_subscribed_to_marketing_column" author="Michail Ostrowski">
+        <addColumn tableName="user">
+            <column name="subscribed_to_marketing" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    
+    <changeSet id="create_marketing" author="Michail Ostrowski">
+        <createTable tableName="marketing_campaign">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="content" type="text">
+                 <constraints nullable="false"/>
+            </column>
+            
+            <column name="subject" type="varchar(200)">
+                 <constraints nullable="false"/>
+            </column>
+            
+            <column name="sent_at" type="datetime"/>
+            <column name="number_of_recipients" type="INTEGER"/>
+            <column name="number_of_deliveries" type="INTEGER"/>
+            <column name="number_of_views" type="INTEGER"/>
+            
+            <column name="version" type="bigint"/>
+        </createTable>  
+        
+        <createSequence sequenceName="marketing_campaign_seq" incrementBy="50"/>
+    </changeSet>
 </databaseChangeLog>

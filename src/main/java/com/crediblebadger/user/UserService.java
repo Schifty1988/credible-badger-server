@@ -5,6 +5,7 @@ import com.crediblebadger.email.EmailService;
 import com.crediblebadger.token.SecurityToken;
 import com.crediblebadger.token.TokenType;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +16,17 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserService {
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     
     @Autowired
-    SecurityTokenService securityTokenService;
+    private SecurityTokenService securityTokenService;
     
     @Autowired
-    EmailService emailService;
+    private EmailService emailService;
     
     @Autowired
-    PasswordEncoder passwordEncoder;
- 
+    private PasswordEncoder passwordEncoder;
+
     private static final int PASSWORD_MIN_LENGTH = 6;
     
     public boolean register(String email, String password) {
@@ -44,14 +45,15 @@ public class UserService {
         String encodedPassword = this.passwordEncoder.encode(password);
         user.setPassword(encodedPassword);
         user.setCreatedAt(LocalDateTime.now());
+        user.setSubscribedToMarketing(true);
         this.userRepository.addUser(user);
         log.info("user={} was registered!", email);
         String token = this.securityTokenService.addToken(user.getId(), TokenType.EMAIL_VERIFICATION);
         return this.emailService.sendEmailVerificationRequest(email, token);
     }
 
-    public List<User> list() {
-        return this.userRepository.retrieveUsers();
+    public List<User> listAllUsers() {
+        return this.userRepository.retrieveAllUsers();
     }
 
     public boolean requestEmailVerification(String email) {
@@ -120,5 +122,24 @@ public class UserService {
 
     public boolean updateSuspensionStatus(long userId, boolean isSuspended) {
         return this.userRepository.changeSuspensionStatus(userId, isSuspended);
+    }
+    
+    public List<User> retrieveUsersForMarketing() {
+        return this.userRepository.retrieveUsersForMarketing();
+    }
+    
+    public boolean enableMarketingSubscription(String userEmail) {
+        return this.userRepository.updateMarketingSubscriptionForUser(userEmail, true);
+    }
+    
+    public boolean disableMarketingSubscription(String optOutToken) {
+        byte[] decodedBytes = Base64.getDecoder().decode(optOutToken);
+        String userEmail = new String(decodedBytes);             
+        log.info("User={} is disabling marketing subscription!", userEmail);
+        return this.userRepository.updateMarketingSubscriptionForUser(userEmail, false);
+    }
+      
+    public String generateOptOutToken(String userEmail) {
+        return Base64.getEncoder().encodeToString(userEmail.getBytes());
     }
 }

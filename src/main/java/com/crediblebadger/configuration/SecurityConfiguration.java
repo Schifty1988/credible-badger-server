@@ -39,16 +39,17 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.cors(cors -> cors.configurationSource(buildCorsConfigurationSource()));
         
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/storage/**", "/api/feedback/retrieve").authenticated()
-                .requestMatchers("/**", "/api/travel/**", "/api/user/**", "/api/feedback/submit").permitAll());
+                .requestMatchers("/api/marketing/viewCampaign/*").permitAll()
+                .requestMatchers("/api/admin/**", "/api/marketing/**").hasRole("ADMIN")
+                .requestMatchers("/api/storage/**", "/api/activity/**", "/api/feedback/retrieve").authenticated()
+                .requestMatchers("/**").permitAll());
         
         AuthenticationFailureHandler loginFailureHandler = (request, response, authException) -> {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
