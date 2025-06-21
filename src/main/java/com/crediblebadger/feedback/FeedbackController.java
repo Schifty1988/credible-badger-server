@@ -15,7 +15,7 @@
  */
 package com.crediblebadger.feedback;
 
-import com.crediblebadger.user.security.UserDetailsImpl;
+import com.crediblebadger.user.User;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,14 +51,14 @@ public class FeedbackController {
     
     @PostMapping("/retrieve")
     public ResponseEntity<List<Feedback>> retrieveFeedback(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal User user,
             @RequestBody FeedbackRequest request) {
         
-        if (!validateUser(userDetails)) {
+        if (!User.validateUser(user)) {
             return ResponseEntity.badRequest().build();
         }
         
-        String projectKey = String.valueOf(userDetails.getId());
+        String projectKey = String.valueOf(user.getId());
         List<Feedback> feedback = this.feedbackService.retrieveFeedback(projectKey);
         
         if (feedback == null) {
@@ -66,12 +66,6 @@ public class FeedbackController {
         }
         
         return ResponseEntity.ok(feedback);
-    }
-    
-    private static boolean validateUser(UserDetailsImpl userDetails) {
-        return userDetails != null && 
-                userDetails.isEnabled()&& 
-                userDetails.getUser().isEmailVerified();     
     }
     
     private static boolean validateFeedback(Feedback feedback) {

@@ -15,7 +15,7 @@
  */
 package com.crediblebadger.book;
 
-import com.crediblebadger.user.security.UserDetailsImpl;
+import com.crediblebadger.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +35,12 @@ public class BookController {
     
     @PostMapping("/bookGuide")
     public ResponseEntity<BookGuide> createBookGuide(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal User user,
             @RequestBody BookGuideRequest request) {
         if (request.getName().isBlank() || request.getName().length() > 60) {
             return ResponseEntity.badRequest().build();
         }
-        String username = userDetails == null ? "Anonymous" : userDetails.getUsername();
+        String username = user == null ? "Anonymous" : user.getUsername();
         log.info("{} requested a book guide for {} ", username, request.getName());
         BookGuide bookGuide = this.bookService.createBookGuide(request.getName());
         

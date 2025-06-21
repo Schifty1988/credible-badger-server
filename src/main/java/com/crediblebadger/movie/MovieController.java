@@ -15,7 +15,7 @@
  */
 package com.crediblebadger.movie;
 
-import com.crediblebadger.user.security.UserDetailsImpl;
+import com.crediblebadger.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +35,12 @@ public class MovieController {
     
     @PostMapping("/movieGuide")
     public ResponseEntity<MovieGuide> createMovieGuide(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal User user,
             @RequestBody MovieGuideRequest request) {
         if (request.getName().isBlank() || request.getName().length() > 60) {
             return ResponseEntity.badRequest().build();
         }
-        String username = userDetails == null ? "Anonymous" : userDetails.getUsername();
+        String username = user == null ? "Anonymous" : user.getUsername();
         log.info("{} requested a movie guide for {} ", username, request.getName());
         MovieGuide movieGuide = this.movieService.createMovieGuide(request.getName());
         

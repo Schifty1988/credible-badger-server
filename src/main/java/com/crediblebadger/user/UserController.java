@@ -1,6 +1,5 @@
 package com.crediblebadger.user;
 
-import com.crediblebadger.user.security.UserDetailsImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +19,15 @@ public class UserController {
     UserService userService;
     
     @GetMapping("/me")    
-    public ResponseEntity<User> me(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        if (userDetails == null) {
+    public ResponseEntity<User> me(@AuthenticationPrincipal User user) {
+        if (user == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(userDetails.getUser());
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/register")
-    ResponseEntity registerUser(@RequestBody UserRequestDTO user) {
+    public ResponseEntity registerUser(@RequestBody UserRequestDTO user) {
         boolean result = this.userService.register(user.normalizeEmail(), user.getPassword());
         
         if (result) {
@@ -38,7 +37,7 @@ public class UserController {
     }
 
     @PostMapping("/requestPasswordChange")
-    ResponseEntity requestPasswordChange(@RequestBody UserRequestDTO user) {       
+    public ResponseEntity requestPasswordChange(@RequestBody UserRequestDTO user) {       
         boolean result = this.userService.requestPasswordChange(user.normalizeEmail());
         
         if (result) {
@@ -48,7 +47,7 @@ public class UserController {
     }
     
     @PostMapping("/changePassword")
-    ResponseEntity changePassword(@RequestBody UserRequestDTO user) {
+    public ResponseEntity changePassword(@RequestBody UserRequestDTO user) {
         boolean result = this.userService.changePassword(user.getSecurityToken(), user.getPassword());
         
         if (result) {
@@ -58,7 +57,7 @@ public class UserController {
     }
 
     @PostMapping("/requestEmailVerification")   
-    ResponseEntity requestEmailVerification(@RequestBody UserRequestDTO user) {
+    public ResponseEntity requestEmailVerification(@RequestBody UserRequestDTO user) {
         boolean result = this.userService.requestEmailVerification(user.normalizeEmail());
         
         if (result) {
@@ -68,7 +67,7 @@ public class UserController {
     }
     
     @PostMapping("/verifyEmail")   
-    ResponseEntity verifyEmail(@RequestBody UserRequestDTO user) {
+    public ResponseEntity verifyEmail(@RequestBody UserRequestDTO user) {
         boolean result = this.userService.verifyEmail(user.getSecurityToken());
         
         if (result) {
@@ -79,14 +78,14 @@ public class UserController {
     
     @PostMapping("/enableMarketingSubscription")   
     public ResponseEntity enableMarketingSubscription(
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+            @AuthenticationPrincipal User user) {
         
-        if (userDetails == null) {
+        if (user == null) {
             return ResponseEntity.badRequest().build();
         }
         
         boolean result = 
-            this.userService.enableMarketingSubscription(userDetails.getUsername());
+            this.userService.enableMarketingSubscription(user.getUsername());
         
         if (!result) {
             return ResponseEntity.badRequest().build();

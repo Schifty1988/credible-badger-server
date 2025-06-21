@@ -9,12 +9,15 @@ import java.util.Base64;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class UserService {
+public class UserService implements UserDetailsService{ 
     @Autowired
     private UserRepository userRepository;
     
@@ -141,5 +144,16 @@ public class UserService {
       
     public String generateOptOutToken(String userEmail) {
         return Base64.getEncoder().encodeToString(userEmail.getBytes());
+    }
+    
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
+        String lowerCaseUsername = username.toLowerCase();
+        User user = this.userRepository.retrieveUser(lowerCaseUsername);  
+        if (user == null) {
+            throw new UsernameNotFoundException(lowerCaseUsername);
+        }
+        
+        return user;
     }
 }

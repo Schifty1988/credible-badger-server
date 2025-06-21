@@ -15,7 +15,7 @@
  */
 package com.crediblebadger.story;
 
-import com.crediblebadger.user.security.UserDetailsImpl;
+import com.crediblebadger.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,15 +35,15 @@ public class StoryController {
     
     @PostMapping("/submit")
     public ResponseEntity submitStory(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal User user,
             @RequestBody Story story) {
         
-        if (userDetails == null || userDetails.isEnabled() == false) {
+        if (!User.validateUser(user)) {
             return ResponseEntity.badRequest().build();
         }
         
         story.initStoryParts();
-        story.setUserId(userDetails.getUser().getId());
+        story.setUserId(user.getId());
         boolean result = this.storyService.submitStory(story);
         
         if (!result) {

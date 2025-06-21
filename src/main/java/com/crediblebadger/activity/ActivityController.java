@@ -15,7 +15,7 @@
  */
 package com.crediblebadger.activity;
 
-import com.crediblebadger.user.security.UserDetailsImpl;
+import com.crediblebadger.user.User;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +34,13 @@ public class ActivityController {
 
     @PostMapping("/submit")    
     public ResponseEntity submitActivity(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal User user,
             @RequestBody Activity activity) {  
         if (!validateActivity(activity)) {
             return ResponseEntity.badRequest().build();
         }
         
-        activity.setUserId(userDetails.getId());
+        activity.setUserId(user.getId());
         boolean result = this.activityService.submitActivity(activity);
         
         if (result == false) {
@@ -52,13 +52,13 @@ public class ActivityController {
     
     @PostMapping("/delete")    
     public ResponseEntity deleteActivity(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal User user,
             @RequestBody Activity activity) {  
         if (!validateActivity(activity)) {
             return ResponseEntity.badRequest().build();
         }
         
-        activity.setUserId(userDetails.getId());
+        activity.setUserId(user.getId());
         boolean result = this.activityService.deleteActivity(activity);
         
         if (result == false) {
@@ -71,26 +71,20 @@ public class ActivityController {
     
     @PostMapping("/retrieve")
     public ResponseEntity<List<Activity>> retrieveActivity(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal User user,
             @RequestBody ActivityRequest request) {
         
-        if (!validateUser(userDetails)) {
+        if (!User.validateUser(user)) {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Activity> activities = this.activityService.retrieveActivities(userDetails.getId());
+        List<Activity> activities = this.activityService.retrieveActivities(user.getId());
         
         if (activities == null) {
             return ResponseEntity.badRequest().build();
         }
         
         return ResponseEntity.ok(activities);
-    }
-    
-    private static boolean validateUser(UserDetailsImpl userDetails) {
-        return userDetails != null && 
-                userDetails.isEnabled()&& 
-                userDetails.getUser().isEmailVerified();     
     }
     
     private static boolean validateActivity(Activity activity) {
