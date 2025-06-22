@@ -431,6 +431,15 @@ form input[type="submit"]:hover {
     margin-right: 4px;
 }
 
+.activity-select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    flex: 1;
+    margin-right: 4px;
+}
+
 .activity-new {
   align-items: center;
   display: flex;
@@ -470,6 +479,6 @@ form input[type="submit"]:hover {
     flex-wrap: wrap;
 }
 
-.activity-time {
+.activity-meta {
     color: #555;
 }

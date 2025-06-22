@@ -49,6 +49,9 @@ public class Activity {
     @Column
     private ActivityCategory category;
     
+    @Column
+    private int rating;
+    
     @Version
     private Long version;
 }

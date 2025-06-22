@@ -9,6 +9,7 @@ const Activity = () => {
     const [activities, setActivities] = useState([]);
     const [activityName, setActivityName] = useState('');
     const [activityCategory, setActivityCategory] = useState('PLACE');
+    const [activityRating, setActivityRating] = useState('5');
     const [activityFilter, setActivityFilter] = useState('ALL');
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
@@ -69,7 +70,7 @@ const Activity = () => {
             headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({name: activityName, category: activityCategory})
+        body: JSON.stringify({name: activityName, category: activityCategory, rating: activityRating})
         })
         .then(response => {
             if (response.ok) {
@@ -94,6 +95,10 @@ const Activity = () => {
     
     const handleActivityCategoryChange = (event) => {
         setActivityCategory(event.target.value);
+    };
+    
+    const handleActivityRatingChange = (event) => {
+        setActivityRating(event.target.value);
     };
 
     const handleActivityFilterChange = (event) => {
@@ -178,8 +183,15 @@ const Activity = () => {
                     <input type="text" placeholder="New Activity" id="activity-name" 
                            value={activityName} onChange={handleActivityNameChange}
                            className="activity-new-input"/>
-                           <div>
-                                <select className="activity-new-input" onChange={handleActivityCategoryChange} id="activity-category" >
+                            <div>
+                                <select className="activity-select" onChange={handleActivityRatingChange} id="activity-rating" >
+                                    <option value="1">1/5</option>
+                                    <option value="2">2/5</option>
+                                    <option value="3">3/5</option>
+                                    <option value="4">4/5</option>
+                                    <option value="5">5/5</option>
+                                </select>
+                                <select className="activity-select" onChange={handleActivityCategoryChange} id="activity-category" >
                                     <option value="PLACE">Place</option>
                                     <option value="BOOK">Book</option>
                                     <option value="MOVIE">Movie</option>
@@ -210,7 +222,7 @@ const Activity = () => {
                         <li key={item.id} className="simple-item">
                                 <img className="activity-icon" src={getImageSource(item.category)} alt="item.category"/>
                                 <span className="activity-name">{item.name}</span>
-                                <span className="activity-time">{formatDate(new Date(item.creationTime))}</span>  
+                                <span className="activity-meta">{item.rating}/5<br/>{formatDate(new Date(item.creationTime))}</span>  
                                 <div className="list-item-actions">
                                     <button className="red-button" onClick={() => deleteActivity(item)}>Delete</button>
                                 </div>

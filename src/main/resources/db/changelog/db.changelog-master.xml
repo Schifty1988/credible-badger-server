@@ -344,4 +344,10 @@
         
         <createSequence sequenceName="marketing_campaign_seq" incrementBy="50"/>
     </changeSet>
+    
+    <changeSet id="activity_add_rating_column" author="Michail Ostrowski">
+        <addColumn tableName="activity">
+            <column name="rating" type="INTEGER" defaultValue="0"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
