@@ -129,6 +129,24 @@ const Activity = () => {
         });
     };
     
+    const recommendMovies = (item) => {
+        const guideRequest = JSON.stringify({name: item.name});   
+        const encodedGuideRequest = btoa(guideRequest);
+        navigate('/movieGuide/' + encodedGuideRequest);
+    };
+    
+    const recommendBooks = (item) => {
+        const guideRequest = JSON.stringify({name: item.name});   
+        const encodedGuideRequest = btoa(guideRequest);
+        navigate('/bookGuide/' + encodedGuideRequest);
+    };
+    
+    const recommendTravel = (item) => {
+        const guideRequest = JSON.stringify({place: item.name, childFriendly: true});   
+        const encodedGuideRequest = btoa(guideRequest);
+        navigate('/travelGuide/' + encodedGuideRequest);
+    };
+    
     const getImageSource = (item) => {
         switch (item) {
             case "PLACE":
@@ -224,6 +242,15 @@ const Activity = () => {
                                 <span className="activity-name">{item.name}</span>
                                 <span className="activity-meta">{item.rating}/5<br/>{formatDate(new Date(item.creationTime))}</span>  
                                 <div className="list-item-actions">
+                                    { item.category === "MOVIE" && (
+                                    <button className="green-button" onClick={() => recommendMovies(item)}>Recommendations</button>
+                                    )}
+                                    { item.category === "BOOK" && (
+                                    <button className="green-button" onClick={() => recommendBooks(item)}>Recommendations</button>
+                                    )}
+                                    { item.category === "PLACE" && (
+                                    <button className="green-button" onClick={() => recommendTravel(item)}>Recommendations</button>
+                                    )}
                                     <button className="red-button" onClick={() => deleteActivity(item)}>Delete</button>
                                 </div>
                         </li>
