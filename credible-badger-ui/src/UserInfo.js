@@ -7,7 +7,7 @@ const UserInfo = () => {
     const navigate = useNavigate();
     const { user, setUser } = useContext(UserContext);
     const location = useLocation();
-    const [currentPage, setCurrentPage] = useState(location.pathname);
+    const [currentPage, setCurrentPage] = useState(getCurrentPage());
     const apiUrl = process.env.REACT_APP_API_URL;
     
     useEffect(() => {
@@ -29,7 +29,12 @@ const UserInfo = () => {
             .catch(error => {
                 setUser({ anonymous : true });
             });
+        setCurrentPage(getCurrentPage());
     }, [apiUrl, setUser]);
+    
+    function getCurrentPage() {
+        return "/" + location.pathname.split('/')[1];
+    };
     
     const callUserLogout = () => {
         fetch(`${apiUrl}/api/user/logout`, {credentials: 'include'})
@@ -88,7 +93,7 @@ const UserInfo = () => {
 
     return (
         <div className="user-info">
-            {user ? 
+            {user && !user.anonymous ? 
             (<React.Fragment>
                 <h2>{user.email}</h2> 
                 <select id="navigation" className="select-dropdown" value={currentPage} onChange={handleSelectChange}>
