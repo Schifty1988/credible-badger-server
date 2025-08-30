@@ -9,7 +9,7 @@ const Activity = () => {
     const [activities, setActivities] = useState([]);
     const [activityName, setActivityName] = useState('');
     const [activityCategory, setActivityCategory] = useState('PLACE');
-    const [activityRating, setActivityRating] = useState('5');
+    const [activityRating, setActivityRating] = useState('1');
     const [activityFilter, setActivityFilter] = useState('ALL');
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
