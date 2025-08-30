@@ -10,7 +10,8 @@ const Activity = () => {
     const [activityName, setActivityName] = useState('');
     const [activityCategory, setActivityCategory] = useState('PLACE');
     const [activityRating, setActivityRating] = useState('1');
-    const [activityFilter, setActivityFilter] = useState('ALL');
+    const [categoryFilter, setCategoryFilter] = useState('ALL');
+    const [ratingFilter, setRatingFilter] = useState('1');
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     
@@ -101,8 +102,12 @@ const Activity = () => {
         setActivityRating(event.target.value);
     };
 
-    const handleActivityFilterChange = (event) => {
-        setActivityFilter(event.target.value);
+    const handleCategoryFilterChange = (event) => {
+        setCategoryFilter(event.target.value);
+    };
+    
+    const handleRatingFilterChange = (event) => {
+        setRatingFilter(event.target.value);
     };
 
     const deleteActivity = (item) => {
@@ -221,22 +226,32 @@ const Activity = () => {
                 </div>
                 
                 <div className="activities-header"> 
-                <span>Your Activities</span>
-                    <select className="activities-filter" id="activity-filter" 
-                            onChange={handleActivityFilterChange}>
-                        <option value="ALL">All</option>
-                        <option value="PLACE">Place</option>
-                        <option value="BOOK">Book</option>
-                        <option value="MOVIE">Movie</option>
-                        <option value="SHOW">Show</option>
-                        <option value="GAME">Game</option>
-                    </select>    
+                    <span>Your Activities</span>
+                    <div className="activity-filter-group">
+                        <select className="activities-filter" id="activity-filter" 
+                                onChange={handleCategoryFilterChange}>
+                            <option value="ALL">All</option>
+                            <option value="PLACE">Place</option>
+                            <option value="BOOK">Book</option>
+                            <option value="MOVIE">Movie</option>
+                            <option value="SHOW">Show</option>
+                            <option value="GAME">Game</option>
+                        </select>
+                        <select className="activities-filter" id="activity-filter" 
+                                onChange={handleRatingFilterChange}>
+                            <option value="1">+1</option>
+                            <option value="2">+2</option>
+                            <option value="3">+3</option>
+                            <option value="4">+4</option>
+                            <option value="5">+5</option>
+                        </select>    
+                    </div>
                 </div>
                 { activities.length > 0 ? (
                 <div> 
                     <ul className="simple-list">
                     { activities.map(item => (
-                        (activityFilter === 'ALL' || item.category === activityFilter) &&
+                        ((categoryFilter === 'ALL' || item.category === categoryFilter) && item.rating >= ratingFilter) &&
                         <li key={item.id} className="simple-item">
                                 <img className="activity-icon" src={getImageSource(item.category)} alt="item.category"/>
                                 <span className="activity-name">{item.name}</span>
