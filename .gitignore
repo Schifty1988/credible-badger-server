@@ -1,2 +1,8 @@
 /target
 /nbactions.xml
+/src/main/resources/static/
+/export.tar
+/nb-configuration.xml
+/credible-badger-ui/nbproject/
+/reinstall.sh
+/redeploy.bat
