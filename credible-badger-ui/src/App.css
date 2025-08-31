@@ -431,6 +431,28 @@ form input[type="submit"]:hover {
     margin-right: 4px;
 }
 
+.activity-edit-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    flex: 1;
+    min-width: 100px;
+    margin-left: 8px;
+    margin-right: 8px;
+    text-align: center;
+}
+
+.activity-edit-button {
+    filter: grayscale(100%) brightness(80%);
+    padding: 0px;
+    transition: filter 0.3s ease;
+}
+
+.activity-edit-button:hover {
+    filter: grayscale(0%) brightness(100%);
+}
+
 .activity-select {
     padding: 10px;
     border: 1px solid #ddd;
@@ -469,9 +491,16 @@ form input[type="submit"]:hover {
     font-size: 16px;
 }
 
-.activity-icon {
+.activity-icon, .activity-store-icon {
     width: 64px;
     margin: -10px 0px -10px -10px;
+}
+
+.activity-interaction-button {
+    padding: 0px;
+}
+.simple-item:hover .activity-icon {
+  content: url('../public/interaction-icon.jpg');
 }
 
 .activity-name {

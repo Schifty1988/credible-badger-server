@@ -35,6 +35,12 @@ public class ActivityService {
         return true;
     }
     
+    boolean updateActivity(Activity activity) {
+        log.info("Updating activity for user={}", activity.getUserId());
+        this.activityRepository.updateActivity(activity);
+        return true;
+    }
+    
     public boolean deleteActivity(Activity activity) {    
         log.info("Deleting activity for user={}", activity.getUserId());
         return this.activityRepository.deleteActivity(activity);

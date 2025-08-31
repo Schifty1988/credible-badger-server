@@ -14,6 +14,9 @@ const Activity = () => {
     const [ratingFilter, setRatingFilter] = useState('1');
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
+    const [editMarker, setEditMarker] = useState(null);
+    const [editName, setEditName] = useState('');
+    const [interactionMarker, setInteractionMarker] = useState(null);
     
     const [showNotification, setShowNotification] = useState(false);
     const [responseType, setResponseType] = useState([]);
@@ -89,6 +92,22 @@ const Activity = () => {
             
         });
     };
+
+    const selectItemForInteraction = (item) => {
+        if (item.id !== interactionMarker) {
+            setEditMarker(null);   
+            setInteractionMarker(item.id);
+        }
+    };    
+    
+    const selectItemForEdit = (item) => {
+        setEditName(item.name);
+        setEditMarker(item.id);
+    };    
+
+    const handleActivityNameEdit = (event) => {
+        setEditName(event.target.value);
+    };
     
     const handleActivityNameChange = (event) => {
         setActivityName(event.target.value);
@@ -121,6 +140,32 @@ const Activity = () => {
         })
         .then(response => {
             if (response.ok) {
+                retrieveActivities();
+                return response.json();
+            } else {
+                displayActionResponse("An issue occured!", ResponseTypes.ERROR_UNKNOWN);
+                return [];
+            }
+        })
+        .then(data => {    
+        })      
+        .catch(error => {
+        });
+    };
+    
+    const editItem = (item) => {
+        item.name = editName;
+        fetch(`${apiUrl}/api/activity/update`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(item)
+        })
+        .then(response => {
+            if (response.ok) {
+                setEditMarker(null);
                 retrieveActivities();
                 return response.json();
             } else {
@@ -207,19 +252,19 @@ const Activity = () => {
                            value={activityName} onChange={handleActivityNameChange}
                            className="activity-new-input"/>
                             <div>
-                                <select className="activity-select" onChange={handleActivityRatingChange} id="activity-rating" >
-                                    <option value="1">1/5</option>
-                                    <option value="2">2/5</option>
-                                    <option value="3">3/5</option>
-                                    <option value="4">4/5</option>
-                                    <option value="5">5/5</option>
-                                </select>
                                 <select className="activity-select" onChange={handleActivityCategoryChange} id="activity-category" >
                                     <option value="PLACE">Place</option>
                                     <option value="BOOK">Book</option>
                                     <option value="MOVIE">Movie</option>
                                     <option value="SHOW">Show</option>
                                     <option value="GAME">Game</option>
+                                </select>
+                                <select className="activity-select" onChange={handleActivityRatingChange} id="activity-rating" >
+                                    <option value="1">1/5</option>
+                                    <option value="2">2/5</option>
+                                    <option value="3">3/5</option>
+                                    <option value="4">4/5</option>
+                                    <option value="5">5/5</option>
                                 </select>
                                 <button onClick={submitActivity}>Add</button>
                            </div>
@@ -252,10 +297,26 @@ const Activity = () => {
                     <ul className="simple-list">
                     { activities.map(item => (
                         ((categoryFilter === 'ALL' || item.category === categoryFilter) && item.rating >= ratingFilter) &&
-                        <li key={item.id} className="simple-item">
-                                <img className="activity-icon" src={getImageSource(item.category)} alt="item.category"/>
-                                <span className="activity-name">{item.name}</span>
+                        <li key={item.id} className="simple-item" onClick={() => selectItemForInteraction(item)}>
+                                { (editMarker !== item.id) ? (
+                                <>
+                                    <img className="activity-icon" src={getImageSource(item.category)} alt={item.category}/>
+                                    <span className="activity-name">{item.name}</span>
+                                </>
+                                ) : (
+                                <>
+                                    <button className="activity-edit-button" onClick={() => editItem(item)}>
+                                        <img className="activity-store-icon" src="store-icon.jpg" alt="store item"/>
+                                    </button>
+                                    <input type="text" placeholder="New Activity" id="activity-name" 
+                                           value={editName} onChange={handleActivityNameEdit}
+                                           className="activity-edit-input"/>
+                                </>
+                                )}
+                             
                                 <span className="activity-meta">{item.rating}/5<br/>{formatDate(new Date(item.creationTime))}</span>  
+                                
+                                { (editMarker !== item.id && interactionMarker === item.id) && (
                                 <div className="list-item-actions">
                                     { item.category === "MOVIE" && (
                                     <button className="green-button" onClick={() => recommendMovies(item)}>Recommendations</button>
@@ -266,8 +327,9 @@ const Activity = () => {
                                     { item.category === "PLACE" && (
                                     <button className="green-button" onClick={() => recommendTravel(item)}>Recommendations</button>
                                     )}
+                                    <button className="green-button" onClick={() => selectItemForEdit(item)}>Edit</button>
                                     <button className="red-button" onClick={() => deleteActivity(item)}>Delete</button>
-                                </div>
+                                </div>)}
                         </li>
                     ))}
                     </ul>

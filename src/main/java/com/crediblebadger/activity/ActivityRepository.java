@@ -34,6 +34,10 @@ public class ActivityRepository {
         this.entityManager.persist(activity);
     }
     
+    public void updateActivity(Activity activity) {
+        this.entityManager.merge(activity);
+    }
+    
     public boolean deleteActivity(Activity activity) {
         Query deleteQuery = this.entityManager.createNamedQuery(Activity.DELETE_ACTIVITY);
         deleteQuery.setParameter("id", activity.getId());

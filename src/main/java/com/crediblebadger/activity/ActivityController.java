@@ -50,6 +50,27 @@ public class ActivityController {
         return ResponseEntity.ok().build();
     }
     
+    @PostMapping("/update")
+    public ResponseEntity updateActivity(
+            @AuthenticationPrincipal User user,
+            @RequestBody Activity activity) {  
+        if (!validateActivity(activity)) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        if (!user.getId().equals(activity.getUserId())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean result = this.activityService.updateActivity(activity);
+        
+        if (result == false) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        return ResponseEntity.ok().build();
+    }
+    
     @PostMapping("/delete")    
     public ResponseEntity deleteActivity(
             @AuthenticationPrincipal User user,
