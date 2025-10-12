@@ -50,6 +50,7 @@
 
 .simple-item {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
     padding: 10px;
@@ -59,6 +60,15 @@
     background-color: #f9f9f9;
     transition: background-color 0.3s, box-shadow 0.3s;
     position: relative;
+    overflow: hidden;
+}
+
+.item-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
 }
 
 .simple-item:hover, .point-of-interest:hover, .feedback-item:hover {
@@ -74,22 +84,41 @@
 }
 
 .list-item-actions {
-    display: none;
-    position: absolute;
-    right: 10px;
+  display: flex;
+  gap: 8px;
+  border: 0px solid #ddd;
+  padding: 0px 0px 0px 0px;
+  width: 100%;
+  justify-content: center;
+  overflow: hidden;
+  transition: max-height 0.8s ease, opacity 0.4s ease;
 }
 
-.simple-item:hover .list-item-actions {
-    display: flex;
-    gap: 10px;
+.list-item-actions.visible {
+  max-height: 800px;
+  opacity: 1;
+}
+
+.list-item-actions.hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0px;
+  padding: 0px;
+  border: 0px solid #ddd;
 }
 
 .list-item-actions button {
-    padding: 5px 10px;
+    background-color: transparent;
+    color: grey;
+    padding: 2px 0px 0px 0px;
     border: none;
-    border-radius: 3px;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
+}
+
+.list-item-actions button:hover {
+    text-decoration: underline;
+    background-color: transparent;
 }
 
 .green-button {
@@ -446,6 +475,7 @@ form input[type="submit"]:hover {
 .activity-edit-button {
     filter: grayscale(100%) brightness(80%);
     padding: 0px;
+    margin-bottom: -4px;
     transition: filter 0.3s ease;
 }
 
@@ -493,14 +523,11 @@ form input[type="submit"]:hover {
 
 .activity-icon, .activity-store-icon {
     width: 64px;
-    margin: -10px 0px -10px -10px;
+    margin: -12px 0px -10px -10px;
 }
 
 .activity-interaction-button {
     padding: 0px;
-}
-.simple-item:hover .activity-icon {
-  content: url('../public/interaction-icon.jpg');
 }
 
 .activity-name {

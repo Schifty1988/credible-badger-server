@@ -299,37 +299,36 @@ const Activity = () => {
                         ((categoryFilter === 'ALL' || item.category === categoryFilter) && item.rating >= ratingFilter) &&
                         <li key={item.id} className="simple-item" onClick={() => selectItemForInteraction(item)}>
                                 { (editMarker !== item.id) ? (
-                                <>
-                                    <img className="activity-icon" src={getImageSource(item.category)} alt={item.category}/>
-                                    <span className="activity-name">{item.name}</span>
-                                </>
+                                <div className="item-content">
+                                <img className="activity-icon" src={getImageSource(item.category)} alt={item.category}/>
+                                <span className="activity-name">
+                                {item.name}
+                                <div className={`list-item-actions ${editMarker !== item.id && interactionMarker === item.id ? 'visible' : 'hidden'}`}>
+                                    { item.category === "MOVIE" && (
+                                    <button className="" onClick={() => recommendMovies(item)}>Guide</button>
+                                    )}
+                                    { item.category === "BOOK" && (
+                                    <button className="" onClick={() => recommendBooks(item)}>Guide</button>
+                                    )}
+                                    { item.category === "PLACE" && (
+                                    <button className="" onClick={() => recommendTravel(item)}>Guide</button>
+                                    )}
+                                    <button className="" onClick={() => selectItemForEdit(item)}>Edit</button>
+                                    <button className="" onClick={() => deleteActivity(item)}>Delete</button>
+                                </div>
+                                </span>
+                                    <div className="activity-meta">{item.rating}/5<br/>{formatDate(new Date(item.creationTime))}</div>  
+                                </div>
                                 ) : (
-                                <>
+                                <div className="item-content">
                                     <button className="activity-edit-button" onClick={() => editItem(item)}>
                                         <img className="activity-store-icon" src="store-icon.jpg" alt="store item"/>
                                     </button>
                                     <input type="text" placeholder="New Activity" id="activity-name" 
                                            value={editName} onChange={handleActivityNameEdit}
                                            className="activity-edit-input"/>
-                                </>
-                                )}
-                             
-                                <span className="activity-meta">{item.rating}/5<br/>{formatDate(new Date(item.creationTime))}</span>  
-                                
-                                { (editMarker !== item.id && interactionMarker === item.id) && (
-                                <div className="list-item-actions">
-                                    { item.category === "MOVIE" && (
-                                    <button className="green-button" onClick={() => recommendMovies(item)}>Recommendations</button>
-                                    )}
-                                    { item.category === "BOOK" && (
-                                    <button className="green-button" onClick={() => recommendBooks(item)}>Recommendations</button>
-                                    )}
-                                    { item.category === "PLACE" && (
-                                    <button className="green-button" onClick={() => recommendTravel(item)}>Recommendations</button>
-                                    )}
-                                    <button className="green-button" onClick={() => selectItemForEdit(item)}>Edit</button>
-                                    <button className="red-button" onClick={() => deleteActivity(item)}>Delete</button>
-                                </div>)}
+                                </div>
+                                )} 
                         </li>
                     ))}
                     </ul>
