@@ -300,23 +300,25 @@ const Activity = () => {
                         <li key={item.id} className="simple-item" onClick={() => selectItemForInteraction(item)}>
                                 { (editMarker !== item.id) ? (
                                 <div className="item-content">
-                                <img className="activity-icon" src={getImageSource(item.category)} alt={item.category}/>
-                                <span className="activity-name">
-                                {item.name}
-                                <div className={`list-item-actions ${editMarker !== item.id && interactionMarker === item.id ? 'visible' : 'hidden'}`}>
-                                    { item.category === "MOVIE" && (
-                                    <button className="" onClick={() => recommendMovies(item)}>Guide</button>
-                                    )}
-                                    { item.category === "BOOK" && (
-                                    <button className="" onClick={() => recommendBooks(item)}>Guide</button>
-                                    )}
-                                    { item.category === "PLACE" && (
-                                    <button className="" onClick={() => recommendTravel(item)}>Guide</button>
-                                    )}
-                                    <button className="" onClick={() => selectItemForEdit(item)}>Edit</button>
-                                    <button className="" onClick={() => deleteActivity(item)}>Delete</button>
-                                </div>
-                                </span>
+                                    <div className="image-container">
+                                        <img className="activity-icon" src={getImageSource(item.category)} alt={item.category}/>
+                                    </div>
+                                    <span className="activity-name">
+                                    {item.name}
+                                    <div className={`list-item-actions ${editMarker !== item.id && interactionMarker === item.id ? 'visible' : 'hidden'}`}>
+                                        { item.category === "MOVIE" && (
+                                        <button className="" onClick={() => recommendMovies(item)}>Guide</button>
+                                        )}
+                                        { item.category === "BOOK" && (
+                                        <button className="" onClick={() => recommendBooks(item)}>Guide</button>
+                                        )}
+                                        { item.category === "PLACE" && (
+                                        <button className="" onClick={() => recommendTravel(item)}>Guide</button>
+                                        )}
+                                        <button className="" onClick={() => selectItemForEdit(item)}>Edit</button>
+                                        <button className="" onClick={() => deleteActivity(item)}>Delete</button>
+                                    </div>
+                                    </span>
                                     <div className="activity-meta">{item.rating}/5<br/>{formatDate(new Date(item.creationTime))}</div>  
                                 </div>
                                 ) : (

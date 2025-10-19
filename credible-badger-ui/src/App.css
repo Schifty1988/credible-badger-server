@@ -521,9 +521,23 @@ form input[type="submit"]:hover {
     font-size: 16px;
 }
 
-.activity-icon, .activity-store-icon {
+.activity-icon {
+  position: absolute;
+  inset: 0;
+  width: 65px;
+  height: 100%;
+  object-fit: cover;
+}
+
+.activity-store-icon {
     width: 64px;
     margin: -12px 0px -10px -10px;
+}
+
+.image-container {
+  width: 64px;
+  height: auto;
+  margin-right: 5px
 }
 
 .activity-interaction-button {
