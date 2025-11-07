@@ -12,6 +12,7 @@ const Activity = () => {
     const [activityRating, setActivityRating] = useState('1');
     const [categoryFilter, setCategoryFilter] = useState('ALL');
     const [ratingFilter, setRatingFilter] = useState('1');
+    const [yearFilter, setYearFilter] = useState(new Date().getFullYear());
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const [editMarker, setEditMarker] = useState(null);
@@ -128,6 +129,10 @@ const Activity = () => {
     const handleRatingFilterChange = (event) => {
         setRatingFilter(event.target.value);
     };
+    
+    const handleYearFilterChange = (event) => {
+        setYearFilter(event.target.value);
+    };
 
     const deleteActivity = (item) => {
         fetch(`${apiUrl}/api/activity/delete`, {
@@ -234,6 +239,37 @@ const Activity = () => {
         }
     };
     
+    const getFilteredActivities = () => {
+        return activities.filter(item => ((
+            (categoryFilter === 'ALL' || item.category === categoryFilter) && 
+            item.rating >= ratingFilter && 
+            new Date(item.creationTime).getFullYear() === Number(yearFilter))));
+    };
+    
+    const getFormattedNumberOfActivities = () => {
+        const filteredActivities = getFilteredActivities().length;
+        if (filteredActivities === 0) {
+            return '';
+        }
+        return '(' + filteredActivities + ')';
+    };
+    
+    const createYearFilterValues = () => {
+        const currentYear = new Date().getFullYear();
+
+        const years = Array.from(
+          new Set(activities.map(item => new Date(item.creationTime).getFullYear()))
+        );
+
+        if (!years.includes(currentYear)) {
+          years.push(currentYear);
+        }
+
+        years.sort((a, b) => b - a);  
+        return years;
+    };
+    
+    
     return (
         <div className="content"> 
             <UserInfo />
@@ -245,7 +281,7 @@ const Activity = () => {
             ) : 
             (
             <div>
-                <p className="title">What did you do in 2025? Keep track of the places you have visited, books you have read, and movies you have watched!</p>
+                <p className="title">What did you do this year? Keep track of the places you have visited, books you have read, and movies you have watched!</p>
                 
                 <div className="activity-new">
                     <input type="text" placeholder="New Activity" id="activity-name" 
@@ -271,7 +307,7 @@ const Activity = () => {
                 </div>
                 
                 <div className="activities-header"> 
-                    <span>Your Activities</span>
+                    <span>Your Activities {getFormattedNumberOfActivities()}</span>
                     <div className="activity-filter-group">
                         <select className="activities-filter" id="activity-filter" 
                                 onChange={handleCategoryFilterChange}>
@@ -289,14 +325,19 @@ const Activity = () => {
                             <option value="3">+3</option>
                             <option value="4">+4</option>
                             <option value="5">+5</option>
-                        </select>    
+                        </select>
+                        <select className="activities-filter" id="activity-filter" 
+                                onChange={handleYearFilterChange}>   
+                            {createYearFilterValues().map(year => (
+                                <option value={year}>{year}</option>
+                              ))}
+                        </select>   
                     </div>
                 </div>
                 { activities.length > 0 ? (
                 <div> 
                     <ul className="simple-list">
-                    { activities.map(item => (
-                        ((categoryFilter === 'ALL' || item.category === categoryFilter) && item.rating >= ratingFilter) &&
+                    { getFilteredActivities().map(item => (
                         <li key={item.id} className="simple-item" onClick={() => selectItemForInteraction(item)}>
                                 { (editMarker !== item.id) ? (
                                 <div className="item-content">
