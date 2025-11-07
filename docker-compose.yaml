@@ -25,6 +25,7 @@ services:
         - "8080:8080"
     image: credible-badger-server
     container_name: credible-badger-server
+    restart: always
     environment:
       DB_SERVICE_USER: service
       DB_SERVICE_PASSWORD: ${DB_SERVICE_PASSWORD}
@@ -34,10 +35,16 @@ services:
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       SPRING_ADMIN_PASSWORD: ${SPRING_ADMIN_PASSWORD}
     volumes:
-      - ~/.aws:/root/.aws:ro
+      - ~/.aws:/root/.aws
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9090/actuator/health/readiness | grep '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 volumes:
   pgdata:
   
