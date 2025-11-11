@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
+import { FaStar, FaRegCalendarAlt } from "react-icons/fa";
 
 const Activity = () => {
     const { user } = useContext(UserContext);
@@ -291,32 +292,30 @@ const Activity = () => {
             ) : 
             (
             <div>
+                <p className="title">What did you do this year? Keep track of the places you have visited, books you have read, and movies you have watched!</p>
                 {!userId &&
-                <>
-                    <p className="title">What did you do this year? Keep track of the places you have visited, books you have read, and movies you have watched!</p>
-                    <div className="activity-new">
-                        <input type="text" placeholder="New Activity" id="activity-name" 
-                               value={activityName} onChange={handleActivityNameChange}
-                               className="activity-new-input"/>
-                                <div>
-                                    <select className="activity-select" onChange={handleActivityCategoryChange} id="activity-category" >
-                                        <option value="PLACE">Place</option>
-                                        <option value="BOOK">Book</option>
-                                        <option value="MOVIE">Movie</option>
-                                        <option value="SHOW">Show</option>
-                                        <option value="GAME">Game</option>
-                                    </select>
-                                    <select className="activity-select" onChange={handleActivityRatingChange} id="activity-rating" >
-                                        <option value="1">1/5</option>
-                                        <option value="2">2/5</option>
-                                        <option value="3">3/5</option>
-                                        <option value="4">4/5</option>
-                                        <option value="5">5/5</option>
-                                    </select>
-                                    <button onClick={submitActivity}>Add</button>
-                               </div>
+                <div className="activity-new">
+                    <input type="text" placeholder="New Activity" id="activity-name" 
+                           value={activityName} onChange={handleActivityNameChange}
+                           className="activity-new-input"/>
+                    <div>
+                        <select className="activity-select" onChange={handleActivityCategoryChange} id="activity-category" >
+                            <option value="PLACE">Place</option>
+                            <option value="BOOK">Book</option>
+                            <option value="MOVIE">Movie</option>
+                            <option value="SHOW">Show</option>
+                            <option value="GAME">Game</option>
+                        </select>
+                        <select className="activity-select" onChange={handleActivityRatingChange} id="activity-rating" >
+                            <option value="1">1/5</option>
+                            <option value="2">2/5</option>
+                            <option value="3">3/5</option>
+                            <option value="4">4/5</option>
+                            <option value="5">5/5</option>
+                        </select>
+                        <button onClick={submitActivity}>Add</button>
                     </div>
-                </>}
+                </div>}
 
                 
                 <div className="activities-header"> 
@@ -325,11 +324,11 @@ const Activity = () => {
                         <select className="activities-filter" id="activity-filter" 
                                 onChange={handleCategoryFilterChange}>
                             <option value="ALL">All</option>
-                            <option value="PLACE">Place</option>
-                            <option value="BOOK">Book</option>
-                            <option value="MOVIE">Movie</option>
-                            <option value="SHOW">Show</option>
-                            <option value="GAME">Game</option>
+                            <option value="PLACE">Places</option>
+                            <option value="BOOK">Books</option>
+                            <option value="MOVIE">Movies</option>
+                            <option value="SHOW">Shows</option>
+                            <option value="GAME">Games</option>
                         </select>
                         <select className="activities-filter" id="activity-filter" 
                                 onChange={handleRatingFilterChange}>
@@ -373,7 +372,7 @@ const Activity = () => {
                                         <button className="" onClick={() => deleteActivity(item)}>Delete</button>
                                     </div>
                                     </span>
-                                    <div className="activity-meta">{item.rating}/5<br/>{formatDate(new Date(item.creationTime))}</div>  
+                                    <div className="activity-meta">{item.rating}/5&nbsp;<FaStar className="activity-meta-icon"/><br/>{formatDate(new Date(item.creationTime))}&nbsp;<FaRegCalendarAlt className="activity-meta-icon"/></div>  
                                 </div>
                                 ) : (
                                 <div className="item-content">
