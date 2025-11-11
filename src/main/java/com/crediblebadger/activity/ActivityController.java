@@ -91,15 +91,10 @@ public class ActivityController {
     
     
     @PostMapping("/retrieve")
-    public ResponseEntity<List<Activity>> retrieveActivity(
-            @AuthenticationPrincipal User user,
+    public ResponseEntity<List<Activity>> retrieveActivities(
             @RequestBody ActivityRequest request) {
         
-        if (!User.validateUser(user)) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        List<Activity> activities = this.activityService.retrieveActivities(user.getId());
+        List<Activity> activities = this.activityService.retrieveActivities(request.getUserId());
         
         if (activities == null) {
             return ResponseEntity.badRequest().build();

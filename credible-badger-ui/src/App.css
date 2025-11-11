@@ -552,3 +552,7 @@ form input[type="submit"]:hover {
 .activity-meta {
     color: #555;
 }
+
+.content-margin {
+    margin-top: 16px;
+}

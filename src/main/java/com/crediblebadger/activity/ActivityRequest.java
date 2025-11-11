@@ -19,5 +19,5 @@ import lombok.Data;
 
 @Data
 public class ActivityRequest {
-    private String userId;
+    private long userId;
 }

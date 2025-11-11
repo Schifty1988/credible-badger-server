@@ -27,7 +27,7 @@ public class FrontEndController {
         "/travelGuide", "/travelGuide/*", 
         "/movieGuide", "/movieGuide/*",
         "/bookGuide", "/bookGuide/*", 
-        "/marketingOptOut", "/marketingOptOut/*", "/storage", "/activity", "/legal", "/feedback", "/story"})
+        "/marketingOptOut", "/marketingOptOut/*", "/storage", "/activity/*", "/legal", "/feedback", "/story"})
     public String redirect() {
         return "forward:/index.html";
     }

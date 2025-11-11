@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect, useCallback } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
 
 const Activity = () => {
     const { user } = useContext(UserContext);
+    const { userId } = useParams();
     const [activities, setActivities] = useState([]);
     const [activityName, setActivityName] = useState('');
     const [activityCategory, setActivityCategory] = useState('PLACE');
@@ -29,13 +30,14 @@ const Activity = () => {
     };
 
     const retrieveActivities = useCallback(() => {
+        const currentUserId = userId ? userId : (user ? user.id : 0);
         fetch(`${apiUrl}/api/activity/retrieve`, {
             method: 'POST',
             credentials: 'include',
             headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({ userId : currentUserId})
         })
         .then(response => {
                 if (!response.ok) {
@@ -48,14 +50,14 @@ const Activity = () => {
         .catch(error => {
             setActivities([]);
         });
-    }, [apiUrl, ResponseTypes.ERROR_UNKNOWN]);
+    }, [user, apiUrl, ResponseTypes.ERROR_UNKNOWN]);
     
     useEffect(() => {
         if (!user) {
             return;
         }
         
-        if (user.anonymous) {
+        if (user.anonymous && !userId) {
             navigate('/login');
             return;
         }
@@ -203,17 +205,18 @@ const Activity = () => {
     };
     
     const getImageSource = (item) => {
+        const parentFolder = userId ? "../" : "";
         switch (item) {
             case "PLACE":
-              return "activity-place.jpg";
+              return parentFolder + "activity-place.jpg";
             case "MOVIE":
-              return "activity-movie.jpg";
+              return parentFolder + "activity-movie.jpg";
             case "GAME":
-              return "activity-game.jpg";
+              return parentFolder + "activity-game.jpg";
             case "SHOW":
-              return "activity-show.jpg";
+              return parentFolder + "activity-show.jpg";
             case "BOOK":
-              return "activity-book.jpg";
+              return parentFolder + "activity-book.jpg";
             default:
               return "";
         }
@@ -268,7 +271,14 @@ const Activity = () => {
         years.sort((a, b) => b - a);  
         return years;
     };
+
+    const goToSharePage = () => {
+        navigate(`/activity/${user.id}`);
+    };
     
+    const goToActivityPage = () => {
+        navigate("/activity");
+    };   
     
     return (
         <div className="content"> 
@@ -276,38 +286,41 @@ const Activity = () => {
             {!user ? (
                 <p>Loading...</p>
             ) :
-            (!user.emailVerified) ? (
+            (!user.emailVerified && !userId) ? (
                 <p>Your email address is not verified! Please check your inbox or request a new verification email <a href="/verifyEmail">here</a>!</p>
             ) : 
             (
             <div>
-                <p className="title">What did you do this year? Keep track of the places you have visited, books you have read, and movies you have watched!</p>
-                
-                <div className="activity-new">
-                    <input type="text" placeholder="New Activity" id="activity-name" 
-                           value={activityName} onChange={handleActivityNameChange}
-                           className="activity-new-input"/>
-                            <div>
-                                <select className="activity-select" onChange={handleActivityCategoryChange} id="activity-category" >
-                                    <option value="PLACE">Place</option>
-                                    <option value="BOOK">Book</option>
-                                    <option value="MOVIE">Movie</option>
-                                    <option value="SHOW">Show</option>
-                                    <option value="GAME">Game</option>
-                                </select>
-                                <select className="activity-select" onChange={handleActivityRatingChange} id="activity-rating" >
-                                    <option value="1">1/5</option>
-                                    <option value="2">2/5</option>
-                                    <option value="3">3/5</option>
-                                    <option value="4">4/5</option>
-                                    <option value="5">5/5</option>
-                                </select>
-                                <button onClick={submitActivity}>Add</button>
-                           </div>
-                </div>
+                {!userId &&
+                <>
+                    <p className="title">What did you do this year? Keep track of the places you have visited, books you have read, and movies you have watched!</p>
+                    <div className="activity-new">
+                        <input type="text" placeholder="New Activity" id="activity-name" 
+                               value={activityName} onChange={handleActivityNameChange}
+                               className="activity-new-input"/>
+                                <div>
+                                    <select className="activity-select" onChange={handleActivityCategoryChange} id="activity-category" >
+                                        <option value="PLACE">Place</option>
+                                        <option value="BOOK">Book</option>
+                                        <option value="MOVIE">Movie</option>
+                                        <option value="SHOW">Show</option>
+                                        <option value="GAME">Game</option>
+                                    </select>
+                                    <select className="activity-select" onChange={handleActivityRatingChange} id="activity-rating" >
+                                        <option value="1">1/5</option>
+                                        <option value="2">2/5</option>
+                                        <option value="3">3/5</option>
+                                        <option value="4">4/5</option>
+                                        <option value="5">5/5</option>
+                                    </select>
+                                    <button onClick={submitActivity}>Add</button>
+                               </div>
+                    </div>
+                </>}
+
                 
                 <div className="activities-header"> 
-                    <span>Your Activities {getFormattedNumberOfActivities()}</span>
+                    <span>Activities {getFormattedNumberOfActivities()}</span>
                     <div className="activity-filter-group">
                         <select className="activities-filter" id="activity-filter" 
                                 onChange={handleCategoryFilterChange}>
@@ -334,7 +347,7 @@ const Activity = () => {
                         </select>   
                     </div>
                 </div>
-                { activities.length > 0 ? (
+                { activities.length > 0 &&
                 <div> 
                     <ul className="simple-list">
                     { getFilteredActivities().map(item => (
@@ -346,7 +359,7 @@ const Activity = () => {
                                     </div>
                                     <span className="activity-name">
                                     {item.name}
-                                    <div className={`list-item-actions ${editMarker !== item.id && interactionMarker === item.id ? 'visible' : 'hidden'}`}>
+                                    <div className={`list-item-actions ${!userId && editMarker !== item.id && interactionMarker === item.id ? 'visible' : 'hidden'}`}>
                                         { item.category === "MOVIE" && (
                                         <button className="" onClick={() => recommendMovies(item)}>Guide</button>
                                         )}
@@ -375,11 +388,30 @@ const Activity = () => {
                         </li>
                     ))}
                     </ul>
-                </div>
-                ) : (
-                <p>You haven't added anything yet!</p>
-                )}
+                </div>}
             </div>)}
+            
+            {activities.length === 0 && user && !user.anonymous && !userId &&
+            <p>You haven't added anything yet!</p>
+            }
+
+            {activities.length === 0 && userId &&
+            <p>This user hasn't shared any activities yet!</p>
+            }
+            
+            <div className="content-margin">
+                {activities.length !== 0 && user && !userId &&
+                <button onClick={goToSharePage}>Share your activities!</button>
+                }
+
+                {user && !user.anonymous && userId &&
+                <button onClick={goToActivityPage}>Manage your own activities!</button>
+                }
+
+                {(!user || user.anonymous) && userId &&
+                <button onClick={goToActivityPage}>Sign up to track your own activities!</button>
+                }
+            </div>
             
             {showNotification && (
             <div className={responseType === ResponseTypes.SUCCESS ? "notification-success" : "notification-error"}>

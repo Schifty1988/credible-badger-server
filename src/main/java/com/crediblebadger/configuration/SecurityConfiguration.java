@@ -47,6 +47,7 @@ public class SecurityConfiguration {
         
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/marketing/viewCampaign/*").permitAll()
+                .requestMatchers("/api/activity/retrieve").permitAll()
                 .requestMatchers("/api/admin/**", "/api/marketing/**").hasRole("ADMIN")
                 .requestMatchers("/api/storage/**", "/api/activity/**", "/api/feedback/retrieve").authenticated()
                 .requestMatchers("/**").permitAll());
