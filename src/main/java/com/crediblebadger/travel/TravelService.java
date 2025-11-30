@@ -16,8 +16,6 @@
 package com.crediblebadger.travel;
 
 import com.crediblebadger.ai.mistral.MistralResponseWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +25,8 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelResponse;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @Slf4j
@@ -109,7 +109,7 @@ public class TravelService {
             this.travelRepository.addTravelGuide(travelGuide);
             return travelGuide;
             
-        } catch (JsonProcessingException ex) {
+        } catch (JacksonException ex) {
             log.error("createTravelGuide failed for place={}!", place, ex);
             return null;
         }

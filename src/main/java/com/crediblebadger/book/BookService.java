@@ -16,8 +16,6 @@
 package com.crediblebadger.book;
 
 import com.crediblebadger.ai.mistral.MistralResponseWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +25,8 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelResponse;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @Slf4j
@@ -111,7 +111,7 @@ public class BookService {
             this.bookRepository.addBookGuide(bookGuide); 
             return bookGuide;
             
-        } catch (JsonProcessingException ex) {
+        } catch (JacksonException ex) {
             log.error("createBookGuide failed for name={}!", name, ex);
             return null;
         }
