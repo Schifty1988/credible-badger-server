@@ -82,7 +82,10 @@ const UserInfo = () => {
                 break;
             case '/feedback':
                 navigate('/feedback');
-                break;    
+                break;
+            case '/watchMeTrade':
+                navigate('/watchMeTrade');
+                break;
             case 'logout':
                 callUserLogout();
                 break;
@@ -103,6 +106,7 @@ const UserInfo = () => {
                     <option value="/bookGuide">Books</option>
                     <option value="/storage">Storage</option>
                     <option value="/feedback">Feedback</option>
+                    <option value="/watchMeTrade">Trading</option>
                     {isAdmin() && <option value="/admin">Admin</option>}
                     <option value="logout">Logout</option>
                 </select>

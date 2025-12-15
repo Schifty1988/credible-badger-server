@@ -563,3 +563,49 @@ form input[type="submit"]:hover {
 .content-margin {
     margin-top: 16px;
 }
+
+.profit {
+    color: green;
+}
+
+.loss {
+    color: darkred;
+}
+
+.trade-summary {
+    text-align: center;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.trade-header {
+  display: grid;
+  grid-template-columns: 50px 90px 60px 60px;
+  text-align: left;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.trade-add-column {
+    width: 100%
+}
+
+.trade-add-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    margin: 2px;
+    width: 42%
+}
+
+.trade-add-button {
+    width: 100%;
+}
+
+.trade-filter-group {
+    margin-top: 20px;
+    text-align: right;
+}

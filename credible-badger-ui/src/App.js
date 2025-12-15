@@ -15,6 +15,7 @@ import TravelGuide from './TravelGuide';
 import MovieGuide from './MovieGuide';
 import BookGuide from './BookGuide';
 import Activity from './Activity';
+import Trading from './Trading';
 import { UserProvider } from './UserContext';
 
 const App = () => {
@@ -25,6 +26,7 @@ const App = () => {
                     <Routes>
                         <Route path="/login" element={<Login />} />
                         <Route path="/activity/:userId?" element={<Activity />} />
+                        <Route path="/watchMeTrade/:userId?" element={<Trading />} />
                         <Route path="/travelGuide/:guideLink?" element={<TravelGuide />} />
                         <Route path="/movieGuide/:guideLink?" element={<MovieGuide />} />
                         <Route path="/bookGuide/:guideLink?" element={<BookGuide />} />

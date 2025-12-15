@@ -350,4 +350,48 @@
             <column name="rating" type="INTEGER" defaultValue="0"/>
         </addColumn>
     </changeSet>
+    
+    <changeSet id="create_trade" author="Michail Ostrowski">
+        <createTable tableName="trade">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="symbol" type="varchar(10)">
+                 <constraints nullable="false"/>
+            </column>
+             
+            <column name="purchase_date" type="date">
+                 <constraints nullable="false"/>
+            </column>
+            
+            <column name="purchase_price" type="numeric(10,2)">
+                 <constraints nullable="false"/>
+            </column>
+                  
+            <column name="sell_date" type="date">
+                 <constraints nullable="false"/>
+            </column>
+      
+            <column name="sell_price" type="numeric(10,2)">
+                 <constraints nullable="false"/>
+            </column>
+            
+            <column name="quantity" type="INTEGER" defaultValue="0"/>
+            <column name="version" type="bigint"/>
+        </createTable>
+        
+        <createSequence sequenceName="trade_seq" incrementBy="50"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="trade" 
+            baseColumnNames="user_id" 
+            constraintName="fk_activity_user" 
+            referencedTableName="user" 
+            referencedColumnNames="id"/>
+    </changeSet>
+    
 </databaseChangeLog>
