@@ -20,7 +20,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -44,6 +46,10 @@ public class SecurityTokenRepository {
             return false;
         }
         
+        if (LocalDateTime.now().isAfter(securityToken.getValidUntil())) {
+            return false;
+        }
+        
         if (securityToken.isBurned()) {
             return false;
         }
@@ -54,7 +60,7 @@ public class SecurityTokenRepository {
     SecurityToken findToken(String securityToken) {
         TypedQuery<SecurityToken> tokenQuery = this.entityManager
                 .createNamedQuery(SecurityToken.FIND_SECURITY_TOKEN, SecurityToken.class);
-        tokenQuery.setParameter("token", securityToken);
+        tokenQuery.setParameter("token", UUID.fromString(securityToken));
         
         List<SecurityToken> results = tokenQuery.getResultList();
         

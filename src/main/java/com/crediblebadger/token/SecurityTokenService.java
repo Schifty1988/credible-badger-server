@@ -17,21 +17,18 @@
 package com.crediblebadger.token;
 
 import java.time.LocalDateTime;
-import org.apache.commons.lang3.RandomStringUtils;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SecurityTokenService {
-    private static final int TOKEN_LENGTH = 20;
-    public static final int SECURITY_TOKEN_LIFETIME_MINUTES = 15;
-    
     @Autowired
     private SecurityTokenRepository securityTokenRepository;
     
     public String addToken(long userId, TokenType type) {
-        String generatedToken = RandomStringUtils.randomAlphanumeric(TOKEN_LENGTH);
-        LocalDateTime validUntil = LocalDateTime.now().plusMinutes(SECURITY_TOKEN_LIFETIME_MINUTES);
+        UUID generatedToken = UUID.randomUUID();
+        LocalDateTime validUntil = LocalDateTime.now().plusMinutes(type.getLifetimeInMinutes());
         
         SecurityToken token = new SecurityToken();       
         token.setToken(generatedToken);
@@ -40,7 +37,7 @@ public class SecurityTokenService {
         token.setType(type);
 
         this.securityTokenRepository.addSecurityToken(token);
-        return generatedToken;
+        return generatedToken.toString();
     }
         
     public boolean burnToken(String securityToken, TokenType type) {

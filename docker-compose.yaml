@@ -34,6 +34,7 @@ services:
       SPRING_PROFILES_ACTIVE: production
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       SPRING_ADMIN_PASSWORD: ${SPRING_ADMIN_PASSWORD}
+      APPLICATION_JWT_SECRET: ${APPLICATION_JWT_SECRET}
     volumes:
       - ~/.aws:/root/.aws
     depends_on:

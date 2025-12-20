@@ -11,7 +11,7 @@ const TravelGuide = () => {
     const [responseType, setResponseType] = useState([]);
     const [place, setPlace] = useState("");
     const [loading, setLoading] = useState(false);
-    const [childFriendly, setChildFriendly] = useState("");
+    const [childFriendly, setChildFriendly] = useState("false");
     const [travelGuide, setTravelGuide] = useState([]);
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();

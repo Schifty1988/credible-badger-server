@@ -2,6 +2,7 @@ import './App.css';
 import React, { useContext, useState } from "react";
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
+import { fetchWithAuth } from './Api';
 
 const Admin = () => {
     const [actionResponse, setActionResponse] = useState([]); 
@@ -14,7 +15,7 @@ const Admin = () => {
     const [showNotification, setShowNotification] = useState(false);
 
     const listUsers = () => {
-        fetch(`${apiUrl}/api/admin/listUsers`, {
+        fetchWithAuth('/api/admin/listUsers', {
             method: 'GET',
             credentials: 'include'})
             .then(response => {
@@ -31,7 +32,7 @@ const Admin = () => {
     };
     
     const retrieveStorageInfo = () => {
-        fetch(`${apiUrl}/api/admin/storageInfo`, {
+        fetchWithAuth('/api/admin/storageInfo', {
             method: 'GET',
             credentials: 'include'})
             .then(response => {
@@ -48,7 +49,7 @@ const Admin = () => {
     };
     
     const suspendUser = (userId, suspended) => {
-        fetch(`${apiUrl}/api/admin/suspendUser`, {
+        fetchWithAuth('/api/admin/suspendUser', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -92,7 +93,7 @@ const Admin = () => {
     };
     
     const deleteTravelGuide = (userId, suspended) => {
-        fetch(`${apiUrl}/api/admin/guide/` + travelGuideId, {
+        fetchWithAuth('/api/admin/guide/' + travelGuideId, {
             method: 'DELETE',
             credentials: 'include'
         })

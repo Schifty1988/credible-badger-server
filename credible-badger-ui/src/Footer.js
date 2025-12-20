@@ -14,7 +14,7 @@ const Footer = () => {
     const { user } = useContext(UserContext);
     
     const submitFeedback = () => {
-        const userName = user ? user.email : "Anonymous";
+        const userName = (user && !user.anonymous) ? user.email : "Anonymous";
         
         if (feedback.length === 0) {
             return;

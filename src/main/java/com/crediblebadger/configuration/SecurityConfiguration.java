@@ -16,19 +16,18 @@
 
 package com.crediblebadger.configuration;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -38,45 +37,6 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable());
-        http.cors(cors -> cors.configurationSource(buildCorsConfigurationSource()));
-        
-        http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/marketing/viewCampaign/*").permitAll()
-                .requestMatchers("/api/activity/retrieve").permitAll()
-                .requestMatchers("/api/admin/**", "/api/marketing/**").hasRole("ADMIN")
-                .requestMatchers("/api/storage/**", "/api/activity/**", "/api/feedback/retrieve").authenticated()
-                .requestMatchers("/**").permitAll());
-        
-        AuthenticationFailureHandler loginFailureHandler = (request, response, authException) -> {
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-        };
-
-        AuthenticationSuccessHandler loginSuccessHandler = (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
-            response.setStatus(HttpStatus.OK.value());
-        };
-                        
-        LogoutSuccessHandler logoutSuccessHandler = (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
-            response.setStatus(HttpStatus.OK.value());
-        };
-        
-        http.formLogin(login -> login
-            .loginProcessingUrl("/api/user/login")
-            .loginPage("/login_page")
-            .failureHandler(loginFailureHandler)
-            .successHandler(loginSuccessHandler));
-
-        http.logout(logout -> logout
-            .logoutUrl("/api/user/logout")
-            .logoutSuccessHandler(logoutSuccessHandler)
-            .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID")
-            .permitAll());
-        return http.build();
     }
 
     private CorsConfigurationSource buildCorsConfigurationSource() {
@@ -91,5 +51,67 @@ public class SecurityConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+    
+    @Bean
+    @Order(1)
+    public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
+        
+        List<String> publicApis = List.of(
+                "/api/activity/retrieve",
+                "/api/book/bookGuide",
+                "/api/feedback/submit",
+                "/api/marketing/viewCampaign/*", 
+                "/api/movie/movieGuide",
+                "/api/story/retrieve",
+                "/api/trade/retrieve",
+                "/api/travel/travelGuide",
+                "/api/user/changePassword",
+                "/api/user/disableMarketingSubscription/*",
+                "/api/user/login",
+                "/api/user/logout",
+                "/api/user/me",
+                "/api/user/refreshTokens",
+                "/api/user/register",
+                "/api/user/requestPasswordChange",
+                "/api/user/verifyEmail");
+
+        http
+            .securityMatcher(request -> {
+                String path = request.getServletPath();
+
+                if (publicApis.contains(path)) {
+                    return true;
+                }
+
+                // static ressources
+                return !path.startsWith("/api");
+            })
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(buildCorsConfigurationSource()));
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain jwtChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(buildCorsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/api/admin/**", "/api/marketing/**").hasRole("ADMIN")
+                    .anyRequest().authenticated())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
+    
+        
+    @Bean
+    public FilterRegistrationBean<JwtAuthFilter> registrationBean(JwtAuthFilter filter) {
+        FilterRegistrationBean<JwtAuthFilter> registrationBean = new FilterRegistrationBean<>(filter);
+        registrationBean.setEnabled(false);
+        return registrationBean;
     }
 }

@@ -2,6 +2,7 @@ import './App.css';
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from './UserContext';
+import { fetchWithAuth } from './Api';
 
 const UserInfo = () => {
     const navigate = useNavigate();
@@ -11,30 +12,31 @@ const UserInfo = () => {
     const apiUrl = process.env.REACT_APP_API_URL;
     
     useEffect(() => {
-        fetch(`${apiUrl}/api/user/me`, {
-            method: 'GET',
-            credentials: 'include'})
-            .then(response => {
-                if (!response.ok) {
-                    return null;
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data) {
-                    data = { anonymous : true };
-                }
-                setUser(data);
-            })
-            .catch(error => {
-                setUser({ anonymous : true });
-            });
+        updateUserData();
         setCurrentPage(getCurrentPage());
     }, [apiUrl, setUser]);
     
     function getCurrentPage() {
         return "/" + location.pathname.split('/')[1];
     };
+    
+    async function updateUserData() {
+        try {
+            const response = await fetchWithAuth('/api/user/me');
+            if (!response.ok) {
+                setUser({ anonymous : true });
+                return null;
+            }
+            const data = await response.json();
+                    
+            if (!data) {
+                data = { anonymous : true };
+            }
+            setUser(data);
+        } catch (err) {
+            setUser({ anonymous : true });
+        }
+    }
     
     const callUserLogout = () => {
         fetch(`${apiUrl}/api/user/logout`, {credentials: 'include'})

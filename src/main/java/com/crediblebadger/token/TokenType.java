@@ -17,6 +17,17 @@
 package com.crediblebadger.token;
 
 public enum TokenType {
-    EMAIL_VERIFICATION,
-    PASSWORD_CHANGE
+    EMAIL_VERIFICATION(15),
+    PASSWORD_CHANGE(15),
+    REFRESH_SESSION(60 * 24 * 15); // 15 days
+
+    private final int lifetimeInMinutes;
+    
+    private TokenType(int lifetimeInMinutes) {
+        this.lifetimeInMinutes = lifetimeInMinutes;
+    }
+
+    public int getLifetimeInMinutes() {
+        return lifetimeInMinutes;
+    }
 }

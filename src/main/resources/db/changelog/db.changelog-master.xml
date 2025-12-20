@@ -394,4 +394,14 @@
             referencedColumnNames="id"/>
     </changeSet>
     
+    <changeSet id="drop_spring_session_tables" author="Michail Ostrowski">
+        <dropTable tableName="spring_session"/>
+        <dropTable tableName="spring_session_attributes"/>   
+    </changeSet>
+    
+    <changeSet id="change_token_to_uuid" author="Michail Ostrowski">
+        <delete tableName="security_token"/>
+        <modifyDataType tableName="security_token" columnName="token" newDataType="uuid"/>
+        <addNotNullConstraint tableName="security_token" columnName="token" columnDataType="uuid"/>
+    </changeSet>   
 </databaseChangeLog>

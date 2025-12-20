@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
-import { FaStar, FaRegCalendarAlt } from "react-icons/fa";
+import { FaRegCalendarAlt } from "react-icons/fa";
+import { fetchWithAuth } from './Api';
 
 const Trading = () => {
     const { user } = useContext(UserContext);
@@ -37,7 +38,7 @@ const Trading = () => {
 
     const retrieveTrades = useCallback(() => {
         const currentUserId = userId ? userId : (user ? user.id : 0);
-        fetch(`${apiUrl}/api/trade/retrieve`, {
+        fetchWithAuth('/api/trade/retrieve', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -161,7 +162,7 @@ const Trading = () => {
     };
     
     const deleteTrade = (item) => {
-        fetch(`${apiUrl}/api/trade/delete`, {
+        fetchWithAuth('/api/trade/delete', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -191,7 +192,7 @@ const Trading = () => {
             return;
         }
         
-        fetch(`${apiUrl}/api/trade/submit`, {
+        fetchWithAuth('/api/trade/submit', {
             method: 'POST',
             credentials: 'include',
             headers: {

@@ -47,7 +47,7 @@ const EmailVerification = () => {
         })
         .then(response => { 
             if (response.ok) {
-                navigate("/dashboard");
+                navigate("/");
             }
             else {
                 displayActionResponse("Email verification failed: " +  response.status, false);

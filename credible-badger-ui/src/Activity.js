@@ -4,6 +4,7 @@ import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
 import { FaStar, FaRegCalendarAlt } from "react-icons/fa";
+import { fetchWithAuth } from './Api';
 
 const Activity = () => {
     const { user } = useContext(UserContext);
@@ -32,7 +33,7 @@ const Activity = () => {
 
     const retrieveActivities = useCallback(() => {
         const currentUserId = userId ? userId : (user ? user.id : 0);
-        fetch(`${apiUrl}/api/activity/retrieve`, {
+        fetchWithAuth('/api/activity/retrieve', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -72,7 +73,7 @@ const Activity = () => {
             return;
         }
         
-        fetch(`${apiUrl}/api/activity/submit`, {
+        fetchWithAuth('/api/activity/submit', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -138,7 +139,7 @@ const Activity = () => {
     };
 
     const deleteActivity = (item) => {
-        fetch(`${apiUrl}/api/activity/delete`, {
+        fetchWithAuth('/api/activity/delete', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -163,7 +164,7 @@ const Activity = () => {
     
     const editItem = (item) => {
         item.name = editName;
-        fetch(`${apiUrl}/api/activity/update`, {
+        fetchWithAuth('/api/activity/update', {
             method: 'POST',
             credentials: 'include',
             headers: {

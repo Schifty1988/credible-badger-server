@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
+import { fetchWithAuth } from './Api';
 
 const Feedback = () => {
     const { user } = useContext(UserContext);
@@ -18,7 +19,7 @@ const Feedback = () => {
     
     
     useEffect(() => {
-        fetch(`${apiUrl}/api/feedback/retrieve`, {
+        fetchWithAuth('/api/feedback/retrieve', {
             method: 'POST',
             credentials: 'include',
             headers: {

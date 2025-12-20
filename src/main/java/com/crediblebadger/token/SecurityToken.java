@@ -26,6 +26,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Version;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.Data;
 
 @Entity
@@ -43,7 +44,7 @@ public class SecurityToken {
     @Column
     private Long userId;
     @Column
-    private String token;
+    private UUID token;
     @Column
     @Enumerated(EnumType.ORDINAL)
     private TokenType type;

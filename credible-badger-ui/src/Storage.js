@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
+import { fetchWithAuth } from './Api';
 
 const Storage = () => {
     const [actionResponse, setActionResponse] = useState([]); 
@@ -20,7 +21,7 @@ const Storage = () => {
     }, [user]);
     
     const retrieveUserFiles = () => {
-        fetch(`${apiUrl}/api/storage/retrieveUserFiles`, {
+        fetchWithAuth('/api/storage/retrieveUserFiles', {
             method: 'GET',
             credentials: 'include'})
             .then(response => { 
@@ -69,7 +70,7 @@ const Storage = () => {
        const formDataDownload = new FormData();
        formDataDownload.append("file_name", filename_local);
         
-        fetch(`${apiUrl}/api/storage/downloadFile`, {
+        fetchWithAuth('/api/storage/downloadFile', {
             method: 'POST',
             credentials: 'include',
         body: formDataDownload
@@ -93,7 +94,7 @@ const Storage = () => {
        const formDataDelete = new FormData();
        formDataDelete.append("file_name", fileName_local);
         
-        fetch(`${apiUrl}/api/storage/deleteFile`, {
+        fetchWithAuth('/api/storage/deleteFile', {
             method: 'POST',
             credentials: 'include',
         body: formDataDelete
