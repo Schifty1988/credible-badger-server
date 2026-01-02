@@ -12,6 +12,7 @@ const Trading = () => {
     const [trades, setTrades] = useState([]);
     const [tradeSummary, setTradeSummary] = useState([]);
     const [tradeFilter, setTradeFilter] = useState('all');
+    const [yearFilter, setYearFilter] = useState(new Date().getFullYear());
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const [editMarker, setEditMarker] = useState(null);
@@ -156,9 +157,10 @@ const Trading = () => {
     
     const getFilteredTrades = () => {
         return trades.filter(item => (
-              tradeFilter === 'all' || 
+              new Date(item.sellDate).getFullYear() === Number(yearFilter) && 
+             (tradeFilter === 'all' || 
              (tradeFilter === 'loss' && isLoss(item)) ||
-             (tradeFilter === 'day' && isDayTrade(item))));
+             (tradeFilter === 'day' && isDayTrade(item)))));
     };
     
     const deleteTrade = (item) => {
@@ -250,6 +252,25 @@ const Trading = () => {
         setTradeFilter(event.target.value);
     };
     
+    const handleYearFilterChange = (event) => {
+        setYearFilter(event.target.value);
+    };
+    
+    const createYearFilterValues = () => {
+        const currentYear = new Date().getFullYear();
+
+        const years = Array.from(
+          new Set(trades.map(item => new Date(item.sellDate).getFullYear()))
+        );
+
+        if (!years.includes(currentYear)) {
+          years.push(currentYear);
+        }
+
+        years.sort((a, b) => b - a);  
+        return years;
+    };
+    
     return (
         <div className="content"> 
             <UserInfo />
@@ -307,6 +328,12 @@ const Trading = () => {
                         <option value="day">Intraday ({tradeSummary.numberOfDayTrades})</option>
                         <option value="loss">Losses ({tradeSummary.numberOfLosingTrades})</option>
                     </select>
+                    <select className="activity-select" id="activity-filter" 
+                            onChange={handleYearFilterChange}>   
+                        {createYearFilterValues().map(year => (
+                            <option value={year}>{year}</option>
+                          ))}
+                    </select>  
                 </div>
                 
                 <div className="activities-header trade-header"> 
