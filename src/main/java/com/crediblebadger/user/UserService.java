@@ -181,7 +181,7 @@ public class UserService implements UserDetailsService{
     public String login(String username, String password) {
         String lowerCaseUsername = username.toLowerCase();
         User user = this.userRepository.retrieveUser(lowerCaseUsername);  
-        if (user == null) {
+        if (user == null || user.isSuspended()) {
             return null;
         }
 
@@ -205,6 +205,11 @@ public class UserService implements UserDetailsService{
         }
         SecurityToken token = this.securityTokenService.findToken(refreshToken);
         User user = this.userRepository.retrieveUser(token.getUserId());
+        
+        if(user == null || user.isSuspended()) {
+            return null;
+        }
+        
         return generateAccessToken(user);
     }
 
