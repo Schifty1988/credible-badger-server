@@ -3,6 +3,7 @@ package com.crediblebadger.user;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     @Autowired
     UserService userService;
+    
+    @Value("${app.secureCookies:false}")
+    private boolean secureCookies;
     
     @GetMapping("/me")    
     public ResponseEntity<User> me(@AuthenticationPrincipal User user) {    
@@ -137,6 +141,7 @@ public class UserController {
         
         ResponseCookie accessTokenCookie = ResponseCookie.from(UserService.ACCESS_TOKEN_COOKIE, accessToken)
             .httpOnly(true)
+            .secure(this.secureCookies)
             .path("/")
             .maxAge(UserService.ACCESS_TOKEN_LIFETIME_SECONDS)
             .sameSite("Strict")
@@ -153,6 +158,7 @@ public class UserController {
         
         ResponseCookie refreshTokenCookie = ResponseCookie.from(UserService.REFRESH_TOKEN_COOKIE, refreshToken)
             .httpOnly(true)
+            .secure(this.secureCookies)
             .path("/")
             .maxAge(UserService.REFRESH_TOKEN_LIFETIME_SECONDS)
             .sameSite("Strict")
@@ -173,6 +179,7 @@ public class UserController {
         }
         ResponseCookie accessTokenCookie = ResponseCookie.from(UserService.ACCESS_TOKEN_COOKIE, "")
             .httpOnly(true)
+            .secure(this.secureCookies)
             .path("/")
             .maxAge(0)
             .sameSite("Strict")
@@ -187,6 +194,7 @@ public class UserController {
         
         ResponseCookie refreshTokenCookie = ResponseCookie.from(UserService.REFRESH_TOKEN_COOKIE, "")
             .httpOnly(true)
+            .secure(this.secureCookies)
             .path("/")
             .maxAge(0)
             .sameSite("Strict")
@@ -212,6 +220,7 @@ public class UserController {
                 
         ResponseCookie accessTokenCookie = ResponseCookie.from(UserService.ACCESS_TOKEN_COOKIE, accessToken)
             .httpOnly(true)
+            .secure(this.secureCookies)
             .path("/")
             .maxAge(UserService.ACCESS_TOKEN_LIFETIME_SECONDS)
             .sameSite("Strict")
@@ -228,6 +237,7 @@ public class UserController {
         
         ResponseCookie refreshTokenCookie = ResponseCookie.from(UserService.REFRESH_TOKEN_COOKIE, newRefreshToken)
             .httpOnly(true)
+            .secure(this.secureCookies)
             .path("/")
             .maxAge(UserService.REFRESH_TOKEN_LIFETIME_SECONDS)
             .sameSite("Strict")
