@@ -16,11 +16,9 @@
 
 package com.crediblebadger.configuration;
 
-import java.util.List;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -52,12 +50,14 @@ public class SecurityConfiguration {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-    
+
     @Bean
-    @Order(1)
-    public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
-        
-        List<String> publicApis = List.of(
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(buildCorsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+            .requestMatchers(                
                 "/api/activity/retrieve",
                 "/api/book/bookGuide",
                 "/api/feedback/submit",
@@ -74,34 +74,10 @@ public class SecurityConfiguration {
                 "/api/user/refreshTokens",
                 "/api/user/register",
                 "/api/user/requestPasswordChange",
-                "/api/user/verifyEmail");
-
-        http
-            .securityMatcher(request -> {
-                String path = request.getServletPath();
-
-                if (publicApis.contains(path)) {
-                    return true;
-                }
-
-                // static ressources
-                return !path.startsWith("/api");
-            })
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(buildCorsConfigurationSource()));
-
-        return http.build();
-    }
-
-    @Bean
-    @Order(2)
-    public SecurityFilterChain jwtChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(buildCorsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/admin/**", "/api/marketing/**").hasRole("ADMIN")
-                    .anyRequest().authenticated())
+                "/api/user/verifyEmail").permitAll()
+            .requestMatchers("/api/admin/**", "/api/marketing/**").hasRole("ADMIN")
+            .requestMatchers("/api/**").authenticated()
+            .anyRequest().permitAll()) // static file hosting
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();

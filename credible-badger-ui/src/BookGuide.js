@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import UserInfo from './UserInfo';
 import Footer from './Footer';
+import { fetchWithAuth } from './Api';
 
 const BookGuide = () => {
     const { guideLink } = useParams();
@@ -65,7 +66,7 @@ const BookGuide = () => {
         displayActionResponse("", ResponseTypes.SUCCESS);
         setLoading(true);
         
-        fetch(`${apiUrl}/api/book/bookGuide`, {
+        fetchWithAuth('/api/book/bookGuide', {
             method: 'POST',
             credentials: 'include',
             headers: {

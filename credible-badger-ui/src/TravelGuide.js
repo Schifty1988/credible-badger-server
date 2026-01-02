@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import UserInfo from './UserInfo';
 import Footer from './Footer';
+import { fetchWithAuth } from './Api';
 
 const TravelGuide = () => {
     const { guideLink } = useParams();
@@ -11,7 +12,7 @@ const TravelGuide = () => {
     const [responseType, setResponseType] = useState([]);
     const [place, setPlace] = useState("");
     const [loading, setLoading] = useState(false);
-    const [childFriendly, setChildFriendly] = useState("false");
+    const [childFriendly, setChildFriendly] = useState("true");
     const [travelGuide, setTravelGuide] = useState([]);
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
@@ -67,7 +68,7 @@ const TravelGuide = () => {
         displayActionResponse("", ResponseTypes.SUCCESS);
         setLoading(true);
         
-        fetch(`${apiUrl}/api/travel/travelGuide`, {
+        fetchWithAuth('/api/travel/travelGuide', {
             method: 'POST',
             credentials: 'include',
             headers: {

@@ -39,8 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         
         if (token == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No Access Token");
-            log.error("No JWT Token was sent for request {}!", request.getRequestURI());
+            filterChain.doFilter(request, response);
             return;
         }
         
@@ -57,9 +56,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
 
         } catch (JwtException e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT");
             log.error("Invalid JWT was sent for url {}!", request.getRequestURI(), e);
-            return;
         }
         filterChain.doFilter(request, response);
     }

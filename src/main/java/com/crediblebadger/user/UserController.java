@@ -1,6 +1,5 @@
 package com.crediblebadger.user;
 
-import io.jsonwebtoken.Claims;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +24,10 @@ public class UserController {
     UserService userService;
     
     @GetMapping("/me")    
-    public ResponseEntity<User> me(
-            @CookieValue(name = UserService.ACCESS_TOKEN_COOKIE, required = false) String accessToken) {
-        
-        if (accessToken == null || accessToken.isEmpty()) {
+    public ResponseEntity<User> me(@AuthenticationPrincipal User user) {    
+        if (user == null) {
             return ResponseEntity.badRequest().build();
         }
-        
-        Claims claims = this.userService.verifyAccessToken(accessToken);
-        User user = this.userService.createUserFromClaims(claims);
         return ResponseEntity.ok(user);
     }
 
