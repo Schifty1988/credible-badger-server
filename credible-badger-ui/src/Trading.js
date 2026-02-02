@@ -26,11 +26,15 @@ const Trading = () => {
     const [addTradeSymbol, setAddTradeSymbol]  = useState('');
     const [addTradeQuantity, setAddTradeQuantity]  = useState('');  
     const [addTradePurchasePrice, setAddTradePurchasePrice]  = useState('');
-    const [addTradePurchaseDate, setAddTradePurchaseDate]  = useState('');
-    const [addTradePurchaseDateIso, setAddTradePurchaseDateIso]  = useState('');
     const [addTradeSalePrice, setAddTradeSalePrice]  = useState('');
-    const [addTradeSaleDate, setAddTradeSaleDate]  = useState('');
-    const [addTradeSaleDateIso, setAddTradeSaleDateIso]  = useState('');
+    
+    const today = new Date().toISOString();
+    const todaySplit = today.split('T')[0];
+    
+    const [addTradePurchaseDate, setAddTradePurchaseDate]  = useState(todaySplit);
+    const [addTradePurchaseDateIso, setAddTradePurchaseDateIso]  = useState(today);
+    const [addTradeSaleDate, setAddTradeSaleDate]  = useState(todaySplit);
+    const [addTradeSaleDateIso, setAddTradeSaleDateIso]  = useState(today);
     
     const ResponseTypes = {
         SUCCESS: 'success',
