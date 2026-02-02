@@ -5,7 +5,7 @@ import Footer from './Footer';
 import { UserContext } from './UserContext';
 
 const Login = () => {
-    const { user, setUser } = useContext(UserContext);
+    const { setUser } = useContext(UserContext);
     const [actionResponse, setActionResponse] = useState([]);
     const [responseType, setResponseType] = useState([]);
     const [username, setUsername] = useState("");

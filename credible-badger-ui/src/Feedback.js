@@ -7,7 +7,6 @@ import { fetchWithAuth } from './Api';
 const Feedback = () => {
     const { user } = useContext(UserContext);
     const [feedback, setFeedback] = useState([]);
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [needHelp, setNeedHelp] = useState(false);
 
     const tutorialData = {

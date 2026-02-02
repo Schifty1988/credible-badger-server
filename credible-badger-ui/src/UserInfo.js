@@ -27,7 +27,7 @@ const UserInfo = () => {
                 setUser({ anonymous : true });
                 return null;
             }
-            const data = await response.json();
+            let data = await response.json();
                     
             if (!data) {
                 data = { anonymous : true };

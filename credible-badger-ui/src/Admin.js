@@ -11,7 +11,6 @@ const Admin = () => {
     const [users, setUsers] = useState([]);
     const [storageInfo, setStorageInfo] = useState([]);
     const { user } = useContext(UserContext);
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [showNotification, setShowNotification] = useState(false);
 
     const listUsers = () => {

@@ -1,4 +1,3 @@
-let refreshingToken = null;
 const apiUrl = process.env.REACT_APP_API_URL;
 
 function getCookie(name) {
@@ -32,7 +31,7 @@ export async function fetchWithAuth(url, options = {}) {
 
     try {
         let response = await fetch(apiUrl + url, options);
-
+        
         // login required
         if (response.status === 403) {
             window.location.href = '/login';
@@ -46,7 +45,7 @@ export async function fetchWithAuth(url, options = {}) {
 }
 
 async function refreshAccessToken() {
-    const response = await fetch(`${apiUrl}/api/user/refreshTokens`, {
+    await fetch(`${apiUrl}/api/user/refreshTokens`, {
         method: 'POST',
         credentials: 'include'
     });
