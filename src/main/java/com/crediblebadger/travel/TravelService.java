@@ -17,23 +17,22 @@ package com.crediblebadger.travel;
 
 import com.crediblebadger.ai.mistral.MistralResponseWrapper;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
-import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelResponse;
-import tools.jackson.core.JacksonException;
+import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeAsyncClient;
+import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelWithResponseStreamRequest;
+import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelWithResponseStreamResponseHandler;
 import tools.jackson.databind.ObjectMapper;
 
 @Service
 @Slf4j
 public class TravelService {
-    
     @Autowired
-    BedrockRuntimeClient bedrockRuntimeClient;
+    BedrockRuntimeAsyncClient bedrockRuntimeAsyncClient;
     
     @Autowired
     TravelRepository travelRepository;
@@ -44,123 +43,157 @@ public class TravelService {
         return normalizedPlace + "_" + isChildFriendly;
     }
     
-    public TravelGuide createTravelGuide(String place, boolean isChildFriendly) {
+    public Flux<TravelRecommendation> createTravelGuideStreaming(String place, boolean isChildFriendly) {
         String searchKey = createCacheKey(place, isChildFriendly);
         TravelGuide cachedGuide = this.travelRepository.retrieveGuide(searchKey);
         if (cachedGuide != null) {
             log.info("Retrieved cached travel guide for searchKey={}", searchKey);
-            return cachedGuide;
+            return Flux.fromIterable(cachedGuide.getTravelRecommendations());
         }
         
         log.info("Creating new travel guide for searchKey={}", searchKey);
         
-        try {
-            TravelGuide travelGuide = new TravelGuide();
-            travelGuide.setSearchKey(searchKey);
-            travelGuide.setCreationTime(LocalDateTime.now());
+        TravelGuide travelGuide = new TravelGuide();
+        travelGuide.setSearchKey(searchKey);
+        travelGuide.setCreationTime(LocalDateTime.now());
 
-            StringBuilder requestBuilder = new StringBuilder();
-            requestBuilder.append("{ \"prompt\": \"");
-            requestBuilder.append("Create a list with names and very short descriptions of 20 ");
-            requestBuilder.append(isChildFriendly ? "child-friendly " : "");
-            requestBuilder.append("points of interest in ");
-            requestBuilder.append(place);
-            requestBuilder.append(" - no additional output.");
-            requestBuilder.append("\" }");
+        StringBuilder requestBuilder = new StringBuilder();
+        requestBuilder.append("{ \"prompt\": \"");
+        requestBuilder.append("Create a list with names and very short descriptions of 20 ");
+        requestBuilder.append(isChildFriendly ? "child-friendly " : "");
+        requestBuilder.append("points of interest in ");
+        requestBuilder.append(place);
+        requestBuilder.append(" - no additional output.");
+        requestBuilder.append("\", \"max_tokens\": \"1000\"}");
 
-            String nativeRequestTemplate =  requestBuilder.toString();
-            InvokeModelResponse response = this.bedrockRuntimeClient.invokeModel(
-                    request -> 
-                        request
-                        .body(SdkBytes.fromUtf8String(nativeRequestTemplate))
-                        .modelId("mistral.mistral-large-2402-v1:0")
-            );
-            String responseString = response.body().asUtf8String();
-            
-            ObjectMapper objectMapper = new ObjectMapper();
-            MistralResponseWrapper responseWrapper = objectMapper.readValue( responseString, MistralResponseWrapper.class);
-            String responseText = responseWrapper.getOutputs()[0].getText();
-            log.info("Request={} Response={}", nativeRequestTemplate, responseText);
-            
-            List<String> pointsOfInterest = extractListFromString(responseText);
+        String nativeRequestTemplate =  requestBuilder.toString();
 
-            for (String currentValue : pointsOfInterest) {
-                String[] currentData = currentValue.split(" - ");
-                
-                if (currentData.length != 2) {
-                    currentData = currentValue.split(": ");
-                }
-                
-                if (currentData.length != 2) {
-                    log.error("Couldn't process currentValue={}", currentValue);
-                    continue;
-                } 
-                TravelRecommendation currentPointOfInterest = new TravelRecommendation();
-                currentPointOfInterest.setName(currentData[0]);
-                currentPointOfInterest.setDescription(currentData[1]);
-                travelGuide.addRecomendation(currentPointOfInterest);
-            }
-
-            if (travelGuide.getTravelRecommendations().isEmpty()) {
-                log.error("createTravelGuide was not able to create recommendations for place={}!", place);
-                return null;
-            }
-            
-            this.travelRepository.addTravelGuide(travelGuide);
-            return travelGuide;
-            
-        } catch (JacksonException ex) {
-            log.error("createTravelGuide failed for place={}!", place, ex);
-            return null;
-        }
+        return streamModelResponse(nativeRequestTemplate, travelGuide);
     }
     
-    private List<String> extractListFromString(String input) {
-        String trimmedResponseText = input.trim();
-        String[] pointsOfInterest = trimmedResponseText.split("\n");
+    private void processItem(String currentItem, TravelGuide guide, FluxSink<TravelRecommendation> sink) {
+        if (currentItem == null || currentItem.isBlank()) {
+            return;
+        }
 
+        try {
+            TravelRecommendation recommendation = convertStringToRecommendation(currentItem);
+            guide.addRecomendation(recommendation);
+            sink.next(recommendation);
+        }
+        catch (Exception e) {
+            log.error("Couldn't process item: {}", currentItem, e);
+        }
+    }
+        
+    public TravelRecommendation convertStringToRecommendation(String currentValue) {
+         String processedString = currentValue.trim();
+
+        // sometimes line is wrapped in ""
+        // sometimes word is highlighted with **
+        processedString = processedString.replace("\"", "").replace("**", "");
+
+        int firstSpace = processedString.indexOf(" ");
+        int firstCharacter = processedString.charAt(0);
+
+        // assuming list format:  33. Zoo
+        if (Character.isDigit(firstCharacter) && firstSpace != -1) {
+            processedString = processedString.substring(firstSpace + 1);    
+        }
+
+        // assuming list format: - Zoo
+        if (processedString.startsWith("- ")) {
+            processedString = processedString.substring(2);
+        }
+
+        String[] currentData = processedString.split(" - ");
+
+        if (currentData.length != 2) {
+            currentData = processedString.split(": ");
+        }
+
+        if (currentData.length != 2) {
+            log.error("Couldn't process currentValue={}", processedString);
+            return new TravelRecommendation();
+        } 
+        TravelRecommendation currentPointOfInterest = new TravelRecommendation();
+        currentPointOfInterest.setName(currentData[0]);
+        currentPointOfInterest.setDescription(currentData[1]);
+        return currentPointOfInterest;
+    }
+        
+    public Flux<TravelRecommendation> streamModelResponse(String prompt, TravelGuide travelGuide) {
+        InvokeModelWithResponseStreamRequest request =
+        InvokeModelWithResponseStreamRequest.builder()
+                .modelId("mistral.mistral-large-2402-v1:0")
+                .body(SdkBytes.fromUtf8String(prompt))
+                .build();
+        
         // sometimes the result is a JSON object
-        if (pointsOfInterest.length < 5) {
-
-            boolean stripStart = trimmedResponseText.startsWith("["); 
-            boolean stripEnd = trimmedResponseText.endsWith("]");
-            int trimmedLength = trimmedResponseText.length();
-
-            trimmedResponseText = trimmedResponseText.substring(
-                    stripStart ? 1 : 0, 
-                    stripEnd ? trimmedLength - 1 : trimmedLength);
-            pointsOfInterest = trimmedResponseText.split(",");
-        }
+//        if (pointsOfInterest.length < 5) {
+//
+//            boolean stripStart = trimmedResponseText.startsWith("["); 
+//            boolean stripEnd = trimmedResponseText.endsWith("]");
+//            int trimmedLength = trimmedResponseText.length();
+//
+//            trimmedResponseText = trimmedResponseText.substring(
+//                    stripStart ? 1 : 0, 
+//                    stripEnd ? trimmedLength - 1 : trimmedLength);
+//            pointsOfInterest = trimmedResponseText.split(",");
+//        }
         
-        List<String> filteredResult = new LinkedList<>();
-        for (String currentString : pointsOfInterest) {
-            String processedString = currentString.trim();
-            
-            if (processedString.isEmpty()) {
-                continue;
-            }
-                     
-            // sometimes line is wrapped in ""
-            // sometimes word is highlighted with **
-            processedString = processedString.replace("\"", "").replace("**", "");
+        Flux<TravelRecommendation> flux = Flux.create(sink -> {
+            StringBuilder buffer = new StringBuilder();
+            ObjectMapper objectMapper = new ObjectMapper();
+                        
+            this.bedrockRuntimeAsyncClient.invokeModelWithResponseStream(request,
+                InvokeModelWithResponseStreamResponseHandler.builder()
+                    .onEventStream(stream -> {
+                        stream.subscribe(event -> {
+                            event.accept(InvokeModelWithResponseStreamResponseHandler.Visitor.builder()
+                                .onChunk(chunk -> {
 
-            int firstSpace = processedString.indexOf(" ");
-            int firstCharacter = processedString.charAt(0);
+                            String json = chunk.bytes().asUtf8String();                            
+                            
+                            MistralResponseWrapper responseWrapper = objectMapper.readValue( json, MistralResponseWrapper.class);
+                            String responseText = responseWrapper.getOutputs()[0].getText();
+                            String stop_reason = responseWrapper.getOutputs()[0].getStop_reason();
+                            
+                            if (stop_reason != null && !stop_reason.equals("stop")) {
+                                log.error("An unexpected stop_reason={} occured for promt={}", stop_reason, prompt);
+                            }
+                            
+                            buffer.append(responseText); 
+                            String bufferContent = buffer.toString();
 
-            // assuming list format:  33. Zoo
-            if (Character.isDigit(firstCharacter) && firstSpace != -1) {
-                processedString = processedString.substring(firstSpace + 1);    
-            }
-            
-            // assuming list format: - Zoo
-            if (processedString.startsWith("- ")) {
-                processedString = processedString.substring(2);
-            }
+                            String[] lines = bufferContent.split("\n", -1);
 
-            filteredResult.add(processedString);
-        }
-        
-        return filteredResult;
+                            for (int i = 0; i < lines.length - 1; i++) {  
+                                processItem(bufferContent, travelGuide, sink);
+                            }
+
+                            buffer.setLength(0);
+                            buffer.append(lines[lines.length - 1]);
+                            })
+                            .onDefault(e -> {
+                                // Handle other event types if needed
+                            }).build());
+                        });
+                    })
+                    .onComplete(() -> {
+                        String bufferContent = buffer.toString();
+                        processItem(bufferContent, travelGuide, sink);
+                        sink.complete();
+                        this.travelRepository.addTravelGuide(travelGuide);
+                        log.info("Stored new TravelGuide={}", travelGuide.getSearchKey());
+                    })
+                    .onError(e ->  {
+                        sink.error(e); 
+                        log.error("An error occured while processing response for prompt={}", prompt, e);
+                    }).build()
+            );
+        });
+        return flux;
     }
     
     public boolean removeTravelGuide(long travelGuideId) {

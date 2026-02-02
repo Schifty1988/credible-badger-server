@@ -31,6 +31,38 @@
     position: relative;
 }
 
+@keyframes addToScreen {
+  from {
+    opacity: 0.0;
+    transform: scale(0.1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.0);
+  }
+}
+
+@keyframes blurToClear {
+  from {
+    filter: blur(3px);
+    opacity: 0.6;
+  }
+  to {
+    filter: blur(0px);
+    opacity: 1;
+  }
+}
+
+.loaded {
+    animation: blurToClear 0.6s ease;
+}
+
+
+.teaser {
+    animation: addToScreen 0.6s ease;
+    filter: blur(3px);
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

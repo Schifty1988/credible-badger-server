@@ -12,14 +12,15 @@ const TravelGuide = () => {
     const [responseType, setResponseType] = useState([]);
     const [place, setPlace] = useState("");
     const [loading, setLoading] = useState(false);
-    const [childFriendly, setChildFriendly] = useState("true");
-    const [travelGuide, setTravelGuide] = useState([]);
+    const [childFriendly, setChildFriendly] = useState(true);
+    const [travelRecommendations, setTravelRecommendations] = useState([]);
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const location = useLocation();
     const [state, setState] = useState(() => location.state || {});
     const [showNotification, setShowNotification] = useState(false);
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+    const controller = new AbortController();
 
     const ResponseTypes = {
         SUCCESS: 'success',
@@ -61,41 +62,78 @@ const TravelGuide = () => {
         return place.length > 1;
     };
     
-    const createTravelGuide = () => {      
+    async function fetchStream() {
         if (!validateInput()) {
             return;
-        }
+        }  
         displayActionResponse("", ResponseTypes.SUCCESS);
         setLoading(true);
         
-        fetchWithAuth('/api/travel/travelGuide', {
-            method: 'POST',
-            credentials: 'include',
+        const tr = Array.from({ length: 20 }, (_, i) => ({
+            id: i + 1,
+            name: "Recommendation Title",
+            description: "Description Description Description Description Description Description"}));
+        
+        //fetchWithAuth('/api/travel/travelGuide', {
+        const response = await fetchWithAuth('/api/travel/travelGuide', {
+            method: "POST",
             headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({place: place, childFriendly: childFriendly})
+                "Content-Type": "application/json"},
+            body: JSON.stringify({place: place, childFriendly: childFriendly}),
+            signal: controller.signal
         })
-        .then(response => {
-            if (response.ok) {
-                displayActionResponse("Guide was created!", ResponseTypes.SUCCESS);
-                return response.json();
-            } else {
-                displayActionResponse("Guide creation failed: " + response.status, ResponseTypes.ERROR_UNKNOWN);
-                return [];
-            }
-        })
-        .then(data => {
-            const stateobj = {travelGuide: data, childFriendly : childFriendly, place : place};
-            navigate('.', { replace: true, state: stateobj});
-            setTravelGuide(data);
-            setLoading(false);
-        })      
         .catch(error => {
             displayActionResponse("Guide creation failed: " + error.message, ResponseTypes.ERROR_UNKNOWN);
             setLoading(false);
         });
-    };    
+
+        if (!response.body)
+            return;
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let buffer = ""; // keep partial data
+        let index = 0;
+
+        async function readChunk() {
+            const {done, value} = await reader.read();
+            if (done) {
+                displayActionResponse("Guide was created!", ResponseTypes.SUCCESS);
+                setLoading(false);
+                setTravelRecommendations(tr.filter((_, i) => tr[i].loaded));
+                return;
+            }
+            buffer += decoder.decode(value, {stream: true});
+            
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                if (!line.trim())
+                    continue;
+                try {
+                    const json = JSON.parse(line.slice(5)); // remove "data:"
+                    json.loaded = true;
+                    json.id = index;
+                    tr[index] = json;
+                    setTravelRecommendations([...tr]);
+                    ++index;
+                } catch (err) {
+                    console.error(err);
+                    displayActionResponse("Guide creation failed: " + response.status, ResponseTypes.ERROR_UNKNOWN);
+                }
+            }
+
+            readChunk(); // recursively read next chunk
+        }
+
+        readChunk();
+    }
+    
+     const createTravelGuideStream = () => {
+         fetchStream().catch(err => console.error(err));
+     };
     
     const handlePlaceChange = (event) => {
         setPlace(event.target.value);
@@ -103,7 +141,7 @@ const TravelGuide = () => {
     
     const handlePlaceKeyDown = (event) => {
         if (event.key === 'Enter') {
-            createTravelGuide();
+            createTravelGuideStream();
         }
     };
     
@@ -142,7 +180,7 @@ const TravelGuide = () => {
      
     useEffect(() => {
         if (readyForSearch) {
-            createTravelGuide();   
+            //createTravelGuideStream();
         }
      }, [readyForSearch]);
      
@@ -153,7 +191,7 @@ const TravelGuide = () => {
             }
             navigate('.', { replace: true, state: state });
             setChildFriendly(state.childFriendly);
-            setTravelGuide(state.travelGuide);
+            //setTravelGuide(state.travelGuide);
             setPlace(state.place);
         };
     }, [state, navigate]);
@@ -170,13 +208,13 @@ const TravelGuide = () => {
                     <input type="checkbox" checked={childFriendly} onChange={handleChildFriendlyChange} />
                     Search for child-friendly places
                 </span>
-                <button type="button" disabled={loading} onClick={createTravelGuide}><span className={loading ? "loading-button" : ""}></span>Create Travel Guide</button>
+                <button type="button" disabled={loading} onClick={createTravelGuideStream}><span className={loading ? "loading-button" : ""}></span>Create Travel Guide</button>
             </div>
             
             <ul className="grid-list">
-                {travelGuide.travelRecommendations && travelGuide.travelRecommendations.map(item => (
-                    <Link key={item.id} to={createLink(item.name)} className="travel-guide-link">
-                        <li className="point-of-interest"><b>{item.name}</b> - {item.description}</li>
+                {travelRecommendations && travelRecommendations.map(item => (
+                    <Link key={item.id} to={createLink(item.name)} onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={`travel-guide-link ${item.loaded ? "loaded" : "teaser"}`}>
+                        <li className={`point-of-interest`}><b>{item.name}</b> - {item.description}</li>
                     </Link>
                 ))}
             </ul>
@@ -188,8 +226,8 @@ const TravelGuide = () => {
             )}
             
             <div className="footer">
-                {travelGuide.travelRecommendations && (
-                        <button type="button" className="footer-button" hidden={!travelGuide.travelRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
+                {travelRecommendations && (
+                        <button type="button" className="footer-button" hidden={!travelRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
             </div>                      

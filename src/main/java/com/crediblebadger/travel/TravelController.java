@@ -18,12 +18,14 @@ package com.crediblebadger.travel;
 import com.crediblebadger.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api/travel")
@@ -33,8 +35,8 @@ public class TravelController {
     @Autowired
     TravelService travelService;
     
-    @PostMapping("/travelGuide")
-    public ResponseEntity<TravelGuide> createTravelGuide(
+    @PostMapping(value = "/travelGuide", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<Flux<TravelRecommendation>> createTravelRecommendationStream(
             @AuthenticationPrincipal User user,
             @RequestBody TravelGuideRequest request) {
         if (request.getPlace().isBlank() || request.getPlace().length() > 30) {
@@ -42,13 +44,12 @@ public class TravelController {
         }
         String username = user == null ? "Anonymous" : user.getUsername();
         log.info("{} requested a travel guide for {} ", username, request.getPlace());
-        TravelGuide travelGuide = this.travelService.createTravelGuide(request.getPlace(), request.isChildFriendly());
         
-        if (travelGuide == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        
-        return ResponseEntity.ok(travelGuide);
+        Flux<TravelRecommendation> flux = 
+                this.travelService.createTravelGuideStreaming(request.getPlace(), request.isChildFriendly());
+        return ResponseEntity
+            .ok()
+            .header("X-Accel-Buffering", "no") // disable nginx buffering
+            .body(flux);
     }
-    
 }
