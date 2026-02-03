@@ -1,0 +1,56 @@
+/*
+ *  Copyright © 2026 Michail Ostrowski
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package com.crediblebadger.recommendation;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
+import java.util.List;
+import org.springframework.stereotype.Repository;
+
+
+@Repository
+@Transactional
+public class RecommendationRepository { 
+    @PersistenceContext
+    private EntityManager entityManager;
+    
+    public RecommendationGroup retrieveRecommendationGroup(String searchKey, RecommendationType type) {
+        TypedQuery<RecommendationGroup> recommendationGroupQuery = 
+                this.entityManager.createNamedQuery(RecommendationGroup.FIND_RECOMMENDATION_GROUP_BY_KEY, RecommendationGroup.class);
+        recommendationGroupQuery.setParameter("searchKey", searchKey);
+        recommendationGroupQuery.setParameter("type", type);
+        List<RecommendationGroup> results = recommendationGroupQuery.getResultList();
+        RecommendationGroup result = results.isEmpty() ? null : results.get(0);
+        return result;
+    }
+    
+    public void addRecommendationGroup(RecommendationGroup recommendationGroup) {
+        this.entityManager.persist(recommendationGroup);
+    }
+    
+    public boolean removeRecommendationGroup(long recommendationGroupId) {
+        RecommendationGroup recommendationGroup = this.entityManager.find(RecommendationGroup.class, recommendationGroupId);
+        
+        if (recommendationGroup == null) {
+            return false;
+        }
+        
+        this.entityManager.remove(recommendationGroup);
+        return true;
+    }
+}

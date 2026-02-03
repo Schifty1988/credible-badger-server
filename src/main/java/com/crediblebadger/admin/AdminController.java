@@ -15,6 +15,7 @@
  */
 package com.crediblebadger.admin;
 
+import com.crediblebadger.recommendation.RecommendationService;
 import com.crediblebadger.storage.StorageService;
 import com.crediblebadger.travel.TravelService;
 import com.crediblebadger.user.User;
@@ -22,6 +23,7 @@ import com.crediblebadger.user.UserService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +44,12 @@ public class AdminController {
     
     @Autowired
     TravelService travelService;
+    
+    @Autowired
+    AdminService adminService;
+    
+    @Autowired
+    RecommendationService recommendationService;
     
     @GetMapping("/listUsers")
     public List<User> listUsers() {
@@ -71,5 +79,12 @@ public class AdminController {
         }
         
         return ResponseEntity.badRequest().build();
+    }
+    
+        
+    @PostMapping(value = "/migrate", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<Void> migrate() {
+        this.adminService.migrate();
+        return ResponseEntity.ok().build();
     }
 }

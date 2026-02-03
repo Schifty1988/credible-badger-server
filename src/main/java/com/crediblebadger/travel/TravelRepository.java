@@ -51,4 +51,9 @@ public class TravelRepository {
         this.entityManager.remove(travelGuide);
         return true;
     }
+
+    public List<TravelGuide> getAllGuides() {
+        TypedQuery<TravelGuide> travelGuideQuery = this.entityManager.createQuery("From TravelGuide", TravelGuide.class);
+        return travelGuideQuery.getResultList();
+    }
 }

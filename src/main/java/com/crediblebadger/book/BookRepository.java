@@ -51,4 +51,9 @@ public class BookRepository {
         this.entityManager.remove(bookGuide);
         return true;
     }
+
+    public List<BookGuide> getAllGuides() {
+        TypedQuery<BookGuide> bookGuideQuery = this.entityManager.createQuery("From BookGuide", BookGuide.class);
+        return bookGuideQuery.getResultList();
+    }
 }

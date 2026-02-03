@@ -404,4 +404,47 @@
         <modifyDataType tableName="security_token" columnName="token" newDataType="uuid"/>
         <addNotNullConstraint tableName="security_token" columnName="token" columnDataType="uuid"/>
     </changeSet>   
+
+    <changeSet id="create_generic_recommendation" author="Michail Ostrowski">
+        <createTable tableName="recommendation_group">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="search_key" type="varchar(100)">
+                 <constraints nullable="false"/>
+            </column>
+            <column name="type" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creation_time" type="datetime"/>
+            <column name="version" type="bigint"/>
+        </createTable>  
+        
+        <addUniqueConstraint
+            tableName="recommendation_group"
+            columnNames="search_key, type"
+            constraintName="uk_search_key_type"/>
+        
+        <createSequence sequenceName="recommendation_group_seq" incrementBy="50"/>
+
+        <createTable tableName="recommendation">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="recommendation_group_id" type="bigint"/>
+            <column name="name" type="varchar(100)"/>
+            <column name="description" type="varchar(250)"/>
+            <column name="likes" type="bigint"/>
+            <column name="version" type="bigint"/>
+        </createTable>
+        
+        <createSequence sequenceName="recommendation_seq" incrementBy="50"/>
+                
+        <addForeignKeyConstraint 
+            baseTableName="recommendation" 
+            baseColumnNames="recommendation_group_id" 
+            constraintName="fk_recommendation_group_recommendation" 
+            referencedTableName="recommendation_group" 
+            referencedColumnNames="id"/>
+    </changeSet>
 </databaseChangeLog>

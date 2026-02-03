@@ -13,7 +13,7 @@ const TravelGuide = () => {
     const [place, setPlace] = useState("");
     const [loading, setLoading] = useState(false);
     const [childFriendly, setChildFriendly] = useState(true);
-    const [travelRecommendations, setTravelRecommendations] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const location = useLocation();
@@ -73,9 +73,8 @@ const TravelGuide = () => {
             id: i + 1,
             name: "Recommendation Title",
             description: "Description Description Description Description Description Description"}));
-        
-        //fetchWithAuth('/api/travel/travelGuide', {
-        const response = await fetchWithAuth('/api/travel/travelGuide', {
+
+        const response = await fetchWithAuth('/api/recommendation/travel', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"},
@@ -101,7 +100,7 @@ const TravelGuide = () => {
             if (done) {
                 displayActionResponse("Guide was created!", ResponseTypes.SUCCESS);
                 setLoading(false);
-                setTravelRecommendations(tr.filter((_, i) => tr[i].loaded));
+                setRecommendations(tr.filter((_, i) => tr[i].loaded));
                 return;
             }
             buffer += decoder.decode(value, {stream: true});
@@ -117,7 +116,7 @@ const TravelGuide = () => {
                     json.loaded = true;
                     json.id = index;
                     tr[index] = json;
-                    setTravelRecommendations([...tr]);
+                    setRecommendations([...tr]);
                     ++index;
                 } catch (err) {
                     console.error(err);
@@ -131,7 +130,7 @@ const TravelGuide = () => {
         readChunk();
     }
     
-     const createTravelGuideStream = () => {
+     const createRecommendationStream = () => {
          fetchStream().catch(err => console.error(err));
      };
     
@@ -141,7 +140,7 @@ const TravelGuide = () => {
     
     const handlePlaceKeyDown = (event) => {
         if (event.key === 'Enter') {
-            createTravelGuideStream();
+            createRecommendationStream();
         }
     };
     
@@ -208,13 +207,13 @@ const TravelGuide = () => {
                     <input type="checkbox" checked={childFriendly} onChange={handleChildFriendlyChange} />
                     Search for child-friendly places
                 </span>
-                <button type="button" disabled={loading} onClick={createTravelGuideStream}><span className={loading ? "loading-button" : ""}></span>Create Travel Guide</button>
+                <button type="button" disabled={loading} onClick={createRecommendationStream}><span className={loading ? "loading-button" : ""}></span>Create Travel Guide</button>
             </div>
             
             <ul className="grid-list">
-                {travelRecommendations && travelRecommendations.map(item => (
-                    <Link key={item.id} to={createLink(item.name)} onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={`travel-guide-link ${item.loaded ? "loaded" : "teaser"}`}>
-                        <li className={`point-of-interest`}><b>{item.name}</b> - {item.description}</li>
+                {recommendations && recommendations.map(item => (
+                    <Link key={item.id} to={createLink(item.name)} onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={item.loaded ? "loaded" : "teaser"}>
+                        <li className="recommendation"><b>{item.name}</b> - {item.description}</li>
                     </Link>
                 ))}
             </ul>
@@ -226,8 +225,8 @@ const TravelGuide = () => {
             )}
             
             <div className="footer">
-                {travelRecommendations && (
-                        <button type="button" className="footer-button" hidden={!travelRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
+                {recommendations && (
+                        <button type="button" className="footer-button" hidden={!recommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
             </div>                      

@@ -59,6 +59,7 @@ public class SecurityConfiguration {
             .authorizeHttpRequests(auth -> auth
             .requestMatchers(                
                 "/api/activity/retrieve",
+                "/api/recommendation/**",
                 "/api/book/bookGuide",
                 "/api/feedback/submit",
                 "/api/marketing/viewCampaign/*", 

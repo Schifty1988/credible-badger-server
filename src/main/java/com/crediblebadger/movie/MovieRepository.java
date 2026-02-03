@@ -51,4 +51,9 @@ public class MovieRepository {
         this.entityManager.remove(movieGuide);
         return true;
     }
+
+    public List<MovieGuide> getAllGuides() {
+        TypedQuery<MovieGuide> movieGuideQuery = this.entityManager.createQuery("From MovieGuide", MovieGuide.class);
+        return movieGuideQuery.getResultList();
+    }
 }

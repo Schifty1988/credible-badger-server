@@ -19,7 +19,7 @@
     margin: 0;
 }
 
-.point-of-interest {
+.recommendation {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
@@ -103,7 +103,7 @@
     align-items: center;
 }
 
-.simple-item:hover, .point-of-interest:hover, .feedback-item:hover {
+.simple-item:hover, .recommendation:hover, .feedback-item:hover {
     background-color: #e9e9e9;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }

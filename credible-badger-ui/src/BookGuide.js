@@ -12,14 +12,15 @@ const BookGuide = () => {
     const [responseType, setResponseType] = useState([]);
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
-    const [bookGuide, setBookGuide] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
     const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const location = useLocation();
     const [state, setState] = useState(() => location.state || {});
     const [showNotification, setShowNotification] = useState(false);
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-
+    const controller = new AbortController();
+        
     const ResponseTypes = {
         SUCCESS: 'success',
         ERROR_UNKNOWN: 'error_unknown',
@@ -59,41 +60,77 @@ const BookGuide = () => {
         return name.length > 1;
     };
     
-    const createBookGuide = () => {      
+    async function fetchStream() {
         if (!validateInput()) {
             return;
-        }
+        }  
         displayActionResponse("", ResponseTypes.SUCCESS);
         setLoading(true);
         
-        fetchWithAuth('/api/book/bookGuide', {
-            method: 'POST',
-            credentials: 'include',
+        const tr = Array.from({ length: 20 }, (_, i) => ({
+            id: i + 1,
+            name: "Recommendation Title",
+            description: "Description Description Description Description Description Description"}));
+        
+        const response = await fetchWithAuth('/api/recommendation/book', {
+            method: "POST",
             headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({name: name})
+                "Content-Type": "application/json"},
+            body: JSON.stringify({name: name}),
+            signal: controller.signal
         })
-        .then(response => {
-            if (response.ok) {
-                displayActionResponse("Guide was created!", ResponseTypes.SUCCESS);
-                return response.json();
-            } else {
-                displayActionResponse("Guide creation failed: " + response.status, ResponseTypes.ERROR_UNKNOWN);
-                return [];
-            }
-        })
-        .then(data => {
-            const stateobj = {bookGuide: data, name : name};
-            navigate('.', { replace: true, state: stateobj});
-            setBookGuide(data);
-            setLoading(false);
-        })      
         .catch(error => {
             displayActionResponse("Guide creation failed: " + error.message, ResponseTypes.ERROR_UNKNOWN);
             setLoading(false);
         });
-    };    
+
+        if (!response.body)
+            return;
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let buffer = ""; // keep partial data
+        let index = 0;
+
+        async function readChunk() {
+            const {done, value} = await reader.read();
+            if (done) {
+                displayActionResponse("Guide was created!", ResponseTypes.SUCCESS);
+                setLoading(false);
+                setRecommendations(tr.filter((_, i) => tr[i].loaded));
+                return;
+            }
+            buffer += decoder.decode(value, {stream: true});
+            
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                if (!line.trim())
+                    continue;
+                try {
+                    const json = JSON.parse(line.slice(5)); // remove "data:"
+                    json.loaded = true;
+                    json.id = index;
+                    tr[index] = json;
+                    setRecommendations([...tr]);
+                    ++index;
+                } catch (err) {
+                    console.error(err);
+                    displayActionResponse("Guide creation failed: " + response.status, ResponseTypes.ERROR_UNKNOWN);
+                }
+            }
+
+            readChunk(); // recursively read next chunk
+        }
+
+        readChunk();
+    }
+    
+    const createRecommendationStream = () => {
+        fetchStream().catch(err => console.error(err));
+    };   
     
     const handleNameChange = (event) => {
         setName(event.target.value);
@@ -101,7 +138,7 @@ const BookGuide = () => {
     
     const handleNameKeyDown = (event) => {
         if (event.key === 'Enter') {
-            createBookGuide();
+            createRecommendationStream();
         }
     };
     
@@ -136,7 +173,7 @@ const BookGuide = () => {
      
     useEffect(() => {
         if (readyForSearch) {
-            createBookGuide();   
+            createRecommendationStream();   
         }
      }, [readyForSearch]);
      
@@ -146,7 +183,7 @@ const BookGuide = () => {
                 return;
             }
             navigate('.', { replace: true, state: state });
-            setBookGuide(state.bookGuide);
+            //setBookGuide(state.bookGuide);
             setName(state.name);
         };
     }, [state, navigate]);
@@ -159,13 +196,13 @@ const BookGuide = () => {
                 <input className={responseType === ResponseTypes.ERROR_NAME ? "error-highlight" : ""} 
                 type="text" placeholder="Book Title" id="bookName" value={name} onChange={handleNameChange}
                 onKeyDown={handleNameKeyDown} />
-                <button type="button" disabled={loading} onClick={createBookGuide}><span className={loading ? "loading-button" : ""}></span>Create Book Guide</button>
+                <button type="button" disabled={loading} onClick={createRecommendationStream}><span className={loading ? "loading-button" : ""}></span>Create Book Guide</button>
             </div>
             
             <ul className="grid-list">
-                {bookGuide.bookRecommendations && bookGuide.bookRecommendations.map(item => (
-                    <Link key={item.id} to={createLink(item.name)} className="travel-guide-link">
-                        <li className="point-of-interest"><b>{item.name}</b> - {item.description}</li>
+                {recommendations && recommendations.map(item => (
+                    <Link key={item.id} to={createLink(item.name)} onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={item.loaded ? "loaded" : "teaser"}>
+                        <li className="recommendation"><b>{item.name}</b> - {item.description}</li>
                     </Link>
                 ))}
             </ul>
@@ -177,8 +214,8 @@ const BookGuide = () => {
             )}
             
             <div className="footer">
-                {bookGuide.bookRecommendations && (
-                        <button type="button" className="footer-button" hidden={!bookGuide.bookRecommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
+                {recommendations && (
+                        <button type="button" className="footer-button" hidden={!recommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
             </div>                   

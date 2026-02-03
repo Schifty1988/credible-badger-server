@@ -99,13 +99,24 @@ const Admin = () => {
         .then(response => { 
             if (response.ok) {
                 displayActionResponse("Guide Removed!", true);
-                const updatedUsers = users.map(user =>
-                    user.id === userId ? { ...user, suspended: suspended } : user
-                );
-                setUsers(updatedUsers);
             }
             else {
                 displayActionResponse("Failed to Remove Guide: " + response.status, false);
+            }
+        });
+    };
+    
+    const migrateRecommendations  = () => {
+        fetchWithAuth('/api/admin/migrate', {
+            method: 'POST',
+            credentials: 'include'
+        })
+        .then(response => { 
+            if (response.ok) {
+                displayActionResponse("Migrated!", true);
+            }
+            else {
+                displayActionResponse("Migration failed: " + response.status, false);
             }
         });
     };
@@ -155,6 +166,10 @@ const Admin = () => {
                     <div className="content-group">
                         <input type="text" placeholder="Travel Guide Id" id="travelGuideId" value={travelGuideId} onChange={handleTravelGuideIdChange}/>
                         <button type="button" onClick={deleteTravelGuide}>Delete Guide</button>
+                    </div>
+                    
+                    <div className="content-group">
+                        <button type="button" onClick={migrateRecommendations}>Migrate</button>
                     </div>
                 {showNotification && (
                     <div className={responseType ? "notification-success" : "notification-error"}>
