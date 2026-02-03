@@ -447,4 +447,21 @@
             referencedTableName="recommendation_group" 
             referencedColumnNames="id"/>
     </changeSet>
+    
+    <changeSet id="removing_old_recommendation_tables" author="Michail Ostrowski">
+        <dropTable tableName="book_recommendation"/>
+        <dropSequence sequenceName="book_recommendation_seq"/>   
+        <dropTable tableName="book_guide"/>
+        <dropSequence sequenceName="book_guide_seq"/>   
+        
+        <dropTable tableName="movie_recommendation"/>
+        <dropSequence sequenceName="movie_recommendation_seq"/>   
+        <dropTable tableName="movie_guide"/>
+        <dropSequence sequenceName="movie_guide_seq"/>   
+        
+        <dropTable tableName="travel_recommendation"/>
+        <dropSequence sequenceName="travel_recommendation_seq"/>   
+        <dropTable tableName="travel_guide"/>
+        <dropSequence sequenceName="travel_guide_seq"/>   
+    </changeSet>
 </databaseChangeLog>

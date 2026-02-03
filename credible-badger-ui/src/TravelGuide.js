@@ -179,7 +179,7 @@ const TravelGuide = () => {
      
     useEffect(() => {
         if (readyForSearch) {
-            //createTravelGuideStream();
+            createRecommendationStream();
         }
      }, [readyForSearch]);
      
