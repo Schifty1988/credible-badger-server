@@ -18,6 +18,13 @@ package com.crediblebadger.recommendation;
 import com.crediblebadger.ai.mistral.MistralRequest;
 import com.crediblebadger.ai.mistral.MistralResponseWrapper;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +45,9 @@ public class RecommendationService {
     
     @Autowired
     RecommendationRepository recommendationRepository;
+       
+    private static final Set<UUID> recommendationInProgress = Collections.synchronizedSet(new HashSet());
+    private static final Map<UUID, Long> recommendationLikeCache = new ConcurrentHashMap();
 
     private String createTravelGroupKey(String place, boolean isChildFriendly) {
         // removes all whitespaces and commas
@@ -57,7 +67,7 @@ public class RecommendationService {
         return normalizedName;
     }
     
-    public Flux<Recommendation> streamTravelRecommendations(String place, boolean isChildFriendly) {
+    public Flux<Recommendation> streamTravelRecommendations(Long userId, String place, boolean isChildFriendly) {
         String searchKey = createTravelGroupKey(place, isChildFriendly);
         
         StringBuilder promptBuilder = new StringBuilder();
@@ -67,10 +77,10 @@ public class RecommendationService {
         promptBuilder.append(place);
         promptBuilder.append(" - no additional output.");
         
-        return streamRecommendations(searchKey, promptBuilder.toString(), RecommendationType.PLACE);
+        return streamRecommendations(userId, searchKey, promptBuilder.toString(), RecommendationType.PLACE);
     }
     
-    public Flux<Recommendation> streamMovieRecommendations(String name) {
+    public Flux<Recommendation> streamMovieRecommendations(Long userId, String name) {
         String searchKey = createMovieGroupKey(name);
         
         StringBuilder promptBuilder = new StringBuilder();
@@ -78,10 +88,10 @@ public class RecommendationService {
         promptBuilder.append(name);
         promptBuilder.append(" - no additional output.");
         
-        return streamRecommendations(searchKey, promptBuilder.toString(), RecommendationType.MOVIE);
+        return streamRecommendations(userId, searchKey, promptBuilder.toString(), RecommendationType.MOVIE);
     }
     
-    public Flux<Recommendation> streamBookRecommendations(String name) {
+    public Flux<Recommendation> streamBookRecommendations(Long userId, String name) {
         String searchKey = createBookGroupKey(name);
         
         StringBuilder promptBuilder = new StringBuilder();
@@ -89,14 +99,22 @@ public class RecommendationService {
         promptBuilder.append(name);
         promptBuilder.append(" - no additional output.");
         
-        return streamRecommendations(searchKey, promptBuilder.toString(), RecommendationType.BOOK);
+        return streamRecommendations(userId, searchKey, promptBuilder.toString(), RecommendationType.BOOK);
     }
         
-    private Flux<Recommendation> streamRecommendations(String searchKey, String prompt, RecommendationType type) {
+    private Flux<Recommendation> streamRecommendations(Long userId, String searchKey, String prompt, RecommendationType type) {
         RecommendationGroup cachedGroup = 
                 this.recommendationRepository.retrieveRecommendationGroup(searchKey, type);
         
         if (cachedGroup != null) {
+            if (userId != null) {
+                List<UUID> likedByUser = this.recommendationRepository.retrieveLikedRecommendations(userId);
+                for (Recommendation currentRecommendation : cachedGroup.getRecommendations()) {
+                    if (likedByUser.contains(currentRecommendation.getId())) {
+                        currentRecommendation.setLikedByUser(true);
+                    }
+                }   
+            }
             log.info("Retrieved cached recommendations for searchKey={} and type={}", searchKey, type);
             return Flux.fromIterable(cachedGroup.getRecommendations());
         }
@@ -179,6 +197,7 @@ public class RecommendationService {
                         processItem(bufferContent, recommendationGroup, sink);
                         sink.complete();
                         this.recommendationRepository.addRecommendationGroup(recommendationGroup);
+                        this.applyCachedRecommendationLikes(recommendationGroup.getRecommendations());
                         log.info("Stored new RecommendationGroup={}", recommendationGroup.getSearchKey());
                     })
                     .onError(e ->  {
@@ -200,6 +219,7 @@ public class RecommendationService {
             
             if (recommendation != null) {
                 group.addRecommendation(recommendation);
+                recommendationInProgress.add(recommendation.getId());
                 sink.next(recommendation);
             }
         }
@@ -238,7 +258,7 @@ public class RecommendationService {
             log.error("Couldn't process currentValue={}", processedString);
             return null;
         } 
-        Recommendation recommendation = new Recommendation();
+        Recommendation recommendation = new Recommendation(UUID.randomUUID());
         recommendation.setName(currentData[0]);
         recommendation.setDescription(currentData[1]);
         return recommendation;
@@ -246,5 +266,35 @@ public class RecommendationService {
     
     public boolean removeRecommendationGroup(long recommendationGroupId) {
         return this.recommendationRepository.removeRecommendationGroup(recommendationGroupId);
+    }
+
+    public void likeRecommendation(Long userId, UUID recommendationId) {
+        if (recommendationInProgress.contains(recommendationId)) {
+            recommendationLikeCache.put(recommendationId, userId);
+            return;
+        }
+        this.recommendationRepository.likeRecommendation(userId, recommendationId);
+    }
+    
+    public void unlikeRecommendation(Long userId, UUID recommendationId) {
+        if (recommendationInProgress.contains(recommendationId)) {
+            recommendationLikeCache.remove(recommendationId);
+            return;
+        }
+        this.recommendationRepository.unlikeRecommendation(userId, recommendationId);
+    } 
+    
+    private void applyCachedRecommendationLikes(List<Recommendation> recommendations) {
+        for (Recommendation currentRecommendation : recommendations) {
+            UUID currentId = currentRecommendation.getId();
+            recommendationInProgress.remove(currentId);
+            
+            Long userId = recommendationLikeCache.get(currentId);
+            
+            if (userId == null) {
+                continue;
+            }      
+            this.recommendationRepository.likeRecommendation(userId, currentId);
+        }
     }
 }

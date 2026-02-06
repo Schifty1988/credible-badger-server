@@ -20,6 +20,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 
@@ -52,5 +53,41 @@ public class RecommendationRepository {
         
         this.entityManager.remove(recommendationGroup);
         return true;
+    }
+    
+    public void likeRecommendation(Long userId, UUID recommendationId) {
+        RecommendationLike recommendationLike = new RecommendationLike();
+        recommendationLike.setUserId(userId);
+        recommendationLike.setRecommendationId(recommendationId);
+        this.entityManager.persist(recommendationLike);
+        
+        Recommendation recommendation = 
+            this.entityManager.find(Recommendation.class, recommendationId);
+        recommendation.setLikes(recommendation.getLikes() + 1);
+    }
+    
+    public void unlikeRecommendation(Long userId, UUID recommendationId) {
+        TypedQuery<RecommendationLike> recommendationGroupQuery = 
+                this.entityManager.createNamedQuery(RecommendationLike.FIND_RECOMMENENDATION_LIKE_FOR_USER, RecommendationLike.class);
+        recommendationGroupQuery.setParameter("userId", userId);
+        recommendationGroupQuery.setParameter("recommendationId", recommendationId);
+        
+        List<RecommendationLike> results = recommendationGroupQuery.getResultList();
+        RecommendationLike result = results.isEmpty() ? null : results.get(0);
+
+        this.entityManager.remove(result);
+        
+        Recommendation recommendation = 
+            this.entityManager.find(Recommendation.class, recommendationId);
+        recommendation.setLikes(recommendation.getLikes() - 1);
+    }
+
+    public List<UUID> retrieveLikedRecommendations(Long userId) {
+        TypedQuery<UUID> recommendationGroupQuery = 
+        this.entityManager.createNamedQuery(RecommendationLike.LIST_FOR_USER, UUID.class);
+        recommendationGroupQuery.setParameter("userId", userId);
+        
+        List<UUID> results = recommendationGroupQuery.getResultList();
+        return results;
     }
 }

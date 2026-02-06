@@ -1,9 +1,11 @@
 import './App.css';
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { UserContext } from './UserContext';
 import UserInfo from './UserInfo';
 import Footer from './Footer';
 import { fetchWithAuth } from './Api';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 const MovieGuide = () => {
     const { guideLink } = useParams();
@@ -20,6 +22,7 @@ const MovieGuide = () => {
     const [showNotification, setShowNotification] = useState(false);
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
     const controller = new AbortController();
+    const { user } = useContext(UserContext);
 
     const ResponseTypes = {
         SUCCESS: 'success',
@@ -112,7 +115,6 @@ const MovieGuide = () => {
                 try {
                     const json = JSON.parse(line.slice(5)); // remove "data:"
                     json.loaded = true;
-                    json.id = index;
                     tr[index] = json;
                     setRecommendations([...tr]);
                     ++index;
@@ -130,6 +132,48 @@ const MovieGuide = () => {
     
     const createRecommendationStream = () => {
         fetchStream().catch(err => console.error(err));
+    };
+    
+        const likeRecommendation = (item) => {
+        if (!user || user.anonymous) {
+            displayActionResponse("Please log in to like this!", ResponseTypes.ERROR_UNKNOWN);
+            return
+        }
+        fetchWithAuth('/api/recommendation/like', {
+            method: 'POST',
+            body: JSON.stringify({recommendationId: item.id}),
+            headers: {
+            'Content-Type': 'application/json'},
+            credentials: 'include'})
+            .then(response => {
+                if(response.ok) {
+                    displayActionResponse("Liked!", ResponseTypes.SUCCESS);
+                    item.likes = item.likes + 1;
+                    item.likedByUser = true;
+                    return;
+                }
+                displayActionResponse("An error occured: " + response.status, ResponseTypes.ERROR_UNKNOWN);
+                return;
+            });
+    };
+    
+        const unlikeRecommendation = (item) => {
+        fetchWithAuth('/api/recommendation/unlike', {
+            method: 'POST',
+            body: JSON.stringify({recommendationId: item.id}),
+            headers: {
+            'Content-Type': 'application/json'},
+            credentials: 'include'})
+            .then(response => {
+                if(response.ok) {
+                    displayActionResponse("Unliked!", ResponseTypes.SUCCESS);
+                    item.likes = item.likes - 1;
+                    item.likedByUser = false;
+                    return;
+                }
+                displayActionResponse("An error occured: " + response.status, ResponseTypes.ERROR_UNKNOWN);
+                return;
+            });
     };
     
     const handleNameChange = (event) => {
@@ -201,9 +245,28 @@ const MovieGuide = () => {
             
             <ul className="grid-list">
                 {recommendations && recommendations.map(item => (
-                    <Link key={item.id} to={createLink(item.name)} onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={item.loaded ? "loaded" : "teaser"}>
-                        <li className="recommendation"><b>{item.name}</b> - {item.description}</li>
-                    </Link>
+                <Link to={createLink(item.name)}  onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={item.loaded ? "loaded" : "teaser"}>
+                    <li key={item.id}>
+                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem'}}>
+                       <div>
+                         <strong>{item.name}</strong> - {item.description}
+                       </div>
+                       <div className="recommendationLikeBox" onClick={(e) => e.preventDefault()}>
+                         <span>{item.likes}</span>
+                         {!item.likedByUser && (
+                         <button onClick={(e) => likeRecommendation(item)} className="likeButton">
+                             <FaRegHeart size={20} color="#999" />
+                         </button>
+                         )}
+                         {item.likedByUser && (
+                         <button onClick={(e) => unlikeRecommendation(item)} className="likeButton">
+                             <FaHeart size={20} color="#e74c3c" />
+                         </button>
+                         )}
+                       </div>
+                     </div>
+                   </li>
+                </Link>
                 ))}
             </ul>
 

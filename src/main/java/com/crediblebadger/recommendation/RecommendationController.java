@@ -43,10 +43,11 @@ public class RecommendationController {
             return ResponseEntity.badRequest().build();
         }
         String username = user == null ? "Anonymous" : user.getUsername();
+        Long userId = user == null ? null : user.getId();
         log.info("{} requested a travel guide for {} ", username, request.getPlace());
         
         Flux<Recommendation> flux = 
-                this.recommendationService.streamTravelRecommendations(request.getPlace(), request.isChildFriendly());
+                this.recommendationService.streamTravelRecommendations(userId, request.getPlace(), request.isChildFriendly());
         return ResponseEntity
             .ok()
             .header("X-Accel-Buffering", "no") // disable nginx buffering
@@ -61,10 +62,11 @@ public class RecommendationController {
             return ResponseEntity.badRequest().build();
         }
         String username = user == null ? "Anonymous" : user.getUsername();
+        Long userId = user == null ? null : user.getId();
         log.info("{} requested a movie guide for {} ", username, request.getName());
         
         Flux<Recommendation> flux = 
-                this.recommendationService.streamMovieRecommendations(request.getName());
+                this.recommendationService.streamMovieRecommendations(userId, request.getName());
         return ResponseEntity
             .ok()
             .header("X-Accel-Buffering", "no") // disable nginx buffering
@@ -79,13 +81,30 @@ public class RecommendationController {
             return ResponseEntity.badRequest().build();
         }
         String username = user == null ? "Anonymous" : user.getUsername();
+        Long userId = user == null ? null : user.getId();
         log.info("{} requested a book guide for {} ", username, request.getName());
         
         Flux<Recommendation> flux = 
-                this.recommendationService.streamBookRecommendations(request.getName());
+                this.recommendationService.streamBookRecommendations(userId, request.getName());
         return ResponseEntity
             .ok()
             .header("X-Accel-Buffering", "no") // disable nginx buffering
             .body(flux);
+    }
+    
+    @PostMapping(value = "/like")
+    public ResponseEntity<Void> likeRecommendation(
+            @AuthenticationPrincipal User user,
+            @RequestBody RecommendationLikeRequest request) {
+        this.recommendationService.likeRecommendation(user.getId(), request.getRecommendationId());
+        return ResponseEntity.ok().build();
+    }
+    
+    @PostMapping(value = "/unlike")
+    public ResponseEntity<Void> unlikeRecommendation(
+            @AuthenticationPrincipal User user,
+            @RequestBody RecommendationLikeRequest request) {
+        this.recommendationService.unlikeRecommendation(user.getId(), request.getRecommendationId());
+        return ResponseEntity.ok().build();
     }
 }
