@@ -18,10 +18,8 @@ package com.crediblebadger.token;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
@@ -35,7 +33,7 @@ public class SecurityTokenRepository {
         this.entityManager.persist(securityToken);
     }
         
-    public boolean burnToken(String token, TokenType type) {
+    public boolean burnToken(UUID token, TokenType type) {
         SecurityToken securityToken = findToken(token);
         
         if (securityToken == null) {
@@ -57,17 +55,7 @@ public class SecurityTokenRepository {
         return true;
     }
 
-    SecurityToken findToken(String securityToken) {
-        TypedQuery<SecurityToken> tokenQuery = this.entityManager
-                .createNamedQuery(SecurityToken.FIND_SECURITY_TOKEN, SecurityToken.class);
-        tokenQuery.setParameter("token", UUID.fromString(securityToken));
-        
-        List<SecurityToken> results = tokenQuery.getResultList();
-        
-        if (results.isEmpty()) {
-            return null;
-        }
-        
-        return results.get(0);
+    SecurityToken findToken(UUID securityToken) {
+        return this.entityManager.find(SecurityToken.class, securityToken);
     }
 }

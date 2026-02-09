@@ -26,25 +26,22 @@ public class SecurityTokenService {
     @Autowired
     private SecurityTokenRepository securityTokenRepository;
     
-    public String addToken(long userId, TokenType type) {
-        UUID generatedToken = UUID.randomUUID();
-        LocalDateTime validUntil = LocalDateTime.now().plusMinutes(type.getLifetimeInMinutes());
-        
+    public UUID addToken(long userId, TokenType type) {
+        LocalDateTime validUntil = LocalDateTime.now().plusMinutes(type.getLifetimeInMinutes());   
         SecurityToken token = new SecurityToken();       
-        token.setToken(generatedToken);
         token.setValidUntil(validUntil);
         token.setUserId(userId);
         token.setType(type);
 
         this.securityTokenRepository.addSecurityToken(token);
-        return generatedToken.toString();
+        return token.getId();
     }
         
-    public boolean burnToken(String securityToken, TokenType type) {
+    public boolean burnToken(UUID securityToken, TokenType type) {
         return this.securityTokenRepository.burnToken(securityToken, type);
     }
     
-    public SecurityToken findToken(String securityToken) {
+    public SecurityToken findToken(UUID securityToken) {
         return this.securityTokenRepository.findToken(securityToken);
     }
 }

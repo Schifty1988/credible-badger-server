@@ -518,4 +518,16 @@
             columnDataType="boolean"/>
     </changeSet>
     
+    <changeSet id="changing_security_token_pk" author="Michail Ostrowski">
+        <dropPrimaryKey tableName="security_token" constraintName="security_token_pkey"/>
+        <dropColumn tableName="security_token" columnName="id"/>
+        <renameColumn
+            tableName="security_token"
+            oldColumnName="token"
+            newColumnName="id"
+            columnDataType="uuid"/>
+        <addPrimaryKey tableName="security_token" columnNames="id" constraintName="security_token_pkey"/>
+        <dropSequence sequenceName="security_token_seq"/>    
+    </changeSet>
+    
 </databaseChangeLog>

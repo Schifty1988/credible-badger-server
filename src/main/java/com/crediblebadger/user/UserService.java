@@ -17,6 +17,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
@@ -73,8 +74,8 @@ public class UserService implements UserDetailsService{
         user.setSubscribedToMarketing(true);
         this.userRepository.addUser(user);
         log.info("user={} was registered!", email);
-        String token = this.securityTokenService.addToken(user.getId(), TokenType.EMAIL_VERIFICATION);
-        return this.emailService.sendEmailVerificationRequest(email, token);
+        UUID token = this.securityTokenService.addToken(user.getId(), TokenType.EMAIL_VERIFICATION);
+        return this.emailService.sendEmailVerificationRequest(email, token.toString());
     }
 
     public List<User> listAllUsers() {
@@ -92,8 +93,8 @@ public class UserService implements UserDetailsService{
             return false;
         }
         
-        String token = this.securityTokenService.addToken(retrievedUser.getId(), TokenType.EMAIL_VERIFICATION);
-        return this.emailService.sendEmailVerificationRequest(email, token);
+        UUID token = this.securityTokenService.addToken(retrievedUser.getId(), TokenType.EMAIL_VERIFICATION);
+        return this.emailService.sendEmailVerificationRequest(email, token.toString());
     }
     
     public boolean requestPasswordChange(String email) {
@@ -103,13 +104,13 @@ public class UserService implements UserDetailsService{
             return false;
         }
         
-        String token = this.securityTokenService
+        UUID token = this.securityTokenService
                 .addToken(retrievedUser.getId(), TokenType.PASSWORD_CHANGE);
         return this.emailService
-                .sendPasswordChangeRequestEmail(email, token, TokenType.PASSWORD_CHANGE.getLifetimeInMinutes());
+                .sendPasswordChangeRequestEmail(email, token.toString(), TokenType.PASSWORD_CHANGE.getLifetimeInMinutes());
     }
     
-    public boolean changePassword(String token, String newPassword) {
+    public boolean changePassword(UUID token, String newPassword) {
         if (!validatePassword(newPassword)) {
             return false;
         }
@@ -128,7 +129,7 @@ public class UserService implements UserDetailsService{
         return this.userRepository.changePassword(securityToken.getUserId(), encodedPassword);
     }
     
-    public boolean verifyEmail(String token) {
+    public boolean verifyEmail(UUID token) {
         SecurityToken securityToken = this.securityTokenService.findToken(token);
 
         if (securityToken == null) {
@@ -192,12 +193,12 @@ public class UserService implements UserDetailsService{
         return this.generateAccessToken(user);
     }
 
-    public String createRefreshToken(long userId) {
-        String securityToken = this.securityTokenService.addToken(userId, TokenType.REFRESH_SESSION);
+    public UUID createRefreshToken(long userId) {
+        UUID securityToken = this.securityTokenService.addToken(userId, TokenType.REFRESH_SESSION);
         return securityToken;
     }
    
-    public String refreshAccessToken(String refreshToken) {
+    public String refreshAccessToken(UUID refreshToken) {
         boolean result = invalidateRefreshToken(refreshToken);
         
         if (!result) {
@@ -213,7 +214,7 @@ public class UserService implements UserDetailsService{
         return generateAccessToken(user);
     }
 
-    public boolean invalidateRefreshToken(String refreshToken) {
+    public boolean invalidateRefreshToken(UUID refreshToken) {
         boolean result = this.securityTokenService.burnToken(refreshToken, TokenType.REFRESH_SESSION);
         return result;
     }

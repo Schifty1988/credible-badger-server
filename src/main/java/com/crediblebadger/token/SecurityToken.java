@@ -21,30 +21,24 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Data;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Data
-@NamedQuery(name = SecurityToken.FIND_SECURITY_TOKEN, 
-        query = "From SecurityToken where token = :token")
-public class SecurityToken {
-    public static final String FIND_SECURITY_TOKEN = "SecurityToken_FindSecurityToken";
-    
+public class SecurityToken { 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id = 0l;
+    @GeneratedValue
+    @UuidGenerator
+    private UUID id;
     @Version
     private Long version;
     @Column
     private Long userId;
-    @Column
-    private UUID token;
     @Column
     @Enumerated(EnumType.ORDINAL)
     private TokenType type;

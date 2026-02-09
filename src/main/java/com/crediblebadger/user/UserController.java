@@ -1,6 +1,7 @@
 package com.crediblebadger.user;
 
 import java.time.Instant;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -137,7 +138,7 @@ public class UserController {
         }
         
         Long userId = this.userService.verifyAccessToken(accessToken).get("userId", Long.class);
-        String refreshToken = this.userService.createRefreshToken(userId);
+        UUID refreshToken = this.userService.createRefreshToken(userId);
         
         ResponseCookie accessTokenCookie = ResponseCookie.from(UserService.ACCESS_TOKEN_COOKIE, accessToken)
             .httpOnly(true)
@@ -156,7 +157,7 @@ public class UserController {
             .sameSite("Strict")
             .build();
         
-        ResponseCookie refreshTokenCookie = ResponseCookie.from(UserService.REFRESH_TOKEN_COOKIE, refreshToken)
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(UserService.REFRESH_TOKEN_COOKIE, refreshToken.toString())
             .httpOnly(true)
             .secure(this.secureCookies)
             .path("/")
@@ -173,7 +174,7 @@ public class UserController {
     
     @GetMapping("/logout")
     public ResponseEntity<?> logout(
-            @CookieValue(name = UserService.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
+            @CookieValue(name = UserService.REFRESH_TOKEN_COOKIE, required = false) UUID refreshToken) {
         if (refreshToken != null) {
             this.userService.invalidateRefreshToken(refreshToken);   
         }
@@ -209,14 +210,14 @@ public class UserController {
     
     @PostMapping("/refreshTokens")
     public ResponseEntity<?> refreshTokens(
-            @CookieValue(name = UserService.REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {       
+            @CookieValue(name = UserService.REFRESH_TOKEN_COOKIE, required = false) UUID refreshToken) {       
         String accessToken = this.userService.refreshAccessToken(refreshToken);
         
         if (accessToken == null) {
             return ResponseEntity.badRequest().build();
         }
         Long userId = this.userService.verifyAccessToken(accessToken).get("userId", Long.class);
-        String newRefreshToken = this.userService.createRefreshToken(userId);
+        String newRefreshToken = this.userService.createRefreshToken(userId).toString();
                 
         ResponseCookie accessTokenCookie = ResponseCookie.from(UserService.ACCESS_TOKEN_COOKIE, accessToken)
             .httpOnly(true)
