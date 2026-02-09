@@ -39,4 +39,18 @@ public class FeedbackRepository {
         List<Feedback> results = userQuery.getResultList();
         return results;
     }
+
+    public Feedback retrieveFeedback(long feedbackId) {
+        Feedback feedback = this.entityManager.find(Feedback.class, feedbackId);
+        return feedback;
+    }
+
+    public boolean deleteFeedback(Long userId, long feedbackId) {
+        Feedback feedback = this.entityManager.find(Feedback.class, feedbackId);
+        if (feedback == null) {
+            return false;
+        }
+        this.entityManager.remove(feedback);
+        return true;
+    }
 }

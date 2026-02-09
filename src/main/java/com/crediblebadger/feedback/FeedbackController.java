@@ -51,8 +51,7 @@ public class FeedbackController {
     
     @PostMapping("/retrieve")
     public ResponseEntity<List<Feedback>> retrieveFeedback(
-            @AuthenticationPrincipal User user,
-            @RequestBody FeedbackRequest request) {
+            @AuthenticationPrincipal User user) {
         
         if (!User.validateUser(user)) {
             return ResponseEntity.badRequest().build();
@@ -66,6 +65,42 @@ public class FeedbackController {
         }
         
         return ResponseEntity.ok(feedback);
+    }
+
+    @PostMapping("/update")    
+    public ResponseEntity updateFeedback(
+            @AuthenticationPrincipal User user,
+            @RequestBody FeedbackRequest request) {
+
+        if (!User.validateUser(user)) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        boolean updated = this.feedbackService.updateFeedback(user.getId(), request.getId(), request.isArchived());
+        
+        if (!updated) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok().build();
+    }
+    
+    @PostMapping("/delete")    
+    public ResponseEntity deleteFeedback(
+            @AuthenticationPrincipal User user,
+            @RequestBody FeedbackRequest request) {
+
+        if (!User.validateUser(user)) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        boolean deleted = this.feedbackService.deleteFeedback(user.getId(), request.getId());
+        
+        if (!deleted) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok().build();
     }
     
     private static boolean validateFeedback(Feedback feedback) {

@@ -39,4 +39,19 @@ public class FeedbackService {
         List<Feedback> results = this.feedbackRepository.retrieveFeedback(projectKey);
         return results;
     }    
+
+    boolean updateFeedback(Long userId, long feedbackId, boolean archived) {
+        Feedback feedback = this.feedbackRepository.retrieveFeedback(feedbackId);
+        
+        if (feedback == null || !feedback.getProjectKey().equals(String.valueOf(userId))) {
+            return false;
+        }
+
+        feedback.setArchived(archived);
+        return true;
+    }
+    
+    boolean deleteFeedback(Long userId, long feedbackId) {
+        return this.feedbackRepository.deleteFeedback(userId, feedbackId);
+    }
 }

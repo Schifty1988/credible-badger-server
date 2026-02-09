@@ -19,5 +19,6 @@ import lombok.Data;
 
 @Data
 public class FeedbackRequest {
-    private String projectKey;
+    private long id;
+    private boolean archived;
 }

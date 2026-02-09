@@ -54,5 +54,5 @@ public class Feedback {
     private Long version;    
     
     @Column
-    private boolean archieved;
+    private boolean archived;
 }

@@ -509,4 +509,13 @@
         
         <createSequence sequenceName="recommendation_like_seq" incrementBy="50"/>
     </changeSet>
+    
+    <changeSet id="fix_feebdack_column_typo" author="Michail Ostrowski">
+        <renameColumn
+            tableName="feedback"
+            oldColumnName="archieved"
+            newColumnName="archived"
+            columnDataType="boolean"/>
+    </changeSet>
+    
 </databaseChangeLog>
