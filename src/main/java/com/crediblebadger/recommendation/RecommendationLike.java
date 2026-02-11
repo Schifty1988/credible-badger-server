@@ -28,10 +28,10 @@ import lombok.Data;
 @Entity
 @NamedQuery(name = RecommendationLike.FIND_RECOMMENENDATION_LIKE_FOR_USER, query = "From RecommendationLike where userId = :userId and recommendationId = :recommendationId")
 @NamedQuery(name = RecommendationLike.LIST_FOR_USER, query = "SELECT rl.recommendationId FROM RecommendationLike rl WHERE rl.userId = :userId")
-@NamedQuery(name = RecommendationLike.COUNT_FOR_RECOMMENDATION, query = "SELECT COUNT(rl) FROM RecommendationLike rl where rl.recommendationId = :recommendationId")
+@NamedQuery(name = RecommendationLike.DELETE_ALL_LIKES, query = "DELETE RecommendationLike where recommendationId = :recommendationId")
 public class RecommendationLike {
     public static final String LIST_FOR_USER = "RECOMMENDATION_LIKE_LIST_FOR_USER";
-    public static final String COUNT_FOR_RECOMMENDATION = "RECOMMENDATION_LIKE_COUNT_FOR_RECOMMENDATION";
+    public static final String DELETE_ALL_LIKES = "RECOMMENDATION_DELETE_ALL_LIKES_FOR_RECOMMENDATION";
     public static final String FIND_RECOMMENENDATION_LIKE_FOR_USER = "RECOMMENDATION_LIKE_FIND_LIKE_FOR_USER";
     
     @Id

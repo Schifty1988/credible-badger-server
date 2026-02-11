@@ -17,6 +17,7 @@ package com.crediblebadger.recommendation;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -51,8 +52,18 @@ public class RecommendationRepository {
             return false;
         }
         
+        for (Recommendation currentRecommendation : recommendationGroup.getRecommendations()) {
+            removeAllLikesForRecommendation(currentRecommendation);
+        }
+        
         this.entityManager.remove(recommendationGroup);
         return true;
+    }
+    
+    private void removeAllLikesForRecommendation(Recommendation recommendation) {
+        Query query = this.entityManager.createNamedQuery(RecommendationLike.DELETE_ALL_LIKES);
+        query.setParameter("recommendationId", recommendation.getId());
+        query.executeUpdate();
     }
     
     public void likeRecommendation(Long userId, UUID recommendationId) {
