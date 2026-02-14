@@ -137,7 +137,7 @@ const MovieGuide = () => {
         const likeRecommendation = (item) => {
         if (!user || user.anonymous) {
             displayActionResponse("Please log in to like this!", ResponseTypes.ERROR_UNKNOWN);
-            return
+            return;
         }
         fetchWithAuth('/api/recommendation/like', {
             method: 'POST',
@@ -245,7 +245,7 @@ const MovieGuide = () => {
             
             <ul className="grid-list">
                 {recommendations && recommendations.map(item => (
-                <Link to={createLink(item.name)}  onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={item.loaded ? "loaded" : "teaser"}>
+                <Link to={createLink(item.name)} target="_blank" onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={item.loaded ? "loaded" : "teaser"}>
                     <li key={item.id}>
                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem'}}>
                        <div>
