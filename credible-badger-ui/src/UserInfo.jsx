@@ -92,7 +92,7 @@ const UserInfo = () => {
         <div className="user-info">
             {user && !user.anonymous ? 
             (<React.Fragment>
-                <h2>{user.email}</h2> 
+                <h2 className="userEmail">{user.email}</h2> 
                 <select id="navigation" form="navigation" className="select-dropdown" value={getCurrentPage()} onChange={handleSelectChange}>
                     <option value="/activity">Activity</option>
                     <option value="/travelGuide">Travel</option>
