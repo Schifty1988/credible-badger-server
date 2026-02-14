@@ -265,10 +265,12 @@ public class RecommendationService {
     }
     
     public boolean removeRecommendationGroup(long recommendationGroupId) {
+        log.info("Deleting recommendationGroup={}", recommendationGroupId);
         return this.recommendationRepository.removeRecommendationGroup(recommendationGroupId);
     }
 
     public void likeRecommendation(Long userId, UUID recommendationId) {
+        log.info("User={} liked recommendation={}", userId, recommendationId);
         if (recommendationInProgress.contains(recommendationId)) {
             recommendationLikeCache.put(recommendationId, userId);
             return;
