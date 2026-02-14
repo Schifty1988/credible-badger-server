@@ -1,7 +1,8 @@
 import './App.css';
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useParams, useNavigate  } from 'react-router-dom';
 import Footer from './Footer';
+import { API_URL } from './Api';
 
 const EmailVerification = () => {
     const { token } = useParams();
@@ -9,15 +10,26 @@ const EmailVerification = () => {
     const navigate = useNavigate();
     const [actionResponse, setActionResponse] = useState([]);
     const [responseType, setResponseType] = useState([]);
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [showNotification, setShowNotification] = useState(false);   
     
-    const hasValidToken = () => {
+    const hasValidToken = useCallback(() => {
         return token && token.length > 0;
+    }, [token]);
+           
+    const displayActionResponse = (message, responseType) => {
+        setResponseType(responseType);
+        setActionResponse(message);
+
+        if (message.length > 0) {
+            setShowNotification(true);
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 3000); 
+        }
     };
 
     const requestEmailVerification = () => {
-        fetch(`${apiUrl}/api/user/requestEmailVerification`, {
+        fetch(`${API_URL}/api/user/requestEmailVerification`, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'
@@ -37,8 +49,8 @@ const EmailVerification = () => {
         });
     };
     
-    const verifyEmail = () => {
-        fetch(`${apiUrl}/api/user/verifyEmail`, {
+    const verifyEmail = useCallback(() => {
+        fetch(`${API_URL}/api/user/verifyEmail`, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'
@@ -56,28 +68,16 @@ const EmailVerification = () => {
         .catch(error => {
             displayActionResponse("Something went wrong when requesting email verification: " + error.message, false);
         });
-    };
+    }, [navigate, token]);
 
     useEffect(() => {
         if (hasValidToken()) {
             verifyEmail();
         }
-     }, []);
+     }, [hasValidToken, verifyEmail]);
     
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
-    };
-    
-    const displayActionResponse = (message, responseType) => {
-        setResponseType(responseType);
-        setActionResponse(message);
-
-        if (message.length > 0) {
-            setShowNotification(true);
-            setTimeout(() => {
-                setShowNotification(false);
-            }, 3000); 
-        }
     };
     
     return (

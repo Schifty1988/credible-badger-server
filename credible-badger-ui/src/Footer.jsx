@@ -2,15 +2,15 @@ import './App.css';
 import React, {useState, useContext} from "react";
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
+import { API_URL } from './Api';
 
 const Footer = () => {
     const navigate = useNavigate();
     const [showFeedbackSubmission, setShowFeedbackSubmission] = useState(false);
     const [feedback, setFeedback] = useState("");
     const [submitted, setSubmitted] = useState(false);
-    const apiUrl = process.env.REACT_APP_API_URL;
-    const projectKey = process.env.REACT_APP_FEEDBACK_PROJECT_KEY;
-    const projectVersion = process.env.REACT_APP_FEEDBACK_PROJECT_VERSION;
+    const projectKey = import.meta.env.VITE_FEEDBACK_PROJECT_KEY;
+    const projectVersion = import.meta.env.VITE_FEEDBACK_PROJECT_VERSION;
     const { user } = useContext(UserContext);
     
     const submitFeedback = () => {
@@ -20,7 +20,7 @@ const Footer = () => {
             return;
         }
         
-        fetch(`${apiUrl}/api/feedback/submit`, {
+        fetch(`${API_URL}/api/feedback/submit`, {
             method: 'POST',
             credentials: 'include',
             headers: {

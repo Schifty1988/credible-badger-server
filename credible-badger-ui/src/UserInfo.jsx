@@ -1,45 +1,37 @@
 import './App.css';
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from './UserContext';
-import { fetchWithAuth } from './Api';
+import { API_URL, fetchWithAuth } from './Api';
+import { logError } from './Logging';
 
 const UserInfo = () => {
     const navigate = useNavigate();
     const { user, setUser } = useContext(UserContext);
     const location = useLocation();
-    const [currentPage, setCurrentPage] = useState(getCurrentPage());
-    const apiUrl = process.env.REACT_APP_API_URL;
-    
-    useEffect(() => {
-        updateUserData();
-        setCurrentPage(getCurrentPage());
-    }, [apiUrl, setUser]);
     
     function getCurrentPage() {
         return "/" + location.pathname.split('/')[1];
     };
-    
-    async function updateUserData() {
-        try {
-            const response = await fetchWithAuth('/api/user/me');
-            if (!response.ok) {
-                setUser({ anonymous : true });
-                return null;
-            }
-            let data = await response.json();
-                    
+
+    useEffect(() => {  
+        fetchWithAuth('/api/user/me', {})
+        .then(response => {
+            return response.json();
+        }).then(data => {        
             if (!data) {
                 data = { anonymous : true };
             }
-            setUser(data);
-        } catch (err) {
+            setUser(data);      
+        })
+        .catch(error => {
+            logError(error);
             setUser({ anonymous : true });
-        }
-    }
+        });
+    }, [setUser]);
     
     const callUserLogout = () => {
-        fetch(`${apiUrl}/api/user/logout`, {credentials: 'include'})
+        fetch(`${API_URL}/api/user/logout`, {credentials: 'include'})
             .then(response => {
                 if (response.ok) {
                     setUser(null);
@@ -48,7 +40,8 @@ const UserInfo = () => {
                 response.text();
             })
             .catch(error => {
-                console.log('Error occured during logout!');
+                logError(error);
+                logError('Error occured during logout!');
             });
     };
     
@@ -62,7 +55,6 @@ const UserInfo = () => {
     };
     
     const handleSelectChange = (event) => {
-        setCurrentPage(event.target.value);
         switch (event.target.value) {
             case '/activity':
                 navigate('/activity');
@@ -101,7 +93,7 @@ const UserInfo = () => {
             {user && !user.anonymous ? 
             (<React.Fragment>
                 <h2>{user.email}</h2> 
-                <select id="navigation" className="select-dropdown" value={currentPage} onChange={handleSelectChange}>
+                <select id="navigation" form="navigation" className="select-dropdown" value={getCurrentPage()} onChange={handleSelectChange}>
                     <option value="/activity">Activity</option>
                     <option value="/travelGuide">Travel</option>
                     <option value="/movieGuide">Movies</option>

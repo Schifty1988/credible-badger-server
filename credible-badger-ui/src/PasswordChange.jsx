@@ -2,6 +2,7 @@ import './App.css';
 import React, { useState } from "react";
 import { useParams, useNavigate  } from 'react-router-dom';
 import Footer from './Footer';
+import { API_URL } from './Api';
 
 const PasswordChange = () => {
     const { token } = useParams();
@@ -9,7 +10,6 @@ const PasswordChange = () => {
     const [password, setPassword] = useState("");
     const [actionResponse, setActionResponse] = useState([]); 
     const [responseType, setResponseType] = useState([]);
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [showNotification, setShowNotification] = useState(false);    
     const navigate = useNavigate();
   
@@ -26,7 +26,7 @@ const PasswordChange = () => {
     };
 
     const requestNewPassword = () => {
-        fetch(`${apiUrl}/api/user/requestPasswordChange`, {
+        fetch(`${API_URL}/api/user/requestPasswordChange`, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'
@@ -47,7 +47,7 @@ const PasswordChange = () => {
     };
     
     const changePassword = () => {
-        fetch(`${apiUrl}/api/user/changePassword`, {
+        fetch(`${API_URL}/api/user/changePassword`, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'

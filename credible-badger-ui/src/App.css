@@ -206,6 +206,7 @@ button {
     background-color: #007bff;
     color: white;
     transition: background-color 0.3s;
+    font-weight: 400;
 }
 
 button:hover {
@@ -488,7 +489,7 @@ form input[type="submit"]:hover {
     border-radius: 4px;
     font-size: 16px;
     flex: 1;
-    min-width: 100px;
+    min-width: 90px;
     margin-right: 4px;
 }
 

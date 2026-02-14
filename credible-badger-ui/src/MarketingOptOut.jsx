@@ -1,16 +1,14 @@
 import './App.css';
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate  } from 'react-router-dom';
+import React, { useState } from "react";
+import { useParams  } from 'react-router-dom';
 import Footer from './Footer';
+import { API_URL } from './Api';
 
 const MarketingOptOut = () => {
     const { token } = useParams();
-    const [email, setEmail] = useState("");
     const [unsubscribed, setUnsubscribed] = useState(false);
-    const navigate = useNavigate();
     const [actionResponse, setActionResponse] = useState([]);
     const [responseType, setResponseType] = useState([]);
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [showNotification, setShowNotification] = useState(false);   
     
     const hasValidToken = () => {
@@ -18,7 +16,7 @@ const MarketingOptOut = () => {
     };
 
     const disableMarketingSubscription = () => {
-        fetch(`${apiUrl}/api/user/disableMarketingSubscription/${token}`, {
+        fetch(`${API_URL}/api/user/disableMarketingSubscription/${token}`, {
             method: 'POST'
         })
         .then(response => {

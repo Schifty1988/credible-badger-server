@@ -1,4 +1,4 @@
-const apiUrl = process.env.REACT_APP_API_URL;
+export const API_URL = import.meta.env.VITE_API_URL;
 
 function getCookie(name) {
   const cookies = document.cookie.split("; ");
@@ -30,7 +30,7 @@ export async function fetchWithAuth(url, options = {}) {
     options.credentials = 'include';
 
     try {
-        let response = await fetch(apiUrl + url, options);
+        let response = await fetch(API_URL + url, options);
         
         // login required
         if (response.status === 403) {
@@ -45,7 +45,7 @@ export async function fetchWithAuth(url, options = {}) {
 }
 
 async function refreshAccessToken() {
-    await fetch(`${apiUrl}/api/user/refreshTokens`, {
+    await fetch(`${API_URL}/api/user/refreshTokens`, {
         method: 'POST',
         credentials: 'include'
     });

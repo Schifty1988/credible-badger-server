@@ -3,6 +3,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate, Link } from 'react-router-dom';
 import Footer from './Footer';
 import { UserContext } from './UserContext';
+import { API_URL } from './Api';
 
 const Login = () => {
     const { setUser } = useContext(UserContext);
@@ -12,7 +13,6 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [registrationMode, setRegistrationMode] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState("");
-    const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const [showNotification, setShowNotification] = useState(false);
     
@@ -55,8 +55,7 @@ const Login = () => {
             displayActionResponse("Terms of Service must be read and accepted.", ResponseTypes.ERROR_ACCEPT_TERMS);
             return;
         }
-        
-        fetch(`${apiUrl}/api/user/register`, {
+        fetch(`${API_URL}/api/user/register`, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'
@@ -83,8 +82,8 @@ const Login = () => {
         const formDataLogin = new FormData();
         formDataLogin.append('username', username);
         formDataLogin.append('password', password);
-        
-        fetch(`${apiUrl}/api/user/login`, {
+
+        fetch(`${API_URL}/api/user/login`, {
             method: 'POST',
             credentials: 'include',
             body: formDataLogin
@@ -126,11 +125,11 @@ const Login = () => {
         setAcceptTerms(event.target.checked);
     };
     
-    const activateRegistrationMode = (event) =>  {
+    const activateRegistrationMode = () =>  {
         setRegistrationMode(true);
     };
     
-    const activateLoginMode = (event) =>  {
+    const activateLoginMode = () =>  {
         setRegistrationMode(false);
     };
 

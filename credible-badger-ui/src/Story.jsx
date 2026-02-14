@@ -1,25 +1,54 @@
 import './App.css';
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import UserInfo from './UserInfo';
+import { fetchWithAuth } from './Api';
+import { logError } from './Logging';
 
 const Story = () => {
-    const navigate = useNavigate();
     const [isRunning, setIsRunning] = useState(false);    
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [story, setStory] = useState(null);    
     const [currentPart, setCurrentPart] = useState(0);
+    const [partsLoaded, setPartsLoaded] = useState(0);
+    const [voiceLib, setVoiceLib] = useState([]);
     
     const music = useRef(null);
     const voice = useRef(null);
     const timeout = useRef(null);
-    let partsLoaded = 0;
-    let part = 0;
-    let voiceLib = [];
     const wakeLock = useRef(null);
+
+    const releaseWakeLock = () => {
+        if (wakeLock && wakeLock.current) {
+            wakeLock.current.release();   
+        }
+    };
+    
+        
+    const acquireWakeLock = async () => {
+        wakeLock.current = await navigator.wakeLock.request('screen');
+    };
+    
+    const stopStory = () => {  
+        setIsRunning(false);
+        if (music.current) {
+            music.current.pause();
+            music.current = null;
+        }
+        if (voice.current) {
+            voice.current.pause();
+            voice.current = null;
+        }
+        
+        if (timeout.current) {
+            clearTimeout(timeout.current);
+        }
+        
+        setCurrentPart(0);
+        setPartsLoaded(0);
+        releaseWakeLock();
+    };
     
     useEffect(() => {  
-        fetch(`${apiUrl}/api/story/retrieve`, {
+        fetchWithAuth("/api/story/retrieve", {
             method: 'GET'
         })
         .then(response => {
@@ -33,13 +62,12 @@ const Story = () => {
             setStory(data);
         })      
         .catch(error => {
-
+            logError(error);
         });
         
         return () => {
-            stopStory();
-        };
-        
+            //stopStory();
+        }; 
      }, []);
      
      const fadeOutMusic = () => {
@@ -63,45 +91,18 @@ const Story = () => {
         music.current.play();
 
         // avoid iPhone audio playback restrictions
-        for (let i=0; i < story.parts.length; ++i) {
-            voiceLib[i] = new Audio(story.parts[i].audio);
-
-            voiceLib[i].addEventListener('loadedmetadata', () => {
-                updateLoadingStatus();
-            });
-            voiceLib[i].load();
-        }
+        const newVoiceLib = story.parts.map((part) => {
+          const audio = new Audio(part.audio);
+          audio.addEventListener('loadedmetadata', updateLoadingStatus);
+          audio.load();
+          return audio;
+        });
+        setVoiceLib(newVoiceLib);
     };
     
     const updateLoadingStatus = () => {
-        partsLoaded = partsLoaded + 1;
-        if (partsLoaded !== story.parts.length) {
-            return;
-        }
-        acquireWakeLock();
-        continuePlayback();
+        setPartsLoaded(prevPart => prevPart + 1);
     };
-    
-    const continuePlayback = () => {
-        if (part >= story.parts.length) {
-            fadeOutMusic();
-            releaseWakeLock();
-            return;
-        }
-        
-        voice.current = voiceLib[part];
-        
-        timeout.current= setTimeout(() => {
-            continuePlayback();
-        }, (1 + voice.current.duration) * 1000);
-
-        setCurrentPart(prevPart => prevPart + 1);
-        part = part + 1;
-
-        voice.current.play();
-        scrollToEnd();
-    };
-
     
     const scrollToEnd = () => {
         window.scrollTo({
@@ -110,37 +111,31 @@ const Story = () => {
         });
     };
     
-    const stopStory = () => {  
-        setIsRunning(false);
-        if (music.current) {
-            music.current.pause();
-            music.current = null;
-        }
-        if (voice.current) {
-            voice.current.pause();
-            voice.current = null;
+    const continuePlayback = useCallback(() => {
+        if (currentPart >= story.parts.length) {
+            fadeOutMusic();
+            releaseWakeLock();
+            return;
         }
         
-        if (timeout.current) {
-            clearTimeout(timeout.current);
-        }
+        voice.current = voiceLib[currentPart];
         
-        setCurrentPart(0);
-        part = 0;
-        partsLoaded=0;
-        releaseWakeLock();
-    };
+        timeout.current= setTimeout(() => {
+            setCurrentPart(prevPart => prevPart + 1);
+        }, (1 + voice.current.duration) * 1000);
+
+
+        voice.current.play();
+    }, [currentPart, story.parts.length, voiceLib]);
     
-    const acquireWakeLock = async () => {
-        wakeLock.current = await navigator.wakeLock.request('screen');
-    };
-    
-    const releaseWakeLock = () => {
-        if (wakeLock && wakeLock.current) {
-            wakeLock.current.release();   
+    useEffect(() => {
+        if (story && partsLoaded === story.parts.length) {
+          acquireWakeLock();
+          continuePlayback();
+          scrollToEnd();
         }
-    };
-     
+     }, [continuePlayback, story, partsLoaded, currentPart]);
+
     return (
         <div className="content">
             <UserInfo />    
@@ -157,7 +152,7 @@ const Story = () => {
                 <h2 className='fade-in visible'>{story.title}</h2>
                 {story.parts.map((item, index) => (
                     index <= currentPart &&
-                    <div className={`fade-in ${index < currentPart ? 'visible' : ''}`} key={index}>
+                    <div className={`fade-in ${isRunning && index <= currentPart ? 'visible' : ''}`} key={index}>
                         <img className='story-image' src={item.image}/>
                         <p>{item.text}</p>    
                     </div>

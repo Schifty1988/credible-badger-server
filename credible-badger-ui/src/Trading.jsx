@@ -4,19 +4,17 @@ import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
 import { FaRegCalendarAlt } from "react-icons/fa";
-import { fetchWithAuth } from './Api';
+import { API_URL, fetchWithAuth } from './Api';
+import { logError } from './Logging';
 
 const Trading = () => {
     const { user } = useContext(UserContext);
     const { userId } = useParams();
     const [trades, setTrades] = useState([]);
-    const [tradeSummary, setTradeSummary] = useState([]);
+    const [tradeSummary] = useState([]);
     const [tradeFilter, setTradeFilter] = useState('all');
     const [yearFilter, setYearFilter] = useState(new Date().getFullYear());
-    const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
-    const [editMarker, setEditMarker] = useState(null);
-    const [editName, setEditName] = useState('');
     const [interactionMarker, setInteractionMarker] = useState(null);
     
     const [showNotification, setShowNotification] = useState(false);
@@ -32,14 +30,48 @@ const Trading = () => {
     const todaySplit = today.split('T')[0];
     
     const [addTradePurchaseDate, setAddTradePurchaseDate]  = useState(todaySplit);
-    const [addTradePurchaseDateIso, setAddTradePurchaseDateIso]  = useState(today);
     const [addTradeSaleDate, setAddTradeSaleDate]  = useState(todaySplit);
-    const [addTradeSaleDateIso, setAddTradeSaleDateIso]  = useState(today);
     
     const ResponseTypes = {
         SUCCESS: 'success',
         ERROR_UNKNOWN: 'error_unknown'
     };
+    
+    const processTrades = useCallback((newTrades) => {  
+        if (!newTrades || newTrades.length === 0) {
+            return;   
+        }
+
+        let totalPurchaseAmount = 0;
+        let totalProfit = 0;
+        let totalProfitPercentage = 0;
+        let dayTrades = 0;
+        let losingTrades = 0;
+
+        newTrades.forEach(trade => {
+            const profit = (trade.sellPrice - trade.purchasePrice) * trade.quantity;
+            const profitPct = ((trade.sellPrice - trade.purchasePrice) / trade.purchasePrice) * 100;
+
+            totalPurchaseAmount += trade.purchasePrice * trade.quantity;
+            totalProfit += profit;
+            totalProfitPercentage += profitPct;
+
+            if (trade.purchaseDate === trade.sellDate) {
+                dayTrades++;
+            }
+
+            if (profit < 0) {
+                losingTrades++;
+            }
+        });
+        tradeSummary.totalPurchaseAmount = totalPurchaseAmount.toLocaleString();
+        tradeSummary.totalProfit = Number(totalProfit.toFixed(2)).toLocaleString();
+        tradeSummary.averageTransactionSize = Number((totalPurchaseAmount / newTrades.length).toFixed(2)).toLocaleString();
+        tradeSummary.averageProfit = Number((totalProfit / newTrades.length).toFixed(2));
+        tradeSummary.averageProfitPercentage = Number((totalProfitPercentage / newTrades.length).toFixed(2));
+        tradeSummary.numberOfDayTrades = dayTrades;
+        tradeSummary.numberOfLosingTrades = losingTrades;
+    }, [tradeSummary]);
 
     const retrieveTrades = useCallback(() => {
         const currentUserId = userId ? userId : (user ? user.id : 0);
@@ -60,12 +92,13 @@ const Trading = () => {
         })
         .then(data => {
             setTrades(data);
-            calculateTradeSummary(data);
+            processTrades(data);
         })
         .catch(error => {
+            logError(error);
             setTrades([]);
         });
-    }, [user, apiUrl, ResponseTypes.ERROR_UNKNOWN]);
+    }, [user, userId, ResponseTypes.ERROR_UNKNOWN, processTrades]);
     
     useEffect(() => {
         if (!user) {
@@ -77,51 +110,13 @@ const Trading = () => {
             return;
         }
         retrieveTrades();
-    }, [user, retrieveTrades, navigate]);
+    }, [user, userId, retrieveTrades, navigate]);
     
 
     const selectItemForInteraction = (item) => {
         if (item.id !== interactionMarker) {
-            setEditMarker(null);   
             setInteractionMarker(item.id);
         }
-    };
-
-    const calculateTradeSummary = (trades) => {
-        if (!trades || trades.length === 0) {
-            return;   
-        }
-
-        let totalPurchaseAmount = 0;
-        let totalProfit = 0;
-        let totalProfitPercentage = 0;
-        let dayTrades = 0;
-        let losingTrades = 0;
-
-        trades.forEach(trade => {
-            const profit = (trade.sellPrice - trade.purchasePrice) * trade.quantity;
-            const profitPct = ((trade.sellPrice - trade.purchasePrice) / trade.purchasePrice) * 100;
-
-            totalPurchaseAmount += trade.purchasePrice * trade.quantity;
-            totalProfit += profit;
-            totalProfitPercentage += profitPct;
-
-            if (trade.purchaseDate === trade.sellDate) {
-                dayTrades++;
-            }
-
-            if (profit < 0) {
-                losingTrades++;
-            }
-        });
-
-        tradeSummary.totalPurchaseAmount = totalPurchaseAmount.toLocaleString();
-        tradeSummary.totalProfit = Number(totalProfit.toFixed(2)).toLocaleString();
-        tradeSummary.averageTransactionSize = Number((totalPurchaseAmount / trades.length).toFixed(2)).toLocaleString();
-        tradeSummary.averageProfit = Number((totalProfit / trades.length).toFixed(2));
-        tradeSummary.averageProfitPercentage = Number((totalProfitPercentage / trades.length).toFixed(2));
-        tradeSummary.numberOfDayTrades = dayTrades;
-        tradeSummary.numberOfLosingTrades = losingTrades;
     };
 
     const createProfitString = (item) => {
@@ -184,10 +179,9 @@ const Trading = () => {
                 displayActionResponse("An issue occured!", ResponseTypes.ERROR_UNKNOWN);
                 return [];
             }
-        })
-        .then(data => {    
-        })      
+        })    
         .catch(error => {
+            logError(error);
         });
     };
     
@@ -218,11 +212,9 @@ const Trading = () => {
                 displayActionResponse("An issue occured!", ResponseTypes.ERROR_UNKNOWN);
                 return [];
             }
-        })
-        .then(data => {
-        })      
+        })     
         .catch(error => {
-            
+            logError(error);
         });
     };
     
@@ -240,7 +232,6 @@ const Trading = () => {
     
     const handleAddTradePurchaseDateChange = (event) => {
         setAddTradePurchaseDate(event.target.value);
-        setAddTradePurchaseDateIso(new Date(event.target.value).toISOString());
     };
     
     const handleAddTradeSalePriceChange = (event) => {
@@ -249,7 +240,6 @@ const Trading = () => {
     
     const handleAddTradeSaleDateChange = (event) => {
         setAddTradeSaleDate(event.target.value);
-        setAddTradeSaleDateIso(new Date(event.target.value).toISOString());
     };
     
     const handleTradeFilterChange = (event) => {
@@ -335,7 +325,7 @@ const Trading = () => {
                     <select className="activity-select" id="activity-filter" 
                             onChange={handleYearFilterChange}>   
                         {createYearFilterValues().map(year => (
-                            <option value={year}>{year}</option>
+                            <option key={year} value={year}>{year}</option>
                           ))}
                     </select>  
                 </div>

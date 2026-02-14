@@ -1,11 +1,13 @@
 import './App.css';
-import React, { useContext, useState, useEffect } from "react";
+import React, { useCallback, useContext, useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
 import { fetchWithAuth } from './Api';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { API_URL } from './Api';
+import { logError} from './Logging';
 
 const BookGuide = () => {
     const { guideLink } = useParams();
@@ -15,13 +17,11 @@ const BookGuide = () => {
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
     const [recommendations, setRecommendations] = useState([]);
-    const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const location = useLocation();
-    const [state, setState] = useState(() => location.state || {});
+    const [state] = useState(() => location.state || {});
     const [showNotification, setShowNotification] = useState(false);
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-    const controller = new AbortController();
     const { user } = useContext(UserContext);
     
     const ResponseTypes = {
@@ -30,20 +30,20 @@ const BookGuide = () => {
         ERROR_NAME: 'error_name'
     };
     
-    const hasGuideLink = () => {
+    const hasGuideLink = useCallback(() => {
         return guideLink && guideLink.length > 0;
-    };
+    }, [guideLink]);
     
-    const resolveGuideLink = () => {
+    const resolveGuideLink = useCallback(() => {
         const jsonGuideLink = atob(guideLink);
         const decodedJson = JSON.parse(jsonGuideLink);
         setName(decodedJson.name);
-    };
+    }, [guideLink]);
     
     const copyGuideLink = () => {
         const guideRequest = JSON.stringify({name: name});   
         const encodedGuideRequest = btoa(guideRequest);
-        const link  = apiUrl + "/bookGuide/" + encodedGuideRequest;
+        const link  = API_URL + "/bookGuide/" + encodedGuideRequest;
         navigator.clipboard.writeText(link);
         
         if (!isMobile) {
@@ -51,24 +51,22 @@ const BookGuide = () => {
         }
     };
     
-    const validateInput = () => {
-        if (!clientValidationName()) {
+    const validateInput = useCallback(() => {
+        if (name.length < 1) {
             displayActionResponse("The provided title seems invalid.", ResponseTypes.ERROR_NAME);
             return false;
         }   
         return true;
-    };    
+    }, [ResponseTypes.ERROR_NAME, name]);    
 
-    const clientValidationName = () => {
-        return name.length > 1;
-    };
-    
-    async function fetchStream() {
+    const fetchStream = useCallback(async () => {
         if (!validateInput()) {
             return;
         }  
         displayActionResponse("", ResponseTypes.SUCCESS);
         setLoading(true);
+        
+        const controller = new AbortController();
         
         const tr = Array.from({ length: 20 }, (_, i) => ({
             id: i + 1,
@@ -119,7 +117,7 @@ const BookGuide = () => {
                     setRecommendations([...tr]);
                     ++index;
                 } catch (err) {
-                    console.error(err);
+                    logError(err);
                     displayActionResponse("Guide creation failed: " + response.status, ResponseTypes.ERROR_UNKNOWN);
                 }
             }
@@ -128,16 +126,16 @@ const BookGuide = () => {
         }
 
         readChunk();
-    }
+    }, [ResponseTypes.ERROR_UNKNOWN, ResponseTypes.SUCCESS, name, validateInput]);
     
-    const createRecommendationStream = () => {
-        fetchStream().catch(err => console.error(err));
-    };   
+    const createRecommendationStream = useCallback(() => {
+        fetchStream().catch(error => logError(error));
+    }, [fetchStream]);   
     
         const likeRecommendation = (item) => {
         if (!user || user.anonymous) {
             displayActionResponse("Please log in to like this!", ResponseTypes.ERROR_UNKNOWN);
-            return
+            return;
         }
         fetchWithAuth('/api/recommendation/like', {
             method: 'POST',
@@ -210,16 +208,17 @@ const BookGuide = () => {
                 setReadyForSearch(true);
             }
             catch(error) {
+                logError(error);
                 displayActionResponse("The provided guide link was invalid!", ResponseTypes.ERROR_UNKNOWN);
             }
         }
-     }, []);
+     }, [ResponseTypes.ERROR_UNKNOWN, hasGuideLink, resolveGuideLink]);
      
     useEffect(() => {
         if (readyForSearch) {
             createRecommendationStream();   
         }
-     }, [readyForSearch]);
+     }, [readyForSearch, createRecommendationStream]);
      
     useEffect(() => {
         return () => {
@@ -245,27 +244,25 @@ const BookGuide = () => {
             
             <ul className="grid-list">
                 {recommendations && recommendations.map(item => (
-                <Link to={createLink(item.name)} target="_blank" onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={item.loaded ? "loaded" : "teaser"}>
-                    <li key={item.id}>
-                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem'}}>
-                       <div>
-                         <strong>{item.name}</strong> - {item.description}
-                       </div>
-                       <div className="recommendationLikeBox" onClick={(e) => e.preventDefault()}>
-                         <span>{item.likes}</span>
-                         {!item.likedByUser && (
-                         <button onClick={(e) => likeRecommendation(item)} className="likeButton">
-                             <FaRegHeart size={20} color="#999" />
-                         </button>
-                         )}
-                         {item.likedByUser && (
-                         <button onClick={(e) => unlikeRecommendation(item)} className="likeButton">
-                             <FaHeart size={20} color="#e74c3c" />
-                         </button>
-                         )}
-                       </div>
-                     </div>
-                   </li>
+                <Link to={createLink(item.name)} target="_blank" onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={`simple-item ${item.loaded ? "loaded" : "teaser"}`} key={item.id}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem'}}>
+                      <div>
+                        <strong>{item.name}</strong> - {item.description}
+                      </div>
+                      <div className="recommendationLikeBox" onClick={(e) => e.preventDefault()}>
+                        <span>{item.likes}</span>
+                        {!item.likedByUser && (
+                        <button onClick={() => likeRecommendation(item)} className="likeButton">
+                            <FaRegHeart size={20} color="#999" />
+                        </button>
+                        )}
+                        {item.likedByUser && (
+                        <button onClick={() => unlikeRecommendation(item)} className="likeButton">
+                            <FaHeart size={20} color="#e74c3c" />
+                        </button>
+                        )}
+                      </div>
+                    </div>
                 </Link>
                 ))}
             </ul>
@@ -277,7 +274,7 @@ const BookGuide = () => {
             )}
             
             <div className="footer">
-                {recommendations && (
+                {recommendations.length > 0 && (
                         <button type="button" className="footer-button" hidden={!recommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>

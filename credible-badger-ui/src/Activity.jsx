@@ -1,10 +1,11 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
+import React, { useCallback, useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
 import { FaStar, FaRegCalendarAlt } from "react-icons/fa";
 import { fetchWithAuth } from './Api';
+import { logError } from './Logging';
 
 const Activity = () => {
     const { user } = useContext(UserContext);
@@ -16,7 +17,6 @@ const Activity = () => {
     const [categoryFilter, setCategoryFilter] = useState('ALL');
     const [ratingFilter, setRatingFilter] = useState('1');
     const [yearFilter, setYearFilter] = useState(new Date().getFullYear());
-    const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const [editMarker, setEditMarker] = useState(null);
     const [editName, setEditName] = useState('');
@@ -29,6 +29,18 @@ const Activity = () => {
     const ResponseTypes = {
         SUCCESS: 'success',
         ERROR_UNKNOWN: 'error_unknown'
+    };
+    
+        const displayActionResponse = (message, responseType) => {
+        setResponseType(responseType);
+        setActionResponse(message);
+
+        if (message.length > 0) {
+            setShowNotification(true);
+            setTimeout(() => {
+             setShowNotification(false);
+            }, 3000); 
+        }
     };
 
     const retrieveActivities = useCallback(() => {
@@ -50,9 +62,10 @@ const Activity = () => {
         })
         .then(data => setActivities(data))
         .catch(error => {
+            logError(error);
             setActivities([]);
         });
-    }, [user, apiUrl, ResponseTypes.ERROR_UNKNOWN]);
+    }, [ResponseTypes.ERROR_UNKNOWN, user, userId]);
     
     useEffect(() => {
         if (!user) {
@@ -64,7 +77,7 @@ const Activity = () => {
             return;
         }
         retrieveActivities();
-    }, [user, retrieveActivities, navigate]);
+    }, [user, userId, retrieveActivities, navigate]);
     
     const submitActivity = () => {
         
@@ -85,16 +98,12 @@ const Activity = () => {
             if (response.ok) {
                 retrieveActivities();
                 setActivityName('');
-                return response.json();
             } else {
                 displayActionResponse("An issue occured!", ResponseTypes.ERROR_UNKNOWN);
-                return [];
             }
-        })
-        .then(data => {
-        })      
+        })    
         .catch(error => {
-            
+            logError(error);
         });
     };
 
@@ -155,10 +164,9 @@ const Activity = () => {
                 displayActionResponse("An issue occured!", ResponseTypes.ERROR_UNKNOWN);
                 return [];
             }
-        })
-        .then(data => {    
-        })      
+        })  
         .catch(error => {
+            logError(error);
         });
     };
     
@@ -181,10 +189,9 @@ const Activity = () => {
                 displayActionResponse("An issue occured!", ResponseTypes.ERROR_UNKNOWN);
                 return [];
             }
-        })
-        .then(data => {    
-        })      
+        })     
         .catch(error => {
+            logError(error);
         });
     };
     
@@ -230,18 +237,6 @@ const Activity = () => {
         const day = date.getDate();
         const year = date.getFullYear().toString().slice(-2); // Get the last two digits of the year
         return `${month}/${day}/${year}`;
-    };
-    
-    const displayActionResponse = (message, responseType) => {
-        setResponseType(responseType);
-        setActionResponse(message);
-
-        if (message.length > 0) {
-            setShowNotification(true);
-            setTimeout(() => {
-             setShowNotification(false);
-            }, 3000); 
-        }
     };
     
     const getFilteredActivities = () => {
@@ -322,7 +317,7 @@ const Activity = () => {
                 <div className="activities-header"> 
                     <span>Activities {getFormattedNumberOfActivities()}</span>
                     <div className="activity-filter-group">
-                        <select className="activities-filter" id="activity-filter" 
+                        <select className="activities-filter" id="activity-filter-category" 
                                 onChange={handleCategoryFilterChange}>
                             <option value="ALL">All</option>
                             <option value="PLACE">Places</option>
@@ -331,7 +326,7 @@ const Activity = () => {
                             <option value="SHOW">Shows</option>
                             <option value="GAME">Games</option>
                         </select>
-                        <select className="activities-filter" id="activity-filter" 
+                        <select className="activities-filter" id="activity-filter-rating" 
                                 onChange={handleRatingFilterChange}>
                             <option value="1">+1</option>
                             <option value="2">+2</option>
@@ -339,10 +334,10 @@ const Activity = () => {
                             <option value="4">+4</option>
                             <option value="5">+5</option>
                         </select>
-                        <select className="activities-filter" id="activity-filter" 
+                        <select className="activities-filter" id="activity-filter-year" 
                                 onChange={handleYearFilterChange}>   
                             {createYearFilterValues().map(year => (
-                                <option value={year}>{year}</option>
+                                <option key={year} value={year}>{year}</option>
                               ))}
                         </select>   
                     </div>

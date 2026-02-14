@@ -1,51 +1,49 @@
 import './App.css';
-import React, { useContext, useState, useEffect } from "react";
+import React, { useCallback, useContext, useState, useEffect } from "react";
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
+import UserInfo from './UserInfo';
 import Footer from './Footer';
 import { fetchWithAuth } from './Api';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { API_URL } from './Api';
+import { logError } from './Logging';
 
-const TravelGuide = () => {
+const MovieGuide = () => {
     const { guideLink } = useParams();
     const [readyForSearch, setReadyForSearch] = useState(false);
     const [actionResponse, setActionResponse] = useState([]);
     const [responseType, setResponseType] = useState([]);
-    const [place, setPlace] = useState("");
+    const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
-    const [childFriendly, setChildFriendly] = useState(true);
     const [recommendations, setRecommendations] = useState([]);
-    const apiUrl = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const location = useLocation();
-    const [state, setState] = useState(() => location.state || {});
+    const [state] = useState(() => location.state || {});
     const [showNotification, setShowNotification] = useState(false);
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-    const controller = new AbortController();
     const { user } = useContext(UserContext);
 
     const ResponseTypes = {
         SUCCESS: 'success',
         ERROR_UNKNOWN: 'error_unknown',
-        ERROR_PLACE: 'error_place'
+        ERROR_NAME: 'error_name'
     };
     
-    const hasGuideLink = () => {
+    const hasGuideLink = useCallback(() => {
         return guideLink && guideLink.length > 0;
-    };
+    }, [guideLink]);
     
-    const resolveGuideLink = () => {
+    const resolveGuideLink = useCallback(() => {
         const jsonGuideLink = atob(guideLink);
         const decodedJson = JSON.parse(jsonGuideLink);
-        setPlace(decodedJson.place);
-        setChildFriendly(decodedJson.childFriendly);
-    };
+        setName(decodedJson.name);
+    }, [guideLink]);
     
     const copyGuideLink = () => {
-        const guideRequest = JSON.stringify({place: place, childFriendly: childFriendly});   
+        const guideRequest = JSON.stringify({name: name});   
         const encodedGuideRequest = btoa(guideRequest);
-        const link  = apiUrl + "/travelGuide/" + encodedGuideRequest;
+        const link  = API_URL + "/movieGuide/" + encodedGuideRequest;
         navigator.clipboard.writeText(link);
         
         if (!isMobile) {
@@ -53,35 +51,34 @@ const TravelGuide = () => {
         }
     };
     
-    const validateInput = () => {
-        if (!clientValidationPlace()) {
-            displayActionResponse("The provided place seems invalid.", ResponseTypes.ERROR_PLACE);
+    const validateInput = useCallback(() => {
+        if (name.length < 2) {
+            displayActionResponse("The provided title seems invalid.", ResponseTypes.ERROR_NAME);
             return false;
         }   
         return true;
-    };    
-
-    const clientValidationPlace = () => {
-        return place.length > 1;
-    };
+    }, [ResponseTypes.ERROR_NAME, name]);    
     
-    async function fetchStream() {
+    const fetchStream = useCallback(async () => {
         if (!validateInput()) {
             return;
         }  
         displayActionResponse("", ResponseTypes.SUCCESS);
         setLoading(true);
         
+        const controller = new AbortController();
+        
+        
         const tr = Array.from({ length: 20 }, (_, i) => ({
             id: i + 1,
             name: "Recommendation Title",
             description: "Description Description Description Description Description Description"}));
-
-        const response = await fetchWithAuth('/api/recommendation/travel', {
+        
+        const response = await fetchWithAuth('/api/recommendation/movie', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"},
-            body: JSON.stringify({place: place, childFriendly: childFriendly}),
+            body: JSON.stringify({name: name}),
             signal: controller.signal
         })
         .catch(error => {
@@ -121,7 +118,7 @@ const TravelGuide = () => {
                     setRecommendations([...tr]);
                     ++index;
                 } catch (err) {
-                    console.error(err);
+                    logError(err);
                     displayActionResponse("Guide creation failed: " + response.status, ResponseTypes.ERROR_UNKNOWN);
                 }
             }
@@ -130,16 +127,16 @@ const TravelGuide = () => {
         }
 
         readChunk();
-    }
+    }, [ResponseTypes.ERROR_UNKNOWN, ResponseTypes.SUCCESS, name, validateInput]);
     
-     const createRecommendationStream = () => {
-         fetchStream().catch(err => console.error(err));
-     };
-     
-    const likeRecommendation = (item) => {
+    const createRecommendationStream = useCallback(() => {
+        fetchStream().catch(err => logError(err));
+    }, [fetchStream]);
+    
+        const likeRecommendation = (item) => {
         if (!user || user.anonymous) {
             displayActionResponse("Please log in to like this!", ResponseTypes.ERROR_UNKNOWN);
-            return
+            return;
         }
         fetchWithAuth('/api/recommendation/like', {
             method: 'POST',
@@ -178,19 +175,15 @@ const TravelGuide = () => {
             });
     };
     
-    const handlePlaceChange = (event) => {
-        setPlace(event.target.value);
+    const handleNameChange = (event) => {
+        setName(event.target.value);
     };
     
-    const handlePlaceKeyDown = (event) => {
+    const handleNameKeyDown = (event) => {
         if (event.key === 'Enter') {
             createRecommendationStream();
         }
-    };
-    
-    const handleChildFriendlyChange = (event) => {
-        setChildFriendly(event.target.checked);
-    };
+    }; 
     
     const displayActionResponse = (message, responseType) => {
         setResponseType(responseType);
@@ -205,8 +198,8 @@ const TravelGuide = () => {
     };
     
     const createLink = (item) => {
-        const searchQuery = (place + " " + item).replace(/\s+/g, '+');
-        return "https://www.google.com/maps/search/" + searchQuery; 
+        const searchQuery = (item).replace(/\s+/g, '+');
+        return "https://www.imdb.com/find/?q=" + searchQuery; 
     };
     
     useEffect(() => {  
@@ -216,67 +209,61 @@ const TravelGuide = () => {
                 setReadyForSearch(true);
             }
             catch(error) {
+                logError(error);
                 displayActionResponse("The provided guide link was invalid!", ResponseTypes.ERROR_UNKNOWN);
             }
         }
-     }, []);
+     }, [ResponseTypes.ERROR_UNKNOWN, hasGuideLink, resolveGuideLink]);
      
     useEffect(() => {
         if (readyForSearch) {
-            createRecommendationStream();
+            createRecommendationStream();   
         }
-     }, [readyForSearch]);
+     }, [readyForSearch, createRecommendationStream]);
      
     useEffect(() => {
         return () => {
-            if (!state.travelGuide) {
+            if (!state.movieGuide) {
                 return;
             }
             navigate('.', { replace: true, state: state });
-            setChildFriendly(state.childFriendly);
-            //setTravelGuide(state.travelGuide);
-            setPlace(state.place);
+            //setMovieGuide(state.movieGuide);
+            setName(state.name);
         };
     }, [state, navigate]);
 
     return (
         <div className="content"> 
             <UserInfo />
-            <p>Select a country, region, or city to receive travel recommendations.</p>
+            <p>Enter the name of a movie and create a list of similar movies.</p>
             <div className="content-group">
-                <input className={responseType === ResponseTypes.ERROR_PLACE ? "error-highlight" : ""} 
-                       type="text" placeholder="Place" id="place" value={place} onChange={handlePlaceChange}
-                       onKeyDown={handlePlaceKeyDown} />
-                <span>
-                    <input type="checkbox" checked={childFriendly} onChange={handleChildFriendlyChange} />
-                    Search for child-friendly places
-                </span>
-                <button type="button" disabled={loading} onClick={createRecommendationStream}><span className={loading ? "loading-button" : ""}></span>Create Travel Guide</button>
+                <input className={responseType === ResponseTypes.ERROR_NAME ? "error-highlight" : ""} 
+                type="text" placeholder="Movie Title" id="movieName" value={name} onChange={handleNameChange}
+                onKeyDown={handleNameKeyDown} />
+                <button type="button" disabled={loading} onClick={createRecommendationStream}><span className={loading ? "loading-button" : ""}></span>Create Movie Guide</button>
             </div>
             
             <ul className="grid-list">
                 {recommendations && recommendations.map(item => (
-                <Link to={createLink(item.name)} target="_blank" onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={item.loaded ? "loaded" : "teaser"}>
-                    <li key={item.id}>
-                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem'}}>
-                       <div>
-                         <strong>{item.name}</strong> - {item.description}
-                       </div>
-                       <div className="recommendationLikeBox" onClick={(e) => e.preventDefault()}>
-                         <span>{item.likes}</span>
-                         {!item.likedByUser && (
-                         <button onClick={(e) => likeRecommendation(item)} className="likeButton">
-                             <FaRegHeart size={20} color="#999" />
-                         </button>
-                         )}
-                         {item.likedByUser && (
-                         <button onClick={(e) => unlikeRecommendation(item)} className="likeButton">
-                             <FaHeart size={20} color="#e74c3c" />
-                         </button>
-                         )}
-                       </div>
-                     </div>
-                   </li>
+                <Link to={createLink(item.name)} target="_blank" onClick={(e) => {if (!item.loaded) { e.preventDefault();}}} className={`simple-item ${item.loaded ? "loaded" : "teaser"}`} key={item.id}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem'}}>
+                      <div>
+                        <strong>{item.name}</strong> - {item.description}
+                      </div>
+                      <div className="recommendationLikeBox" onClick={(e) => e.preventDefault()}>
+                        <span>{item.likes}</span>
+                        {!item.likedByUser && (
+                        <button onClick={() => likeRecommendation(item)} className="likeButton">
+                            <FaRegHeart size={20} color="#999" />
+                        </button>
+                        )}
+                        {item.likedByUser && (
+                        <button onClick={() => unlikeRecommendation(item)} className="likeButton">
+                            <FaHeart size={20} color="#e74c3c" />
+                        </button>
+                        )}
+                      </div>
+                    </div>
                 </Link>
                 ))}
             </ul>
@@ -288,13 +275,13 @@ const TravelGuide = () => {
             )}
             
             <div className="footer">
-                {recommendations && (
+                {recommendations.length > 0 && (
                         <button type="button" className="footer-button" hidden={!recommendations} onClick={copyGuideLink}>Copy Link To Guide</button>
                 )}
                 <Footer/>
-            </div>                      
+            </div>           
         </div>
     );
 };
 
-export default TravelGuide;
+export default MovieGuide;

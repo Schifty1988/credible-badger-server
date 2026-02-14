@@ -2,6 +2,7 @@ import './App.css';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+import { UserProvider } from './UserProvider';
 import Login from './Login';
 import Legal from './Legal';
 import Storage from './Storage';
@@ -16,7 +17,6 @@ import MovieGuide from './MovieGuide';
 import BookGuide from './BookGuide';
 import Activity from './Activity';
 import Trading from './Trading';
-import { UserProvider } from './UserContext';
 
 const App = () => {
     return (

@@ -1,8 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
 import { fetchWithAuth } from './Api';
+import { API_URL } from './Api';
 
 const Storage = () => {
     const [actionResponse, setActionResponse] = useState([]); 
@@ -11,16 +12,21 @@ const Storage = () => {
     const [isUploadDisabled, setUploadDisabled] = useState(true);
     const [userFiles, setUserFiles] = useState([]);
     const { user } = useContext(UserContext);
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [showNotification, setShowNotification] = useState(false);
     
-    useEffect(() => {
-        if (user && user.emailVerified) {
-           retrieveUserFiles();             
+    const displayActionResponse = (message, responseType) => {
+        setResponseType(responseType);
+        setActionResponse(message);
+
+        if (message.length > 0) {
+            setShowNotification(true);
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 3000); 
         }
-    }, [user]);
+    };
     
-    const retrieveUserFiles = () => {
+    const retrieveUserFiles = useCallback(() => {
         fetchWithAuth('/api/storage/retrieveUserFiles', {
             method: 'GET',
             credentials: 'include'})
@@ -34,7 +40,13 @@ const Storage = () => {
                 return [];
             })
             .then(data => setUserFiles(data));
-    };
+    }, []);
+    
+    useEffect(() => {
+        if (user && user.emailVerified) {
+           retrieveUserFiles();             
+        }
+    }, [user, retrieveUserFiles]);
     
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0]; 
@@ -47,7 +59,7 @@ const Storage = () => {
         formDataUpload.append('data', file);
         formDataUpload.append("file_name", file.name);
         
-        fetch(`${apiUrl}/api/storage/uploadFile`, {
+        fetch(`${API_URL}/api/storage/uploadFile`, {
             method: 'POST',
             credentials: 'include',
             body: formDataUpload
@@ -108,18 +120,6 @@ const Storage = () => {
                 displayActionResponse("File deletion failed: " + response.status, false);
             }
         });
-    };
-    
-    const displayActionResponse = (message, responseType) => {
-        setResponseType(responseType);
-        setActionResponse(message);
-
-        if (message.length > 0) {
-            setShowNotification(true);
-            setTimeout(() => {
-                setShowNotification(false);
-            }, 3000); 
-        }
     };
 
     return (

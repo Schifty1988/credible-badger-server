@@ -3,6 +3,7 @@ import UserInfo from './UserInfo';
 import { UserContext } from './UserContext';
 import Footer from './Footer';
 import { fetchWithAuth } from './Api';
+import { logError } from './Logging';
 
 const Feedback = () => {
     const { user } = useContext(UserContext);
@@ -17,10 +18,6 @@ const Feedback = () => {
         projectUser : "unknownUser",
         content : "I like the new patch!"
     };
-    
-    useEffect(() => {
-        retrieveFeedback();
-    }, []);
     
     const retrieveFeedback = () => {
         fetchWithAuth('/api/feedback/retrieve', {
@@ -39,9 +36,15 @@ const Feedback = () => {
         })
         .then(data => setFeedback(data))
         .catch(error => {
+            logError(error);
             setFeedback([]);
         });
     };
+    
+    useEffect(() => {
+        retrieveFeedback();
+    }, []);
+    
     
     const updateFeedback = (item) => {
         fetchWithAuth('/api/feedback/update', {
@@ -60,6 +63,7 @@ const Feedback = () => {
                 setFeedback([...feedback]);
         })
         .catch(error => {
+            logError(error);
             return;
         });
     };
@@ -80,6 +84,7 @@ const Feedback = () => {
             retrieveFeedback();
         })
         .catch(error => {
+            logError(error);
             return;
         });
     };
