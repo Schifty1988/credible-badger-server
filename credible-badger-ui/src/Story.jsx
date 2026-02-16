@@ -122,17 +122,17 @@ const Story = () => {
         
         timeout.current= setTimeout(() => {
             setCurrentPart(prevPart => prevPart + 1);
+            scrollToEnd();
         }, (1 + voice.current.duration) * 1000);
 
 
         voice.current.play();
-    }, [currentPart, story.parts.length, voiceLib]);
+    }, [currentPart, story, voiceLib]);
     
     useEffect(() => {
         if (story && partsLoaded === story.parts.length) {
           acquireWakeLock();
           continuePlayback();
-          scrollToEnd();
         }
      }, [continuePlayback, story, partsLoaded, currentPart]);
 
@@ -151,7 +151,7 @@ const Story = () => {
             <div className="story">
                 <h2 className='fade-in visible'>{story.title}</h2>
                 {story.parts.map((item, index) => (
-                    index <= currentPart &&
+                    index <= currentPart + 1 &&
                     <div className={`fade-in ${isRunning && index <= currentPart ? 'visible' : ''}`} key={index}>
                         <img className='story-image' src={item.image}/>
                         <p>{item.text}</p>    

@@ -17,7 +17,10 @@ const UserInfo = () => {
     useEffect(() => {  
         fetchWithAuth('/api/user/me', {})
         .then(response => {
-            return response.json();
+            if (response.ok) {
+                return response.json();   
+            }
+            return null;
         }).then(data => {        
             if (!data) {
                 data = { anonymous : true };
