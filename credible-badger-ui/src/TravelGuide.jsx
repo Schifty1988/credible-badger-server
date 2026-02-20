@@ -223,6 +223,7 @@ const TravelGuide = () => {
     useEffect(() => {
         if (readyForSearch) {
             createRecommendationStream();
+            setReadyForSearch(false);
         }
      }, [readyForSearch, createRecommendationStream]);
      

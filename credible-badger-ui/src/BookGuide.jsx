@@ -216,7 +216,8 @@ const BookGuide = () => {
      
     useEffect(() => {
         if (readyForSearch) {
-            createRecommendationStream();   
+            createRecommendationStream();
+            setReadyForSearch(false);
         }
      }, [readyForSearch, createRecommendationStream]);
      

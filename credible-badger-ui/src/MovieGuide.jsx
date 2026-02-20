@@ -217,7 +217,8 @@ const MovieGuide = () => {
      
     useEffect(() => {
         if (readyForSearch) {
-            createRecommendationStream();   
+            createRecommendationStream();
+            setReadyForSearch(false);
         }
      }, [readyForSearch, createRecommendationStream]);
      
