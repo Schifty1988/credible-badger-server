@@ -265,6 +265,10 @@ const Trading = () => {
         return years;
     };
     
+    const createLink = (symbol) => {
+        return "https://finance.yahoo.com/quote/" + symbol; 
+    };
+    
     return (
         <div className="content"> 
             <UserInfo />
@@ -354,7 +358,12 @@ const Trading = () => {
                             </span>
                         </div>
                         <div className={`list-item-actions ${!userId && interactionMarker === item.id ? 'visible' : 'hidden'}`}>
+                            <a href={createLink(item.symbol)} target="_blank" rel="noreferrer">
+                                <button>Quote</button>
+                            </a>
+                            <a>
                                 <button className="" onClick={() => deleteTrade(item)}>Delete</button>
+                            </a>
                         </div>
                     </li>
                 ))}
