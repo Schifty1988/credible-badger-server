@@ -62,6 +62,9 @@ const UserInfo = () => {
             case '/activity':
                 navigate('/activity');
                 break;
+            case '/notes':
+                navigate('/notes');
+                break;
             case '/admin':
                 navigate('/admin');
                 break;
@@ -98,10 +101,10 @@ const UserInfo = () => {
                 <h2 className="userEmail">{user.email}</h2> 
                 <select id="navigation" form="navigation" className="select-dropdown" value={getCurrentPage()} onChange={handleSelectChange}>
                     <option value="/activity">Activity</option>
+                    <option value="/notes">Notes</option>
                     <option value="/travelGuide">Travel</option>
                     <option value="/movieGuide">Movies</option>
                     <option value="/bookGuide">Books</option>
-                    <option value="/storage">Storage</option>
                     <option value="/feedback">Feedback</option>
                     <option value="/watchMeTrade">Trading</option>
                     {isAdmin() && <option value="/admin">Admin</option>}
