@@ -34,12 +34,10 @@ const Storage = () => {
                 if(response.ok) {
                     return response.json();
                 }
-                else {
-                    displayActionResponse("Retrieving files failed: " + response.status, false);
-                }
-                return [];
+                displayActionResponse("Retrieving files failed: " + response.status, false);
+                return null;
             })
-            .then(data => setUserFiles(data));
+            .then(data => setUserFiles(data ? data.userFiles : []));
     }, []);
     
     useEffect(() => {
@@ -59,7 +57,7 @@ const Storage = () => {
         formDataUpload.append('data', file);
         formDataUpload.append("file_name", file.name);
         
-        fetch(`${API_URL}/api/storage/uploadFile`, {
+        fetchWithAuth(`/api/storage/uploadFile`, {
             method: 'POST',
             credentials: 'include',
             body: formDataUpload
@@ -98,8 +96,7 @@ const Storage = () => {
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
-        });
-    
+        });   
     };
     
     const deleteFile = (fileName_local) => {
