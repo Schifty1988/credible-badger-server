@@ -181,14 +181,12 @@ const Activity = () => {
         body: JSON.stringify(item)
         })
         .then(response => {
-            if (response.ok) {
-                setEditMarker(null);
-                retrieveActivities();
-                return response.json();
-            } else {
+            if (!response.ok) {
                 displayActionResponse("An issue occured!", ResponseTypes.ERROR_UNKNOWN);
-                return [];
+                return;
             }
+            setEditMarker(null);
+            retrieveActivities();
         })     
         .catch(error => {
             logError(error);
