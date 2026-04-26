@@ -40,12 +40,12 @@ public class StorageController {
     StorageService storageService;
     
     @GetMapping("/retrieveUserFiles")
-    public ResponseEntity<List<String>> retrieveUserFiles(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserFilesDto> retrieveUserFiles(@AuthenticationPrincipal User user) {
         if (!User.validateUser(user)) {
             return ResponseEntity.badRequest().build();
         }
         
-        List<String> retrievedFiles = 
+        UserFilesDto retrievedFiles = 
                 this.storageService.retrieveUserFiles(user.getId());
         
         return ResponseEntity.ok(retrievedFiles);

@@ -22,20 +22,27 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.s3.model.S3Error;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
@@ -68,10 +75,11 @@ public class StorageService {
         return userPrefix;
     }
 
-    public List<String> retrieveUserFiles(long userId) {
+    public UserFilesDto retrieveUserFiles(long userId) {
         List<String> userFiles = new LinkedList<>();
         String userPrefix = createUserPrefix(userId);
         int prefixLength = userPrefix.length();
+        long usedUserSpace = 0;
 
         ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
                 .bucket(this.storageBucket)
@@ -87,6 +95,7 @@ public class StorageService {
             
             for (S3Object currentContent : listResponse.contents()) {
                 userFiles.add(currentContent.key().substring(prefixLength));
+                usedUserSpace += currentContent.size();
             }
             hasMoreData = listResponse.nextContinuationToken() != null;
 
@@ -95,7 +104,12 @@ public class StorageService {
                     .build();
         }
         log.info("Retrieved {} files for userId {}", userFiles.size(), userId);
-        return userFiles;
+        
+        UserFilesDto userFilesDto = new UserFilesDto();
+        userFilesDto.setUserFiles(userFiles);
+        userFilesDto.setTotalUserSpace(this.userLimit * 1024 * 1024);
+        userFilesDto.setUsedUserSpace(usedUserSpace);
+        return userFilesDto;
     }
     
     public boolean checkUserUploadLimit(long userId, byte[] data) {
@@ -199,5 +213,52 @@ public class StorageService {
 
         URL presignedUrl = s3Presigner.presignGetObject(presignRequest).url();
         return presignedUrl.toString();
+    }
+
+    public boolean deletePrefix(long userId, UUID id) {
+        String continuationToken = null;
+        String prefix = createUserPrefix(userId) + id;
+        
+        boolean hasMoreData = true;
+        boolean hadErrors = false;
+        
+        while (hasMoreData) {
+            ListObjectsV2Request.Builder requestBuilder = ListObjectsV2Request.builder()
+                    .bucket(this.storageBucket)
+                    .prefix(prefix)
+                    .continuationToken(continuationToken);
+            
+            ListObjectsV2Response listResponse = s3Client.listObjectsV2(requestBuilder.build());
+
+            List<ObjectIdentifier> objectsToDelete = listResponse.contents().stream()
+                    .map(s3Object -> ObjectIdentifier.builder()
+                            .key(s3Object.key())
+                            .build())
+                    .collect(Collectors.toList());
+
+            if (objectsToDelete.isEmpty()) {
+                break;
+            }
+            
+            DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
+                    .bucket(this.storageBucket)
+                    .delete(Delete.builder()
+                            .objects(objectsToDelete)
+                            .quiet(true)
+                            .build())
+                    .build();
+
+            DeleteObjectsResponse deleteResponse = s3Client.deleteObjects(deleteRequest);
+
+            for (S3Error error: deleteResponse.errors()) {
+                 log.error("Failed to delete {} with error={}", error.key(), error.message()) ;
+                hadErrors = true;
+            }
+            
+            hasMoreData = listResponse.isTruncated();
+            continuationToken = listResponse.nextContinuationToken();
+        }
+
+        return !hadErrors;
     }
 }

@@ -530,4 +530,29 @@
         <dropSequence sequenceName="security_token_seq"/>    
     </changeSet>
     
+    <changeSet id="adding_note_table" author="Michail Ostrowski">
+        <createTable tableName="note">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(320)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="bigint"/>
+        </createTable>    
+        
+        <addForeignKeyConstraint 
+            baseTableName="note" 
+            baseColumnNames="user_id" 
+            constraintName="fk_note_user" 
+            referencedTableName="user" 
+            referencedColumnNames="id"/>
+    </changeSet>
+    
 </databaseChangeLog>

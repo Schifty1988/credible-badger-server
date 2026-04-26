@@ -29,7 +29,7 @@ public class FrontEndController {
         "/bookGuide", "/bookGuide/*", 
         "/marketingOptOut", "/marketingOptOut/*", 
         "/watchMeTrade", "/watchMeTrade/*",
-        "/storage", "/activity", "/activity/*", "/legal", "/feedback", "/story"})
+        "/storage", "/activity", "/activity/*", "/notes", "/legal", "/feedback", "/story"})
     public String redirect() {
         return "forward:/index.html";
     }
